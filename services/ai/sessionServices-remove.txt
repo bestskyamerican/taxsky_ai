@@ -1,0 +1,55 @@
+import { getSession, saveSession } from "../tax/sessionDB.js";
+
+/**
+ * Get session data for a user.
+ */
+export async function getUserSession(userId) {
+  if (!userId) throw new Error("User ID is required to fetch session data.");
+
+  try {
+    const session = await getSession(userId);
+    return session;
+  } catch (error) {
+    console.error(`❌ Error fetching session for userId: ${userId}`, error.message);
+    throw new Error("Failed to fetch session data.");
+  }
+}
+
+/**
+ * Save updated session data after processing user inputs or forms.
+ */
+export async function updateUserSession(userId, key, value) {
+  if (!userId || !key) {
+    throw new Error("User ID and key are required to update session data.");
+  }
+
+  try {
+    const session = await getSession(userId);
+    session.answers[key] = value;
+    await saveSession(session);
+    console.log(`✅ Updated ${key} = ${value} for userId: ${userId}`);
+  } catch (error) {
+    console.error(`❌ Failed to update session for ${userId}`, error.message);
+    throw new Error("Failed to update session data.");
+  }
+}
+
+/**
+ * Clear session data for a user.
+ */
+export async function clearUserSession(userId) {
+  if (!userId) throw new Error("User ID is required to clear session data.");
+
+  try {
+    const session = await getSession(userId);
+    session.answers = {}; // Clear answers
+    session.forms = {};   // Clear forms
+    await saveSession(session);
+    console.log(`✅ Session cleared for userId: ${userId}`);
+  } catch (error) {
+    console.error(`❌ Failed to clear session for ${userId}`, error.message);
+    throw new Error("Failed to clear session data.");
+  }
+}
+
+/* Remove duplicate imports or redundant code */

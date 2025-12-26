@@ -1,0 +1,1 @@
+export const connectDB = ()=>console.log('DB connected');

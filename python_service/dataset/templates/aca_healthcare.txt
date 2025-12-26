@@ -1,0 +1,92 @@
+What is Form 1095-A?||Form 1095-A reports Marketplace (ACA) health insurance and is required to complete Form 8962.
+Why do I need Form 1095-A?||If you received advance premium tax credits (APTC), you must reconcile them on Form 8962.
+What is APTC?||Advance Premium Tax Credit is the subsidy paid by the Marketplace to reduce your monthly insurance premium.
+What is PTC?||Premium Tax Credit is the final credit calculated on your tax return based on income.
+What happens if I don’t file Form 8962?||Your tax return may be rejected or your refund delayed because IRS must reconcile advance credits.
+What is SLCSP?||SLCSP is the Second Lowest Cost Silver Plan used to calculate PTC on Form 8962.
+Where do I find SLCSP?||It is listed in Column B of Form 1095-A.
+Do I need 1095-A if I didn’t get a subsidy?||Yes, you still need to file 8962 even if no advance credit was received.
+What if I lost my 1095-A?||You can download it from HealthCare.gov or your state marketplace account.
+Can I file taxes without 1095-A?||No, not if you had Marketplace insurance. IRS requires 8962.
+Do I need 1095-B to file?||No, 1095-B is informational and not required to file.
+Do I need 1095-C to file?||No, 1095-C is informational unless there are special exceptions.
+Why is IRS asking for 8962?||If they show Code F8962-070 or reject return, it means ACA reconciliation is missing.
+Why is my refund smaller because of ACA?||If your income was higher than estimated, you may need to repay excess APTC.
+Why do I owe money because of ACA?||Repayment occurs when actual income exceeds the income estimated on enrollment.
+How much APTC do I repay?||Repayment depends on income relative to the federal poverty line and IRS repayment caps.
+Is Medicaid the same as Marketplace?||No, Medicaid does not require Form 1095-A or 8962.
+Is Medi-Cal considered ACA Marketplace?||No, Medi-Cal is not Marketplace insurance and does not require 8962.
+Why does my 1095-A have three columns?||Column A = Premiums, Column B = SLCSP, Column C = APTC.
+What is Column C on 1095-A?||Column C shows the amount of subsidy (APTC) paid each month.
+My 1095-A has zeros in Column B||You must use IRS SLCSP lookup tool to fill Column B for Form 8962.
+My 1095-A is wrong||Incorrect 1095-A forms must be corrected by the Marketplace, not the IRS.
+How do I correct a wrong 1095-A?||Contact HealthCare.gov or your state exchange to reissue a corrected form.
+My spouse had Marketplace insurance but I didn’t||1095-A must be filed with the joint return.
+Can I split 1095-A with ex-spouse?||Yes, allocation rules apply in shared policy situations (Part IV of Form 8962).
+What is alternative marriage calculation?||Special allocation method for newly married taxpayers with split ACA coverage.
+I got married mid-year with ACA||You may choose between joint allocation or alternative calculation.
+I had gaps in coverage||Gaps do not disqualify PTC; credits apply only in months coverage is active.
+Can I get PTC without Marketplace insurance?||No, PTC applies only to Marketplace health plans.
+My income was too low for PTC||If income is below 100% FPL, special rules may apply depending on state.
+My income was too high for PTC||Above 400% FPL, PTC may be limited or eliminated unless special expansion rules apply.
+I had employer coverage and Marketplace||Employer coverage may disqualify you from PTC.
+What if employer insurance was unaffordable?||If employer plan is unaffordable, you may qualify for Marketplace PTC.
+What is affordability test?||Employer plan is unaffordable if cost > 8–9% of household income (exact rate varies annually).
+Can dependents get PTC?||Dependents cannot receive PTC separately; credit is calculated for entire tax household.
+Can I claim PTC if I file MFS?||Generally no, unless domestic abuse or spousal abandonment exceptions apply.
+I didn’t pay full premium||APTC is based on enrollment, not payment status.
+What if I missed some payments?||Marketplace may terminate coverage; credits only apply to months of active coverage.
+What is monthly premium calculation?||PTC = SLCSP minus household contribution, applied monthly.
+Why does my 1095-A show different amounts each month?||Premiums and SLCSP vary by age, location, and policy changes.
+I moved during the year||Changes in address may produce multiple 1095-A forms.
+I had two policies in the year||Enter both 1095-A forms separately on Form 8962.
+I had dental-only coverage||Dental
+Why did the IRS reject my return for F8962-070?||It means Form 8962 was missing or incomplete and must be filed when a 1095-A exists.
+Why did I get error IND-046?||The IRS detected Marketplace coverage and requires Form 1095-A and 8962.
+What is Modified AGI for ACA?||Modified AGI includes AGI plus foreign income exclusions, tax-exempt interest, and certain adjustments.
+Why does ACA use MAGI instead of AGI?||MAGI gives a more complete picture of household income for subsidy eligibility.
+What is federal poverty line (FPL)?||FPL is an income threshold used to determine PTC eligibility.
+How is PTC calculated?||PTC = SLCSP premium minus household contribution based on MAGI percentage.
+What is household contribution?||A percentage of your income you are expected to pay toward health insurance.
+Why do I owe back premium credits?||Your actual income exceeded the estimate used when you applied for ACA coverage.
+Is there a cap on APTC repayment?||Repayment caps apply when income is below 400% FPL; above 400%, full repayment may apply.
+What if my income is below 100% FPL?||Some taxpayers qualify for special rule exceptions allowing PTC even below 100% FPL.
+What if my income is above 400% FPL?||PTC may be reduced or eliminated; some laws temporarily removed this limit in recent years.
+Do dependents count in household size?||Yes, dependents claimed on the tax return count toward ACA household size.
+What if dependent had separate insurance?||If they had Marketplace insurance, their 1095-A must be included.
+Can I allocate 1095-A with my ex-spouse?||Yes, Part IV of Form 8962 allows allocation based on agreed percentages.
+How do we split a shared Marketplace plan?||Allocation rules allow dividing premiums, SLCSP, and APTC between two taxpayers.
+What is alternative marriage calculation?||Special ACA rule allowing newly married couples to avoid large APTC repayment.
+When should I use the alternative calculation?||Use it when combined annual income increases APTC repayment dramatically.
+Does alternative calculation reduce repayment?||Yes, it spreads income across months married vs unmarried.
+What if I married mid-year?||Review whether allocation or alternative calculation results in lower repayment.
+My spouse had ACA but I didn’t||Coverage for either spouse must be reconciled on a joint return.
+Do all 1095-A forms need to be entered?||Yes, each policy must be entered separately on Form 8962.
+Why do I have two 1095-A forms?||You may have changed plans, moved states, or had overlapping policies.
+Why do I have three 1095-A forms?||Multiple changes during the year (moves, family updates, plan changes) create new forms.
+My 1095-A doesn’t match what I paid||APTC is based on enrollment; premiums paid may differ from listed amounts.
+Why is Column B blank?||When missing, you must calculate SLCSP using IRS lookup tool based on ZIP code and household info.
+What if I put wrong SLCSP?||Incorrect SLCSP will miscalculate your PTC and may cause IRS adjustment.
+Why does IRS letter say “APTC mismatch”?||It means PTC or APTC amounts do not match their Marketplace records.
+Can I appeal an ACA adjustment?||Yes, but Marketplace issues must be corrected with the exchange, not IRS.
+Does ACA apply if I have employer insurance?||If employer plan is affordable, you are not eligible for PTC.
+How do I check if employer plan is affordable?||Premium for self-only coverage must not exceed IRS affordability percentage.
+What if my employer plan was unaffordable?||You may qualify for PTC, but documentation is needed.
+My child has CHIP/Medicaid||CHIP/Medicaid does not require Form 8962.
+I switched from Medicaid to Marketplace||Only months in Marketplace coverage require 8962.
+What if I forgot to cancel Marketplace plan?||APTC continues until cancellation; repayment may be required.
+Can I remove my spouse from Marketplace mid-year?||Yes, qualifying life events allow adjustments.
+What is a qualifying life event?||Marriage, birth, divorce, job change, income change, or relocating.
+Can I claim PTC without filing jointly?||Generally no, unless domestic violence or spousal abandonment applies.
+I separated but still legally married||You may qualify for exceptions allowing PTC.
+I had one month of Marketplace coverage||You must still file 8962 for that month.
+Do newborns get their own 1095-A?||Newborns covered under Marketplace are included in family policy.
+What if 1095-A shows wrong household size?||You must contact the Marketplace for a corrected form.
+I had dental + medical on 1095-A||Only medical coverage applies to PTC; dental premiums are not included.
+My plan was terminated for nonpayment||APTC applies only through termination date.
+What is excess APTC?||The amount of subsidy you must repay because actual income exceeded allowed limits.
+What is net PTC?||The difference between allowed PTC and APTC received.
+Can net PTC increase my refund?||Yes, if allowed PTC is greater than APTC received.
+Can net PTC lower my refund?||Yes, if you must repay excess APTC.
+Why does ACA affect my refund so much?||Changes in income or shared policies significantly change final credits.
+How do I avoid ACA repayment next year?||Update Marketplace income estimates regularly throughout the year.

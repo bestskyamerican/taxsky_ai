@@ -1,0 +1,92 @@
+// Store sessions in memory
+const userSessions = new Map(); 
+
+// ------------------------------------------------------
+// Create or retrieve session
+// ------------------------------------------------------
+export function getSession(userId) {
+  if (!userSessions.has(userId)) {
+    userSessions.set(userId, { 
+      stepIndex: 0, 
+      answers: {},
+      forms: {}      // <-- added to store OCR form data
+    });
+  }
+  return userSessions.get(userId);
+}
+
+// ------------------------------------------------------
+// Save answer from interview
+// ------------------------------------------------------
+export function saveAnswer(userId, key, value) {
+  const session = getSession(userId);
+  session.answers[key] = value;
+}
+
+// ------------------------------------------------------
+// Save OCR form data (W2, 1099, etc.)
+// ------------------------------------------------------
+export function saveForm(userId, formType, data) {
+  const session = getSession(userId);
+  session.forms[formType] = data;
+}
+
+// ------------------------------------------------------
+// AUTO-SKIP INTERVIEW STEP
+// ------------------------------------------------------
+export function nextStep(userId, interviewSteps) {
+  const session = getSession(userId);
+
+  while (true) {
+    session.stepIndex++;
+
+    // End of interview
+    if (session.stepIndex >= interviewSteps.length) return;
+
+    const step = interviewSteps[session.stepIndex];
+
+    // Skip steps where answer already exists
+    if (shouldSkipStep(session, step.key)) {
+      continue;
+    }
+
+    break;
+  }
+}
+
+// ------------------------------------------------------
+// Get the current question step
+// ------------------------------------------------------
+export function getCurrentStep(userId, steps) {
+  const session = getSession(userId);
+  return steps[session.stepIndex];
+}
+
+// ------------------------------------------------------
+// SKIP LOGIC BASED ON OCR + ANSWERS
+// ------------------------------------------------------
+function shouldSkipStep(session, key) {
+
+  // Already answered by user
+  if (session.answers[key]) return true;
+
+  // Already filled from any OCR form
+  for (let formData of Object.values(session.forms)) {
+    if (formData[key] !== undefined && formData[key] !== null) {
+      return true;
+    }
+  }
+
+  // Specific tax rules
+  if (key === "w2_income" && session.forms?.W2?.wages) return true;
+  if (key === "federal_withheld" && session.forms?.W2?.federal_withheld) return true;
+
+  if (key === "self_employed_income" && session.forms["1099-NEC"]?.nonemployee_comp)
+    return true;
+
+  if (key === "interest_income" && session.forms["1099-INT"]?.interest_income)
+    return true;
+
+  return false;
+}
+

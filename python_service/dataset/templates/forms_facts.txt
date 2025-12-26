@@ -1,0 +1,267 @@
+What is 1099-K?||1099-K reports payment transactions; taxability depends on the nature of the income.
+How are RSUs taxed?||RSUs are taxed as ordinary income when vested; later sales result in capital gains.
+What is a W-2?||A W-2 reports wages and tax withholding from your employer. I need Box 1 (wages) and Box 2 (federal withholding) to continue.
+What is Box 1 on a W-2?||Box 1 shows taxable wages for federal income tax.
+What is Box 2 on a W-2?||Box 2 shows federal tax withheld and is needed for your refund calculation.
+Do I need my W-2 to file?||Yes, you must provide W-2 income or upload the form for accurate filing.
+I lost my W-2||You can request a copy from your employer or use your final pay stub to estimate.
+What is 1099-NEC?||1099-NEC reports non-employee compensation and is used for self-employment taxes.
+What is 1099-MISC?||1099-MISC reports miscellaneous income such as rent, royalties, or prizes.
+What is 1099-K?||1099-K reports payment transactions from third-party platforms; taxability depends on the nature of income.
+Do I need to report 1099-K?||Yes, even if income is not taxable, the form must be reconciled.
+What is 1099-INT?||1099-INT shows interest income earned from banks or investments.
+What is 1099-DIV?||1099-DIV reports dividends, qualified dividends, and capital gain distributions.
+What is 1099-B?||1099-B reports stock, ETF, crypto, or investment sales, including cost basis.
+Do I need Form 1099-B?||Yes, it is required to report capital gains or losses.
+What is 1099-R?||1099-R reports retirement income, such as IRA or pension distributions.
+What is a Roth 1099-R?||Box 7 codes indicate whether a Roth withdrawal is qualified or taxable.
+What is 1099-G?||1099-G reports unemployment benefits or state tax refunds.
+What is 1098-T?||1098-T reports tuition paid to educational institutions for education credits.
+Do I need 1098-T to claim education credits?||Yes, the 1098-T provides required tuition amounts for AOTC or LLC.
+What is 1095-A?||1095-A reports ACA Marketplace health insurance and is required to file Form 8962.
+What is 1095-B?||1095-B shows proof of minimum essential health coverage.
+What is 1095-C?||1095-C shows employer-provided health insurance offers.
+What is Form 8962?||Form 8962 is used to reconcile advance premium tax credits with actual income.
+Do I need Form 8962?||If you received advance ACA credits, you must file Form 8962.
+What is Form 2441?||Form 2441 is used to claim the Child and Dependent Care Credit.
+What is Form 8863?||Form 8863 is used to calculate education credits.
+What is Schedule C?||Schedule C reports self-employment income and expenses for small businesses.
+Do I need Schedule C?||Schedule C is required if you received income as an independent contractor or self-employed individual.
+What is Schedule SE?||Schedule SE calculates self-employment tax for net earnings of $400 or more.
+What is Schedule A?||Schedule A is used for itemized deductions including medical expenses, taxes, and charitable donations.
+What is Schedule B?||Schedule B reports interest and dividend income.
+What is Schedule D?||Schedule D summarizes capital gains and losses.
+What is Schedule E?||Schedule E reports rental income, royalties, and pass-through business income.
+What is Schedule F?||Schedule F reports farm income and expenses.
+Is Schedule E required for Airbnb income?||Yes, short-term rental income is typically reported on Schedule E unless it qualifies as Schedule C.
+I have stock sales||You will need Form 1099-B for cost basis and proceeds.
+I have crypto sales||Crypto is treated as property, and sales must be reported on Form 8949 and Schedule D.
+What is Form 8949?||Form 8949 lists each capital asset sale and adjusts cost basis.
+Do I need Form 8949?||Yes, unless your broker supplied a summarized Fo
+What is Form 5329?||Form 5329 reports additional taxes on retirement accounts, including early withdrawal penalties and excess contributions.
+Do I need Form 5329?||You need Form 5329 if you withdrew from a retirement account early or exceeded contribution limits.
+What is Form 8606?||Form 8606 reports nondeductible IRA contributions and tracks basis for future withdrawals.
+Why do I need Form 8606?||Form 8606 prevents double taxation of nondeductible IRA contributions.
+What is Form W-9?||Form W-9 provides your SSN or EIN to a payer for reporting taxable payments.
+What is Form 1042-S?||Form 1042-S reports U.S.-source income paid to foreign persons.
+What is Form 1040-SR?||Form 1040-SR is a simplified version of Form 1040 for seniors.
+What is Form 4562?||Form 4562 reports depreciation and amortization, including Section 179 deductions.
+Do I need Form 4562?||Form 4562 is required if you claim depreciation or amortization for business or rental assets.
+What is Form 6251?||Form 6251 calculates Alternative Minimum Tax.
+What is Form 3468?||Form 3468 reports investment tax credits such as energy and rehabilitation credits.
+What is Form 8995?||Form 8995 calculates the Qualified Business Income deduction for small businesses.
+What is Form 8995-A?||Form 8995-A is used for more complex QBI calculations and phaseouts.
+What is Form 2555?||Form 2555 claims the Foreign Earned Income Exclusion.
+Do I need Form 2555?||Form 2555 applies if you lived or worked abroad and meet IRS residency tests.
+What is Form 1116?||Form 1116 calculates Foreign Tax Credit for taxes paid to other countries.
+When do I use Form 1116?||You use it if you paid foreign taxes and want to claim the credit.
+What is Form 9465?||Form 9465 requests a payment plan with the IRS.
+What is Form 433-A?||Form 433-A provides financial information for IRS collection cases.
+What is Form 8283?||Form 8283 reports non-cash charitable contributions over $500.
+What is Form 8288?||Form 8288 reports withholding on dispositions of U.S. real property by foreign persons.
+What is Form 8853?||Form 8853 is used for Archer MSAs and long-term care insurance contracts.
+What is Form 2106?||Form 2106 reports unreimbursed employee business expenses for qualified professions.
+What is Form W-2G?||Form W-2G reports gambling winnings and withholding.
+Do I need Form W-2G?||Yes, if you received gambling winnings meeting IRS thresholds.
+What is Form SS-5?||Form SS-5 is used to apply for a Social Security number.
+What is Form W-8BEN?||Form W-8BEN certifies foreign status for tax withholding purposes.
+What is Form W-8BEN-E?||Form W-8BEN-E is the entity version of W-8BEN for foreign businesses.
+What is Form W-8ECI?||Form W-8ECI certifies that foreign income is effectively connected with a U.S. trade or business.
+What is Form 8854?||Form 8854 is used for expatriation tax compliance.
+What is Form 8379?||Form 8379 is used to claim injured spouse relief.
+What is Form 8857?||Form 8857 requests innocent spouse relief from IRS liabilities.
+What is Form 8332?||Form 8332 releases a dependency claim to the noncustodial parent.
+Do I need Form 8332?||Yes, if the custodial parent allows the other parent to claim a child.
+What is Form 5498?||Form 5498 reports IRA contributions, rollovers, and account values.
+Does Form 5498 affect my filing?||It usually doesn't affect filing but confirms IRA contributions.
+What is Form 1098-E?||Form 1098-E reports student loan interest paid.
+What is Form 1098?||Form 1098 reports mortgage interest paid to a lender.
+What is Form 1097-BTC?||Form 1097-BTC reports bond tax credits.
+What is Form 1040-V?||Form 1040-V is a payment voucher submitted with mailed tax payments.
+What is Schedule H?||Schedule H reports household employee wages for nanny tax obligations.
+Do I need Schedule H?||You need Schedule H if you paid a household worker above IRS thresholds.
+What is Form 709?||Form 709 reports gifts exceeding annual exclusion limits.
+Do I need Form 709?||You need Form 709 if you gave gifts exceeding the annual exclusion.
+What is Form 8938?||Form 8938 reports foreign financial assets under FATCA rules.
+What is FBAR?||FBAR (FinCEN Form 114) reports foreign bank accounts exceeding $10,000 aggregate.
+Do I need FBAR?||You need FBAR if total foreign accounts exceed $10,000 at any time in the year.
+What is Form 1310?||Form 1310 claims a refund on behalf of a deceased taxpayer.
+What is Form 1040-X?||Form 1040-X is used to amend a previous year's tax return.
+What is a CP2000 notice?||A CP2000 notice indicates unreported income or mismatches on your tax return.
+What is a deficiency notice?||A deficiency notice from IRS states additional tax owed based on examination results.
+What is Form 4506-C?||Form 4506-C authorizes third-party providers to request IRS transcripts on your behalf.
+What is a tax transcript?||A tax transcript shows a summary of your return and is often used for loans or verification.
+Do I need a tax transcript to file?||No, tax transcripts are for verification, not filing.
+What is a Wage & Income Transcript?||It lists W-2s, 1099s, and other income documents the IRS received for you.
+What is an Account Transcript?||An Account Transcript shows payments, penalties, and adjustments on your IRS account.
+What is Form 3520?||Form 3520 reports foreign trusts and large gifts from foreign individuals.
+What is Form 3520-A?||Form 3520-A is the annual information return of a foreign trust with a U.S. owner.
+What is Form 7202?||Form 7202 claims sick and family leave credits for self-employed individuals.
+Is Form 7202 still used?||This form was primarily used for pandemic-related credits and may not apply to current years.
+What is Form 8812?||Form 8812 calculates the Additional Child Tax Credit.
+Do I need Form 8812?||You need Form 8812 if your Child Tax Credit is partially refundable.
+What is Form 8881?||Form 8881 claims credit for small employer pension startup costs.
+What is Form 5884?||Form 5884 claims the Work Opportunity Credit.
+What is Form 5695?||Form 5695 claims residential energy credits.
+What is Form 8839?||Form 8839 calculates the Adoption Credit.
+What is Form 4684?||Form 4684 reports casualty and theft losses.
+Do I need Form 4684?||Use it if you suffered a loss in a federally declared disaster.
+What is Form 4797?||Form 4797 reports sales of business property, including rental property depreciation recapture.
+Do I use Form 4797 for rental sales?||Yes, if the rental claimed depreciation, Form 4797 is required.
+What is Form 8582?||Form 8582 limits passive activity losses against other income.
+What is Form 4136?||Form 4136 claims a credit for federal fuel taxes paid.
+What is Form 4563?||Form 4563 excludes income earned in American Samoa.
+What is Form 211?||Form 211 is used to apply for a whistleblower award with the IRS.
+What is Form 1310?||Form 1310 allows someone to claim a refund for a deceased taxpayer.
+What is Form 6
+What is Form 4506-C?||Form 4506-C authorizes third-party providers to request IRS transcripts on your behalf.
+What is a tax transcript?||A tax transcript shows a summary of your return and is often used for loans or verification.
+Do I need a tax transcript to file?||No, tax transcripts are for verification, not filing.
+What is a Wage & Income Transcript?||It lists W-2s, 1099s, and other income documents the IRS received for you.
+What is an Account Transcript?||An Account Transcript shows payments, penalties, and adjustments on your IRS account.
+What is Form 3520?||Form 3520 reports foreign trusts and large gifts from foreign individuals.
+What is Form 3520-A?||Form 3520-A is the annual information return of a foreign trust with a U.S. owner.
+What is Form 7202?||Form 7202 claims sick and family leave credits for self-employed individuals.
+Is Form 7202 still used?||This form was primarily used for pandemic-related credits and may not apply to current years.
+What is Form 8812?||Form 8812 calculates the Additional Child Tax Credit.
+Do I need Form 8812?||You need Form 8812 if your Child Tax Credit is partially refundable.
+What is Form 8881?||Form 8881 claims credit for small employer pension startup costs.
+What is Form 5884?||Form 5884 claims the Work Opportunity Credit.
+What is Form 5695?||Form 5695 claims residential energy credits.
+What is Form 8839?||Form 8839 calculates the Adoption Credit.
+What is Form 4684?||Form 4684 reports casualty and theft losses.
+Do I need Form 4684?||Use it if you suffered a loss in a federally declared disaster.
+What is Form 4797?||Form 4797 reports sales of business property, including rental property depreciation recapture.
+Do I use Form 4797 for rental sales?||Yes, if the rental claimed depreciation, Form 4797 is required.
+What is Form 8582?||Form 8582 limits passive activity losses against other income.
+What is Form 4136?||Form 4136 claims a credit for federal fuel taxes paid.
+What is Form 4563?||Form 4563 excludes income earned in American Samoa.
+What is Form 211?||Form 211 is used to apply for a whistleblower award with the IRS.
+What is Form 1310?||Form 1310 allows someone to claim a refund for a deceased taxpayer.
+What is Form 673?||Form 673 exempts certain income earned abroad from withholding.
+What is a CP12 notice?||A CP12 notice informs you the IRS corrected a math error and issued a refund adjustment.
+What is a CP14 notice?||CP14 is the first IRS balance-due notice when taxes are owed.
+What is a CP501 notice?||A CP501 is a reminder that you still owe taxes.
+What is CP503?||CP503 is a second reminder that taxes remain unpaid.
+What is CP504?||CP504 warns the IRS intends to levy assets if tax remains unpaid.
+What is LT11?||LT11 is a final notice before the IRS intends to levy property.
+What is Form 433-F?||Form 433-F provides financial information for IRS payment plan requests.
+What is Form 656?||Form 656 is used to apply for an Offer in Compromise.
+What is an Offer in Compromise?||It lets you settle your tax debt for less than the full amount under IRS guidelines.
+What is a Notice of Deficiency?||A Notice of Deficiency (CP3219A) proposes additional tax and allows you to petition Tax Court.
+What is a math error notice?||It alerts you that IRS automatically corrected a mathematical mistake on your return.
+What is Form 9465?||Form 9465 requests an installment (payment) plan with IRS.
+What is a First-Time Abatement?||It is a penalty relief option for taxpayers with a clean compliance history.
+What is Form 8608?||Form 8608 reports additional excise taxes for S corporation excess distributions.
+What is Form 8990?||Form 8990 calculates business interest expense limitations.
+What is Form 8936?||Form 8936 claims the electric vehicle tax credit.
+What is Form 6252?||Form 6252 reports income from installment sales.
+What is Form 8941?||Form 8941 calculates the Small Business Health Care Tax Credit.
+What is Form 8801?||Form 8801 is used to claim minimum tax credits for AMT paid in prior years.
+What is Form 8997?||Form 8997 reports Qualified Opportunity Fund (QOF) investments.
+What is Form 8996?||Form 8996 is used by funds to certify as QOFs.
+What is Schedule J?||Schedule J is used to average farm income over three years.
+What is Schedule K-1?||Schedule K-1 reports pass-through business income from partnerships, S-corps, or estates.
+Do I need a Schedule K-1?||Yes, if you are a partner, shareholder, or beneficiary receiving pass-through income.
+What is Form 720?||Form 720 reports quarterly federal excise taxes for specific businesses.
+What is Form 941?||Form 941 reports quarterly payroll taxes for employers.
+What is Form 944?||Form 944 is an annual payroll tax return for very small employers instead of the quarterly 941.
+What is Form 945?||Form 945 reports federal income tax withheld from non-payroll payments such as pensions or gambling winnings.
+What is Form 943?||Form 943 reports agricultural employer payroll taxes.
+What is Form 940?||Form 940 reports annual Federal Unemployment Tax (FUTA) for employers.
+What is Form 8992?||Form 8992 calculates Global Intangible Low-Taxed Income (GILTI) for U.S. shareholders of controlled foreign corporations.
+What is Form 965?||Form 965 reports transition tax for foreign earnings under the Tax Cuts and Jobs Act.
+What is Form 3520-B?||Form 3520-B is for foreign trust distributions received by U.S. persons.
+What is Form 5471?||Form 5471 reports ownership in foreign corporations and has multiple schedules.
+Do I need Form 5471?||You need it if you own certain percentages of a foreign corporation or hold officer roles.
+What is Form 5472?||Form 5472 is used by foreign-owned U.S. companies to report related-party transactions.
+What is Form 8865?||Form 8865 reports foreign partnerships similar to Schedule K-1 reporting.
+What is Form 8858?||Form 8858 covers foreign disregarded entities.
+What is Form 926?||Form 926 reports transfers of property to foreign corporations.
+What is Form 1120?||Form 1120 is the U.S. corporate income tax return for C corporations.
+What is Form 1120-S?||Form 1120-S is the tax return for S corporations.
+Do I need Form 1120-S?||You file Form 1120-S if your business elected S corporation status.
+What is Form 1065?||Form 1065 reports partnership income and issues Schedule K-1 to partners.
+What is Form 1041?||Form 1041 is the income tax return for estates and trusts.
+What is Form 990?||Form 990 is an information return filed by tax-exempt organizations.
+What is Form 1023?||Form 1023 is used to apply for federal tax-exempt status.
+What is Form 1024?||Form 1024 is another exemption form for organizations not covered by Form 1023.
+What is Form 1128?||Form 1128 requests a change in tax year for businesses.
+What is Form 1139?||Form 1139 applies for a quick refund from carrybacks for corporations.
+What is Form 1045?||Form 1045 requests a quick refund for individuals for certain carryback years.
+What is Form 4564?||Form 4564 is an Information Document Request issued by the IRS during audits.
+What is Form 4810?||Form 4810 requests prompt audit of a corporation.
+What is Form 8854?||Form 8854 certifies expatriation and tax compliance when giving up citizenship or residency.
+What is Form 8689?||Form 8689 allocates U.S. Virgin Islands income between the US and USVI.
+What is Form 8911?||Form 8911 claims a credit for electric vehicle charging stations.
+What is Form 8453?||Form 8453 is a signature authorization form used when e-filing certain attachments.
+What is Form 2441?||Form 2441 is used for Child and Dependent Care Credit calculations.
+What is Form 5405?||Form 5405 reports repayment or eligibility for First-Time Homebuyer Credit.
+What is Form 1040-ES?||Form 1040-ES is used to make estimated quarterly tax payments.
+What is Form 1040-NR?||Form 1040-NR is used by nonresident aliens to file U.S. taxes.
+Do I need Form 1040-NR?||You need it if you are a nonresident with U.S. source income subject to tax.
+What is Schedule NEC?||Schedule NEC reports income not effectively connected with a U.S. trade or business.
+What is Schedule OI?||Schedule OI collects other information for nonresident alien returns.
+What is Form 8879?||Form 8879 is an IRS e-file signature authorization form used by tax preparers.
+What is Form 1310?||Form 1310 is used to claim a refund for a deceased taxpayer.
+What is Form 8965?||Form 8965 claimed exemptions from ACA penalties before penalties were removed.
+What is Form 990-EZ?||Form 990-EZ is a simplified return for smaller exempt organizations.
+What is Form 8862?||Form 8862 is required to reclaim certain credits (like EIC) after they were previously disallowed.
+What is Form 8867?||Form 8867 is due diligence documentation required for tax preparers filing EIC, CTC, AOTC, and HOH.
+What is a CP501 notice?||It is a reminder of unpaid taxes; additional penalties may accrue if not addressed.
+What is a CP503 notice?||A CP503 is a second reminder indicating you still owe taxes.
+What is a CP504 notice?||A CP504 is a final notice before levy action; it warns of intent to seize property.
+What is LT16?||LT16 is a notice stating the IRS may levy assets if no response is received.
+What is Letter 12C?||Letter 12C requests missing documentation needed to process your return.
+What is Letter 525?||Letter 525 is an initial audit letter outlining proposed changes.
+What is Letter 531?||Letter 531 is a Notice of Deficiency indicating additional tax owed.
+What is Form 3468?||Form 3468 is used to claim investment tax credits such as energy credits.
+What is Form 3800?||Form 3800 aggregates general business credits across multiple forms.
+What is Form 2210?||Form 2210 checks for underpayment of estimated taxes and calculates penalties.
+I have rental income||Thanks! How much rental income did you receive this year?
+What expenses can I deduct for rental property?||You may deduct mortgage interest, property taxes, insurance, utilities, repairs, maintenance, management fees, and depreciation.
+Can I deduct repairs?||Yes, repairs that maintain the property are deductible in the year paid.
+What counts as a repair?||Repairs restore the property to good condition but do not add value or extend its life.
+What is an improvement?||Improvements must be capitalized and depreciated because they add value or extend the property's useful life.
+Can I deduct improvements?||Improvements are depreciated, not deducted immediately.
+Can I deduct a new roof?||A new roof is considered an improvement and must be depreciated.
+Can I deduct painting?||Painting is typically a repair and deductible in the same year.
+Can I deduct cleaning between tenants?||Yes, cleaning and turnover expenses are deductible.
+Can I deduct property management fees?||Yes, management fees are fully deductible.
+Can I deduct HOA fees?||HOA fees for rental property are deductible.
+Can I deduct utilities?||Yes, utilities you pay for rental property are deductible.
+Can I deduct mortgage interest?||Mortgage interest on rental property is deductible.
+Can I deduct property taxes?||Yes, property taxes on rental property are deductible.
+What is depreciation?||Depreciation spreads the cost of the rental property over its useful life.
+How long do I depreciate a rental?||Residential rental property is depreciated over 27.5 years.
+Can I choose not to depreciate?||No, depreciation is required; failing to depreciate still requires recapture when you sell.
+What is depreciation recapture?||Recapture taxes prior depreciation at a special rate when the property is sold.
+How do I calculate basis?||Basis includes purchase price plus closing costs plus improvements.
+Do repairs increase basis?||No, repairs do not increase basis; improvements do.
+Is rental income passive?||Yes, rental income is generally passive unless you qualify as a real estate professional.
+What is active participation?||Active participation allows up to a $25,000 rental loss deduction with income limits.
+Can I deduct rental losses?||Rental losses may be deductible depending on passive activity rules and AGI.
+What if I make too much for rental losses?||Losses may be suspended and carried forward to future years.
+What is suspended loss?||Suspended losses accumulate and can be used when you have rental income or sell the property.
+Can I deduct mileage for rental activity?||Yes, mileage for managing rental property is deductible.
+Is Airbnb considered rental income?||Airbnb income is rental income; tax treatment depends on services you provide.
+Is Airbnb Schedule C or Schedule E?||If you provide hotel-like services, use Schedule C; otherwise, Schedule E.
+Do I need to collect occupancy tax?||Some states require short-term rental tax collection; check your local rules.
+Can I deduct Airbnb cleaning fees?||Yes, cleaning fees and supplies are deductible.
+Can I deduct platform fees?||Yes, Airbnb/VRBO service fees are deductible rental expenses.
+Can I deduct depreciation for Airbnb?||Yes, depreciation applies whether long-term or short-term rental.
+Can I use bonus depreciation?||Bonus depreciation may apply to certain assets but not to buildings.
+What assets can I depreciate separately?||Appliances, carpet, HVAC, water heaters, and furniture may have shorter depreciable lives.
+Can I deduct home office for rental?||Home office typically applies only to Schedule C, not Schedule E.
+Can I rent part of my home?||Yes, but expenses must be allocated between personal and rental use.
+How do I allocate expenses?||Expenses are split based on square footage or rooms, depending on the method.
+Can I deduct repairs to personal areas?||No, repairs must relate directly to rental spaces.
+What if my rental is vacant?||Expenses remain deductible even when vacant if still available for rent.
+Do I report security deposits?||Security deposits are not income unless you keep part for damages.
+What if a tenant damages the property?||Repair expenses are deductible or capitalized depending on whether they improve or restore.
+Can I deduct eviction costs?||Yes, eviction and legal fees for rental activity are deductible.
+Can I depreciate land?||No, land is not depreciable.
+How do I separate land value?||Use property tax statement or appraisal to allocate building vs land.
+Do I need a 1099 for my tenants?||No, landlords do not issue 1099s to tenants.
+Do I need to file 1099s for contractors?||Yes, if you pay contractors $600 or more, you may need to issue a 1099-NEC.
+Can rental losses offset W-2 income?||Generally no, unless you qualify for special rules such as real estate professional.

@@ -1,0 +1,190 @@
+I sold stocks this year||Thanks! Do you have a 1099-B showing proceeds and cost basis?
+What is a 1099-B?||A 1099-B reports stock, ETF, mutual fund, and crypto sales including cost basis and proceeds.
+Do I need to report stock losses?||Yes, all stock sales must be reported even if you had losses.
+Can stock losses reduce taxes?||Yes, capital losses reduce gains and up to $3,000 may offset ordinary income.
+What is short-term gain?||Short-term gains apply to assets held for one year or less and are taxed as ordinary income.
+What is long-term gain?||Long-term gains apply to assets held for more than one year and receive lower tax rates.
+How do I calculate cost basis?||Cost basis is usually purchase price plus fees; brokers often report it on the 1099-B.
+What if my broker didn’t report basis?||You must provide cost basis manually for Form 8949.
+What is wash sale?||A wash sale occurs when you sell a security at a loss and rebuy a substantially identical one within 30 days.
+Do wash sales disallow my loss?||Yes, wash sale losses are deferred and added to the new cost basis.
+Does wash sale apply to crypto?||Crypto is not currently subject to wash sale rules (as of latest IRS guidance).
+Can I deduct investment fees?||Most investment advisory fees are no longer deductible for individuals.
+Do I pay tax when I sell ETFs?||Yes, selling ETFs creates a capital gain or loss.
+Do I pay tax when ETFs rebalance?||In most cases, rebalancing inside the fund is not taxable to you.
+What is specific ID?||Specific ID lets you choose which share lots you sell to optimize gains or losses.
+What is FIFO?||FIFO means “first in, first out” and is the default cost basis method for many brokers.
+What is average cost?||Average cost is used by some mutual funds to simplify cost basis calculation.
+What is tax-loss harvesting?||Tax-loss harvesting means selling losing investments to reduce taxable gains.
+Can I deduct crypto losses?||Yes, realized crypto losses reduce capital gains and up to $3,000 of income.
+Do I report every crypto trade?||Yes, each crypto sale or exchange is a taxable event.
+Is crypto-to-crypto trade taxable?||Yes, exchanging crypto for another crypto is a taxable event.
+Can I deduct gas fees?||Gas fees related to acquiring or selling crypto may adjust cost basis.
+Is staking income taxable?||Yes, staking rewards are taxable income when received.
+Is mining income taxable?||Yes, mining income is taxable and may also require Schedule C.
+Is NFT income taxable?||Buying/selling NFTs is taxable and reported as capital gains.
+What if I lost my crypto wallet?||Loss may be treated as a nondeductible personal loss unless specific circumstances apply.
+Do I pay taxes if I didn’t withdraw my crypto?||Yes, taxable events occur when selling or exchanging, not when withdrawing.
+Is airdrop income taxable?||Yes, airdrops are taxable as ordinary income at fair market value when received.
+Is liquidity pool income taxable?||Yes, LP rewards and token swaps may be taxable events.
+Can I deduct trading software?||If used for business or trading activity, certain expenses may be deductible.
+Can I claim trader tax status?||Trader status requires frequent, substantial trading; if qualified, special rules apply.
+Are dividends taxable?||Yes, dividends are taxable; qualified dividends receive lower tax rates.
+What is qualified dividend?||A qualified dividend meets IRS requirements for reduced capital gains rates.
+What is ordinary dividend?||Ordinary dividends are taxed as regular income.
+Is margin interest deductible?||Margin interest may be deductible as investment interest expense.
+Can I offset margin interest with gains?||Investment interest is limited to net investment income.
+Can I avoid taxes by reinvesting dividends?||No, reinvested dividends are still taxable.
+Do I report DRIP transactions?||Yes, dividend reinvestment transactions require reporting cost basis.
+What if I inherited stocks?||Inherited stocks receive a stepped-up basis equal to value on date of death.
+Do I pay tax when inheriting stocks?||No, but gains after inheritance are taxable.
+How do I report stock gifts?||The recipient’s basis is the donor’s basis unless FMV rules apply.
+Can I gift appreciated stock?||Yes, gifting may avoid capital gains for the donor but impacts basis for the recipient.
+Can I deduct investment losses over $3,000?||Losses over $3,000 carry forward to future years.
+What is Form 8949?||Form 8949 lists each investment sale, adjusting cost basis when required.
+Do I need Form 8949 if 1099-B is summary?||Yes, unless broker provided all required codes and IRS allows summary reporting.
+What is Schedule D?||Schedule D summarizes capital gains and losses from Form 8949.
+I day-traded this year||Day trading activity must be reported; gains are taxable even if reinvested.
+Do I need to report every trade?||Yes, each sale must be reported on Form 8949 unless consolidated per IRS rules.
+My broker gave me a single summary||Perfect—please provide totals for short-term and long-term gains.
+What if the summary is incorrect?||You must correct cost basis using your own records.
+I didn’t receive a 1099-B||Some brokers do not issue one; you must still report your trades.
+Why does the IRS think I made more than I did?||Usually cost basis was missing or unreported; you must provide it manually.
+Why does TurboTax show a huge gain?||Missing cost basis defaults to zero, artificially inflating gains.
+Can I ignore small stock sales?||No, all sales must be reported regardless of size.
+I only made $5 buying/selling stock||Even $5 profit is taxable.
+I only lost $5||Losses must still be reported; may contribute to carryforward.
+Is Robinhood taxable?||Yes, all app-based trading is taxable the same as traditional brokers.
+Is Webull taxable?||Yes, all platforms must report trades to the IRS.
+Is crypto taxable only when withdrawn?||No, taxable events occur when selling, trading, or spending.
+Is buying crypto taxable?||No, buying is not taxable—selling or trading is.
+Is transferring crypto taxable?||Transfers between your own wallets are not taxable.
+Is converting Bitcoin to Ethereum taxable?||Yes, crypto-to-crypto trades are taxable events.
+Is using crypto to buy something taxable?||Yes, it's treated as a sale at the time of payment.
+I didn’t make profit on crypto||If you sold or traded, you still must report gains or losses.
+My exchange shut down||You may claim losses depending on whether assets are worthless or abandoned.
+I lost access to my wallet||IRS generally treats it as a nondeductible personal loss unless theft/abandonment applies.
+Is staking like interest?||Staking is taxable when received similar to interest income.
+Do I pay tax on DeFi yield?||Yes, DeFi earnings may be taxed as income or capital gains depending on activity.
+Is liquidity pool tax complicated?||Yes, LP transactions often include swaps, fees, and income recognition.
+Do I need a 1099 from Coinbase?||Not always; you must still report all taxable activity.
+Does Coinbase report to IRS?||Most major exchanges provide information to the IRS.
+I didn’t receive any crypto forms||You still must report your crypto activity manually.
+Is NFT minting taxable?||Yes, if minted and then sold, gains are taxable.
+Is NFT flipping taxable?||NFT trades are taxed as capital transactions.
+Is NFT creation business income?||If conducted regularly, NFT creation and sales may require Schedule C.
+Are airdrops taxed at FMV?||Yes, taxable at the fair market value when received.
+What is Form 1099-DA?||A developing form for digital asset reporting; requirements may vary by year.
+Is foreign crypto taxable?||Yes—U.S. citizens must report worldwide crypto activity.
+Do I report foreign exchanges on FBAR?||If total foreign assets exceed $10,000, crypto on foreign exchanges may require FBAR.
+Do I report crypto on Form 8938?||Possibly, if foreign holdings exceed FATCA thresholds.
+Is wash sale rule going to apply to crypto?||Current IRS rules do not apply wash sales to crypto unless legislation changes.
+I earned interest from a stablecoin||Stablecoin interest is taxable the same as regular interest.
+Can I deduct crypto trading fees?||Yes, fees related to sales or purchases adjust cost basis.
+Can I avoid tax by holding?||Yes—unrealized gains are not taxable until sold.
+What is unrealized vs realized?||Unrealized gains are increases in value; realized gains occur when you sell.
+Can I harvest crypto losses?||Yes, selling crypto at a loss can offset gains; no wash sale restrictions currently.
+Can I deduct gas fees for NFT sales?||Gas fees reduce the gain or increase the loss when selling NFTs.
+What is Form 8949 for crypto?||Form 8949 lists each crypto disposal event with proceeds and cost basis.
+Can I group crypto transactions?||If transactions are numerous, IRS allows summaries with attachments.
+How do I track crypto basis?||Use exchange records, blockchain explorers, or crypto tax software.
+What is Schedule D for crypto?||Schedule D summarizes gains and losses from all crypto and stock activity.
+What is capital loss carryforward?||Unused losses carry forward indefinitely to offset future gains.
+What if I only have long-term losses?||Long-term losses first offset long-term gains, then short-term, then income.
+What are RSUs?||Restricted Stock Units (RSUs) are taxed as ordinary income when they vest, based on fair market value.
+Do RSUs get reported on W-2?||Yes, RSU income typically appears in your W-2 wages upon vesting.
+Why do I see “RSU tax withholding” on my paycheck?||Your employer withholds taxes at vesting; shares may be sold to cover withholding.
+Do I owe tax again when I sell RSUs?||You pay capital gains on the difference between sale price and the value at vesting.
+What is the cost basis of RSUs?||The vesting value (FMV) becomes the cost basis for capital gain/loss reporting.
+Why does my broker show wrong RSU basis?||Some brokers list basis as $0; you must manually adjust to the vesting value.
+Why is my gain huge on RSUs?||Incorrect basis leads to overstated gains—adjust basis to vest FMV on Form 8949.
+What is ESPP?||Employee Stock Purchase Plan allows buying employer stock at a discount.
+Is ESPP discount taxable?||The discount may be taxable depending on qualifying/disqualifying disposition rules.
+What is a qualifying ESPP sale?||A sale 2+ years after the offering date and 1+ year after purchase.
+What is a disqualifying ESPP sale?||Any sale before meeting the holding period rules.
+How is ESPP tax calculated?||Part of the discount becomes ordinary income; remaining gain is capital gain.
+What is ISO?||Incentive Stock Options offer favorable tax treatment if holding period rules are met.
+What is NSO?||Nonqualified Stock Options generate ordinary income on exercise equal to FMV minus strike price.
+Is ISO taxed at exercise?||Not for regular tax, but exercise may trigger AMT (Alternative Minimum Tax).
+What is AMT for ISOs?||AMT may treat the bargain element as taxable; Form 6251 is required.
+What is disqualifying ISO sale?||Selling ISO shares before holding periods triggers ordinary income on bargain element.
+Do I need a 3921 form?||Form 3921 provides important basis information for ISO exercises.
+Do I need a 3922 form?||Form 3922 is issued for ESPP transactions to track cost basis.
+What if I don’t know my stock basis?||Use purchase records, broker history, or IRS transcripts if needed.
+My broker didn’t include cost basis||Brokers sometimes omit basis for older or transferred shares; you must calculate manually.
+What is average basis for mutual funds?||Some funds allow averaging the cost of all shares instead of tracking lot-by-lot.
+Can I choose which shares I sold?||Specific ID allows selecting share lots to optimize tax outcome.
+Can I change basis method after selling?||Basis method choice must follow IRS rules and may require forms for switching.
+What is wash sale on RSUs?||If you sell RSU shares at a loss and repurchase employer stock within 30 days, wash sale applies.
+Can wash sale apply to ESPP?||Yes, if identical securities are repurchased within the wash sale window.
+Can I harvest losses and rebuy ETFs?||Yes, if ETFs are not “substantially identical”; many use alternative tickers.
+What is tax-loss harvesting with crypto?||You may sell and rebuy immediately since wash sale rules don’t apply to crypto (current law).
+Can I gift stock to avoid selling tax?||Gifting appreciated stock is common for charitable donations; donor avoids capital gains.
+Is donating stock tax deductible?||Yes, donating long-term appreciated stock may be deductible at FMV without paying capital gains.
+What if I donate short-term stock?||Deduction is limited to cost basis instead of FMV.
+Do I pay tax when receiving gifted stock?||No, but your basis is transferred from the donor.
+Does inherited stock get stepped-up basis?||Yes, inherited stock receives FMV basis on date of death.
+What is carryover basis?||Carryover basis applies to gifted property; recipient inherits donor’s basis.
+Do I report stock inherited from my parents?||Not unless sold; capital gain applies only on sale.
+What is worthless stock deduction?||If stock becomes worthless, you may claim a capital loss with documentation.
+Can I deduct investment scams?||Losses may be deductible under specific theft loss rules.
+Can I deduct financial advisor fees?||No, most advisory fees are not deductible for individuals.
+What is 1099-DIV?||1099-DIV reports dividends, including qualified dividends and capital gain distributions.
+Are capital gain distributions taxable?||Yes, they are taxable even if reinvested.
+What is 1099-INT?||It reports interest earned from banks or brokerage accounts.
+What is 1099-OID?||Reports original issue discount interest for certain bonds.
+Is Treasury interest taxable?||Treasury interest is taxable federally but exempt from state income tax.
+Are municipal bond funds tax-free?||Municipal funds may be federal tax-free; state rules vary.
+Can muni bond gains be taxable?||Yes, capital gains from selling muni bonds are taxable.
+Can I deduct bond premium?||Bond premium may be amortized and reduce taxable interest.
+What happens when a bond matures?||You recognize any gain or loss based on maturity value versus adjusted basis.
+What is a K-1 for investments?||A Schedule K-1 reports pass-through income from partnerships, REITs, MLPs, or private equity investments.
+Do I need to enter K-1 on my return?||Yes, all income, losses, credits, and deductions from a K-1 must be reported.
+Why is my K-1 income different from cash received?||Partnership tax rules allocate taxable income regardless of distributions.
+What is UBTI?||Unrelated Business Taxable Income applies to retirement accounts holding certain partnerships.
+Why did my IRA get a K-1?||Some MLP investments generate UBTI that must be monitored for tax impact.
+Do REIT dividends get special tax treatment?||Some REIT dividends qualify for the 20% QBI deduction.
+What is PFIC?||Passive Foreign Investment Company rules apply to certain foreign funds and carry special reporting.
+Do I need Form 8621?||Form 8621 is required if you hold PFICs, such as some foreign mutual funds.
+What is mark-to-market PFIC election?||It taxes annual unrealized gains to avoid complex PFIC calculations.
+Do foreign mutual funds trigger PFIC rules?||Yes, most foreign funds require PFIC reporting.
+What if I don’t file Form 8621?||The IRS can suspend statute of limitations and impose penalties.
+Why did my broker not list PFIC?||U.S. brokers do not always identify PFICs; investor must check.
+What is foreign tax credit on investments?||Foreign taxes paid on dividends or interest may qualify for a credit via Form 1116.
+Can I double-dip foreign tax paid?||No, you must choose a deduction or credit, not both.
+Is currency trading taxable?||Yes, forex gains may be Section 988 ordinary income unless opted into capital treatment.
+What is Section 1256?||Section 1256 contracts (futures/options) receive 60/40 capital gains treatment.
+Do crypto futures get 1256 treatment?||Some U.S. regulated futures may qualify; spot crypto does not.
+What is wash sale with options?||Buying a substantially identical option can trigger wash sale rules.
+Do options assigned count as sales?||Yes, assignments and exercises create taxable events.
+Can I deduct expired options?||Expired options result in capital losses.
+What is cost basis for options exercised?||Basis includes strike price plus premium paid.
+What is straddle rule?||Straddle rules prevent using offsetting positions to accelerate losses.
+Can I deduct margin interest?||Margin interest may be deductible up to net investment income limits.
+Are leveraged ETFs taxed differently?||No, but frequent trading may cause short-term gains.
+Do I pay taxes on DRIP shares?||Yes, reinvested dividends are taxable income.
+What if DRIP cost basis is wrong?||You must calculate correct basis by tracking every reinvested lot.
+Do I pay taxes on stock splits?||No, stock splits are not taxable and basis is adjusted proportionally.
+Do I pay taxes on reverse splits?||Reverse splits are not taxable; basis increases per share.
+Is interest from corporate bonds taxable?||Yes, corporate bond interest is taxable as ordinary income.
+Is interest from municipal bonds taxable?||Federal tax-free, but capital gains are taxable.
+Can I deduct bond losses?||Yes, selling bonds at a loss generates a capital loss.
+What is amortized bond premium?||Premium paid above face value may reduce taxable interest.
+What is OID?||Original Issue Discount is treated as interest income over the life of a bond.
+Is CD (certificate of deposit) interest taxable?||Yes, interest from CDs is taxable annually.
+What is saving bond interest?||U.S. savings bonds earn interest taxable federally but exempt from state tax.
+Can I avoid tax on savings bonds for education?||Education exclusion applies if conditions are met.
+What is crypto lending?||Interest or rewards from crypto lending are taxable as ordinary income.
+What is DeFi liquidity pool tax?||LP activity may create swaps, income, and gains—each taxable.
+Is bridging crypto taxable?||Moving tokens across chains is not taxable unless a swap occurs.
+Are wrapped tokens taxable?||WRAP/UNWRAP may or may not be taxable depending on IRS interpretation; conservative approach treats as non-taxable unless value changes.
+Is stablecoin taxable?||Buying stablecoin isn’t taxable; selling or interest earned is taxable.
+What is NFT staking?||NFT staking may generate taxable rewards similar to crypto staking.
+Are NFT gas fees deductible?||Gas fees added to acquisition cost increase basis; sales fees reduce proceeds.
+Can I offset crypto losses against stock gains?||Yes, crypto losses offset any capital gains.
+Can I offset stock losses against crypto gains?||Yes, all capital assets are netted together.
+Can I move crypto into cold storage tax-free?||Yes, transfers between your own wallets are not taxable.
+Can I claim hacked crypto as loss?||Only qualified theft losses under strict IRS rules may apply.
+What is Form 1099-DA?||A future IRS form intended for digital asset reporting (implementation year-dependent).
+Do staking platforms send tax forms?||Some do; even without forms, income must be reported.
+What records should I keep for crypto?||Keep cost basis, transaction dates, wallet logs, and exchange histories.

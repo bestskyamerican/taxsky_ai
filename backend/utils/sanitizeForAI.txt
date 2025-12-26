@@ -1,0 +1,16 @@
+export function sanitizeForAI(data) {
+  const safe = JSON.parse(JSON.stringify(data || {}));
+
+  if (safe.ssn) {
+    safe.ssn = "XXX-XX-" + String(safe.ssn).slice(-4);
+  }
+
+  if (safe.dependents && Array.isArray(safe.dependents)) {
+    safe.dependents = safe.dependents.map(d => ({
+      ...d,
+      ssn: d.ssn ? "XXX-XX-" + String(d.ssn).slice(-4) : undefined
+    }));
+  }
+
+  return safe;
+}

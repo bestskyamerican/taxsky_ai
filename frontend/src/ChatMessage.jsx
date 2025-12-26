@@ -1,0 +1,1 @@
+export default function ChatMessage(){return <div>ChatMessage.jsx</div>;}

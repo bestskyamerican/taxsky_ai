@@ -1,0 +1,103 @@
+I made 50000 this year||To continue filing, please provide your federal withholding from your W-2.
+I have 2 dependents||Thanks! Now provide your filing status.
+I want to file my taxes||Great! First, what is your filing status (Single, Married Filing Jointly, Married Filing Separately, or Head of Household)?
+I want to start filing||Excellent—let’s begin. What is your filing status?
+I want to do my taxes||Sure! First step: Please tell me your filing status.
+I made money this year||Thanks! To continue, please provide your filing status.
+I worked two jobs||Understood—what is your filing status so we can proceed?
+I want refund estimate||I can help. Please begin by sharing your filing status.
+My filing status is single||Thanks! How many dependents do you claim?
+I am married||Thanks! Are you filing jointly or separately?
+I have no dependents||Got it. What was your W-2 income for the year?
+I have 1 child||Thank you! Next, what was your total income for the year?
+I don’t know my filing status||No problem. Were you married on December 31st?
+I’m divorced||Thanks. Do you have any dependents living with you more than half the year?
+I’m separated||Understood. Did you live apart the last six months of the year?
+I’m head of household||Great. Please confirm: Do you have a qualifying dependent?
+I made 50000||Thanks! What was your federal tax withholding from your W-2?
+I made 20000||Great. Please provide your federal withholding amount.
+I have two W-2s||Thanks! Please provide Box 1 and Box 2 amounts from each W-2.
+I uploaded my W-2||Great! Do you have any self-employment income this year?
+I have 1099 income||Thanks! Approximately how much self-employment income did you earn?
+I have 1099-NEC||Understood. Please provide the total non-employee compensation amount.
+I earned cash income||Got it—cash income must be reported. How much did you earn?
+I have no W-2||Okay. Did you receive any self-employment or 1099 income?
+I worked for myself||Thanks! Please provide your total business income for the year.
+I drove Uber||Great. How much did you earn, and do you know your expenses or mileage?
+I drove DoorDash||Thanks! Please provide your total income and any expenses.
+I had rental income||Understood. What was your rental income and expenses?
+I have crypto||To proceed, I need your crypto gains or losses for the year.
+I sold stocks||Great. Do you know your total capital gains or losses?
+I have investment income||Thanks! Please provide dividends, interest, or capital gains.
+I have 1099-INT||Perfect. How much interest income did you receive?
+I have 1099-DIV||Great! How much dividend income did you receive?
+I got a 1099-K||Understood. What were the payments for—business, personal, or hobby?
+I got unemployment||Thanks. How much unemployment did you receive this year?
+I got Social Security||Understood. How much did you receive for the year?
+I have student loan interest||Great. How much interest did you pay?
+I paid tuition||Thanks! Please provide your 1098-T amounts.
+I got ACA insurance||Great. I will need your 1095-A to continue. Do you have it?
+I have dependents||Thanks! How many dependents do you claim?
+I have three kids||Great! Did they live with you more than half the year?
+I think I qualify for EIC||I can check. Please provide your earned income amount.
+I want to see refund||Sure. First, I need income and withholding to calculate.
+I want to skip||No problem. We can continue—what was your income for the year?
+I don’t know||That’s okay. Let’s take it step-by-step. What income forms do you have?
+I’m confused||No worries—you’re doing great. What income do you know you received?
+Continue||Sure! Next: What was your federal withholding amount?
+Next||Great—please provide your W-2 income.
+Go back||No problem. Which step would you like to revisit?
+Start over||Okay, restarting: What is your filing status?
+Stop||Sure. Let me know when you want to continue filing.
+I already told you I'm single||Thanks! Next, how many dependents do you claim?
+I already told you I'm married||Understood. Are you filing jointly or separately?
+I have no dependents, what's next?||Next, what was your total income for the year?
+I finished income, now what?||Great! Please provide your federal tax withholding.
+I uploaded two W-2s||Perfect. Do you have any 1099 income this year?
+I have no 1099s||Good to know. Did you have any interest or dividend income?
+I had interest income||How much interest did you receive this year?
+I had dividends||What was your total dividend income from Form 1099-DIV?
+I sold investments||Thanks! What were your total capital gains or losses?
+I don't know my gain||No problem—do you have a 1099-B from your broker?
+I got a 1099-B||Great! Please upload it or provide your totals.
+I got a big refund last year||Refunds vary yearly. Let's gather your income and withholding for this year.
+I owe taxes every year||Understood. Let's review your income and withholding amounts.
+I want to reduce taxes||We can explore credits. First, what is your total earned income?
+I think I get EIC||Let’s see. How many dependents do you have and what is your earned income?
+I think I get child tax credit||Great. How many qualifying children do you have?
+My child is 18||Children 17 or older do not qualify for the Child Tax Credit. Any younger dependents?
+I have two small kids||Thanks! Did they live with you more than half the year?
+I need my refund now||Sure. Please provide your income and withholding so we can calculate it.
+I want to see progress||We are currently at the income stage. What is your W-2 income?
+Skip this||Okay. Next question: Did you receive any self-employment income?
+I don’t have that form||No problem. Which forms do you have available?
+I only have W-2||Great! What are Box 1 and Box 2 amounts?
+I only have 1099-NEC||Understood. What is your total non-employee compensation?
+I only have cash income||Thanks. How much cash income did you earn?
+I have rental property||Got it. What were your rental income and expenses this year?
+I have Airbnb income||Great. Provide total Airbnb income and any related expenses.
+I have crypto trades||Understood. Did you have gains or losses?
+I have losses||Losses are deductible up to $3,000. What is your total?
+I have gains||Thanks! What is your total capital gain?
+I got ACA subsidy||Thanks. I will need your Form 1095-A to proceed.
+I didn’t get 1095-A||If you used Marketplace insurance, Form 1095-A is required. Did you have ACA coverage?
+I was on Medi-Cal||Medi-Cal does not require reconciliation. Did you receive any 1095 forms?
+I think I can file HOH||Let's confirm. Did a qualifying dependent live with you more than half the year?
+I think I file jointly||Great! Did your spouse have any income?
+My spouse didn’t work||Thanks. What was your income for the year?
+My spouse worked||Great! Please provide your spouse’s W-2 income and withholding.
+I need help with business income||Sure! What is your total self-employment income?
+I want to deduct mileage||No problem. How many business miles did you drive?
+I want to deduct expenses||What were your total business expenses?
+I don’t have receipts||That's okay. Provide reasonable estimates for your business expenses.
+I want to finish||We’re close! I still need your withholding amount.
+I want to stop||Sure. We can continue anytime you are ready.
+Where am I now?||You are currently in the income section of the interview.
+How many steps left?||We need income, withholding, deductions, and credits.
+What do you need from me?||Next, I need your W-2 or total income amount.
+I want to file quickly||No problem—please provide your income and withholding.
+I don’twant to upload forms||Understood. You may enter amounts manually instead.
+Just estimate my taxes||I can estimate once you provide income and withholding.
+Start filing||Great! What is your filing status?
+Continue interview||Sure! Next question: How many dependents do you have?
+Resume filing||Welcome back! Picking up where we left off—please provide your income details.

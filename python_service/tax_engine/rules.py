@@ -1,0 +1,1 @@
+FEDERAL_RATE = 0.1

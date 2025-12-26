@@ -1,0 +1,14 @@
+import axios from "axios";
+
+/**
+ * Send uploaded tax form to Python OCR and return extracted data.
+ */
+export async function sendFormToOCR(formData) {
+  const response = await axios.post(
+    "http://localhost:5001/ocr/extract", // Python OCR API endpoint
+    formData,
+    { headers: formData.getHeaders() }
+  );
+
+  return response.data;
+}

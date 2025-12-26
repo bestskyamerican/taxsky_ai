@@ -1,0 +1,292 @@
+Can I deduct uniforms?||Uniforms required for work and not suitable for everyday use are deductible per IRS Pub 529.
+What is AGI?||Adjusted Gross Income (AGI) is your income minus certain adjustments and is used to determine eligibility for credits.
+Are uniforms deductible?||Uniforms required as a condition of employment and not suitable for everyday wear are deductible under IRS Publication 529.
+Are job supplies deductible?||Supplies required for your job that are not reimbursed may be deductible as unreimbursed employee expenses.
+Can I deduct a laptop for work?||You may deduct a laptop if used for self-employment or if required for your job and not reimbursed.
+Is mileage deductible?||Mileage is deductible only for business, medical, charitable, or moving purposes; commuting is never deductible.
+Can I deduct dry cleaning?||Dry cleaning is deductible only for required work uniforms that cannot be worn casually.
+Can I deduct union dues?||Union dues are deductible under unreimbursed employee expenses.
+Can I deduct tools for work?||Tools required for your job or business are deductible under Schedule C.
+Are meals deductible?||Meals are 50% deductible when they meet business purpose rules under IRS Section 274.
+Can I deduct office rent?||Office rent for your business is fully deductible on Schedule C.
+What is AGI?||Adjusted Gross Income (AGI) is total income minus adjustments and is used to determine credit eligibility.
+What is taxable income?||Taxable income equals AGI minus standard or itemized deductions.
+What is standard deduction?||Standard deduction is a fixed amount reducing taxable income based on filing status.
+What are itemized deductions?||Itemized deductions include mortgage interest, taxes, medical expenses, and charitable contributions.
+Can I deduct medical expenses?||Medical expenses above 7.5% of AGI are deductible if you itemize.
+Is home mortgage interest deductible?||Mortgage interest on qualified loans is deductible on Schedule A.
+Are property taxes deductible?||State/local property taxes are deductible up to $10,000 SALT limit.
+Can I deduct state income tax?||State/local income taxes are deductible up to $10k SALT limit.
+What are unreimbursed employee expenses?||These were suspended under TCJA except for certain categories like performing artists.
+Are moving expenses deductible?||Only for active-duty military moving under orders.
+Can I deduct HSA contributions?||HSA contributions reduce taxable income and are deductible even if you take standard deduction.
+Can I deduct IRA contributions?||Traditional IRA contributions may be deductible based on income and retirement plan coverage.
+Are 401k contributions deductible?||401k contributions reduce taxable wages on your W-2.
+What is self-employment tax?||Self-employment tax covers Social Security and Medicare for self-employed individuals.
+Can I deduct health insurance if self-employed?||Self-employed individuals may deduct 100% of health insurance premiums above the line.
+What is Qualified Business Income deduction?||QBI provides up to 20% deduction for eligible pass-through business income.
+What is depreciation?||Depreciation lets you recover the cost of business property over its useful life.
+What is bonus depreciation?||Bonus depreciation allows immediate deduction of qualifying assets.
+What is Section 179?||Section 179 allows expensing of qualified business equipment up to IRS limits.
+What is a capital gain?||Capital gains result from selling assets at a profit and are taxed at varying rates.
+What is capital loss?||Capital losses offset gains and up to $3,000 of income annually.
+Can I deduct stock losses?||Up to $3k of net capital losses can be deducted per year.
+Is crypto taxable?||Crypto trades create capital gains or losses; receiving crypto is ordinary income.
+What is foreign tax credit?||FTC prevents double taxation on foreign-sourced income.
+Is gambling income taxable?||Yes, gambling income is fully taxable; losses deductible up to winnings.
+What is AMT?||Alternative Minimum Tax recalculates income with fewer deductions to ensure minimum tax.
+Can I deduct childcare expenses?||Childcare may qualify for the Child and Dependent Care Credit.
+Am I eligible for EITC?||Eligibility depends on earned income, filing status, and number of dependents.
+Is Social Security taxable?||Up to 85% may be taxable depending on total income.
+Can I claim someone as a dependent?||Dependents must meet IRS support, residency, and income tests.
+What is Head of Household?||HOH requires paying over half the cost of home for a qualifying dependent.
+Can I file jointly if separated?||Married Filing Jointly requires being legally married on Dec 31.
+Is alimony deductible?||Post-2019 alimony is not deductible.
+Is alimony taxable?||Post-2019 alimony is not taxable income.
+Are student loans deductible?||Up to $2,500 of student loan interest may be deductible.
+Do I have to report tips?||Yes, all tips must be reported as income.
+Are scholarships taxable?||Scholarships are taxable if used for non-qualified expenses.
+What is 1099-INT?||1099-INT reports interest income from banks and investments.
+What is 1099-DIV?||1099-DIV reports dividend income including qualified dividends.
+What is 1099-NEC?||1099-NEC reports non-employee compensation and is used for Schedule C.
+What is 1099-B?||1099-B reports capital gains and losses from broker transactions.
+Is unemployment taxable?||Yes, unemployment compensation is taxable and must be reported on your tax return.
+Is workers compensation taxable?||Workers compensation is generally not taxable unless you also receive disability benefits.
+Are gifts taxable?||Gifts received are not taxable to the recipient; the giver may need to file a gift tax return.
+Are inheritances taxable?||Inheritances are generally not taxable for federal purposes; however, income produced by inherited assets is taxable.
+Are gambling winnings taxable?||Yes, gambling winnings are taxable and must be reported even if you do not receive a W-2G.
+Can I deduct gambling losses?||Yes, gambling losses are deductible up to the amount of winnings if you itemize deductions.
+Is jury duty pay taxable?||Yes, jury duty pay is taxable and must be reported as income.
+Is alimony taxable?||Alimony received is taxable only for divorces finalized before 2019.
+Is alimony deductible?||Alimony paid is deductible only for agreements finalized before 2019.
+Is child support taxable?||No, child support received is not taxable.
+Is child support deductible?||No, child support payments are not deductible.
+Are Social Security benefits taxable?||Up to 85% of Social Security benefits may be taxable depending on your combined income.
+Is disability income taxable?||Some disability benefits are taxable depending on the type and provider of the policy.
+Are scholarships taxable?||Scholarships used for tuition are tax-free; amounts used for housing or meals are taxable.
+Is room and board taxable under scholarships?||Yes, scholarship funds used for non-qualified expenses such as room and board are taxable.
+Can I deduct school supplies for college?||Expenses required for enrollment may qualify for the American Opportunity Credit.
+Can I deduct kindergarten tuition?||Kindergarten tuition is not deductible; however, dependent care expenses may qualify for a credit.
+Are refinancing costs deductible?||Only mortgage interest and certain points may be deductible.
+Can I deduct HOA fees?||HOA fees are not deductible unless the property is a rental or home office applies.
+Are home repairs deductible?||Home repairs are generally not deductible unless related to a rental or business.
+Are home improvements deductible?||Home improvements are not deductible but may increase cost basis in a sale.
+Is mortgage insurance deductible?||Mortgage insurance premiums may be deductible depending on current IRS extensions.
+Can I deduct PMI?||PMI may be deductible depending on AGI limits and IRS rules.
+Can I deduct property tax on a second home?||Yes, property taxes are deductible but subject to the SALT limit.
+Is credit card interest deductible?||Personal credit card interest is not deductible.
+Is investment interest deductible?||Investment interest is deductible up to net investment income.
+Is margin interest deductible?||Margin interest may be deductible on Schedule A as investment interest.
+Are brokerage fees deductible?||Brokerage fees are not deductible for individual investors.
+Are medical insurance premiums deductible?||Medical insurance premiums are deductible as medical expenses if itemized.
+Are dental expenses deductible?||Dental expenses are deductible above 7.5% of AGI if itemized.
+Are glasses deductible?||Prescription glasses qualify as medical expenses.
+Can I deduct braces?||Orthodontic treatments qualify as medical expenses if you itemize.
+Can I deduct OTC medicine?||Over-the-counter medicine is deductible only if prescribed by a doctor.
+Is cosmetic surgery deductible?||Cosmetic surgery is deductible only if medically necessary.
+Can I deduct charitable donations?||Charitable donations to qualified organizations are deductible if you itemize.
+Are cash donations deductible?||Cash donations are deductible with proof such as receipts or bank records.
+Are non-cash donations deductible?||Non-cash donations require valuation and may need Form 8283.
+Is volunteer time deductible?||No, the value of your time is not deductible, but expenses may be.
+Can I deduct mileage for charity?||Charitable mileage is deductible at IRS-approved rates.
+Is babysitting deductible?||Babysitting is deductible only if related to childcare to enable work.
+Can I deduct adoption expenses?||Qualified adoption expenses may be eligible for the adoption tax credit.
+Is life insurance taxable?||Life insurance payouts are generally not taxable.
+Are long-term care premiums deductible?||Some LTC premiums are deductible depending on age and limits.
+Is health insurance taxable?||Employer-provided health insurance is generally not taxable.
+Can I deduct dental insurance?||Dental insurance premiums count as medical expenses for itemizing.
+Are death benefits taxable?||Death benefits are usually tax-free.
+Is pension income taxable?||Most pension income is taxable unless designated otherwise.
+Is annuity income taxable?||Annuities may be partly taxable depending on contributions and exclusions.
+Is lottery income taxable?||Yes, lottery winnings are fully taxable and must be reported as income for the year received.
+Can I deduct lottery losses?||Lottery losses may be deducted up to the amount of winnings if you itemize deductions.
+Is interest from savings taxable?||Yes, bank interest is taxable and reported on Form 1099-INT.
+Is interest from CDs taxable?||CD interest is taxable in the year it is credited, even if not withdrawn.
+Are dividends taxable?||Dividends are taxable and may qualify for special tax rates if they are qualified dividends.
+Are qualified dividends taxed differently?||Qualified dividends may receive preferential tax rates based on income level.
+Is rental income taxable?||Yes, rental income is taxable and must be reported on Schedule E.
+Can I deduct rental expenses?||Yes, ordinary and necessary rental expenses are deductible against rental income.
+Is depreciation required for rentals?||Yes, IRS requires depreciation for residential rental property over 27.5 years.
+Can rental losses be deducted?||Rental losses may be limited by passive activity rules unless you actively participate.
+Can I deduct travel for rental property?||Travel directly related to managing rental property may be deductible.
+Is crypto mining taxable?||Yes, mined cryptocurrency is taxable as ordinary income at fair market value when received.
+Is staking income taxable?||Yes, staking rewards are taxable as ordinary income.
+Is bartering taxable?||Yes, barter transactions must be reported as income at fair market value.
+Is forgiven debt taxable?||Canceled or forgiven debt is generally taxable unless an exclusion applies.
+Are lawsuits winnings taxable?||Most lawsuit settlements are taxable unless related to physical injury.
+Are damages for emotional distress taxable?||Emotional distress damages are taxable unless tied to physical injury.
+Can I deduct legal fees?||Legal fees are deductible only if related to taxable income or business activity.
+Is unemployment subject to withholding?||Yes, you may choose to have federal tax withheld from unemployment benefits.
+Can I deduct investment losses?||Investment losses are deductible up to $3,000 per year beyond gains.
+Are wash sales allowed?||Wash sale rules disallow losses if repurchased within 30 days.
+Is foreign income taxable?||U.S. citizens must report worldwide income including foreign earnings.
+Do I get credit for foreign taxes?||Foreign tax credit may apply to avoid double taxation.
+Is interest on a HELOC deductible?||Interest may be deductible only if funds were used to improve your home.
+Are solar credits refundable?||The federal solar credit is nonrefundable but may carry over to future years.
+Is energy credit available?||Energy-efficient home improvements may qualify for tax credits.
+Is childcare refundable?||The Child and Dependent Care Credit may be partially refundable depending on income.
+Does divorce affect taxes?||Divorce affects filing status, dependents, credits, and alimony rules.
+Who claims children after divorce?||The custodial parent typically claims dependents unless Form 8332 is signed.
+Can both parents claim a child?||No, only one parent may claim each child per tax year.
+Is disability pension taxable?||Disability pension may be taxable depending on age and plan type.
+Is short-term disability taxable?||It may be taxable if employer-paid; verify your policy details.
+Is long-term disability taxable?||Taxability depends on whether premiums were paid with pre-tax or after-tax dollars.
+Can I deduct insurance premiums?||Some premiums qualify as medical expenses if itemized.
+Is student grant money taxable?||Grant funds used for non-qualified expenses are taxable.
+Is overtime taxed higher?||No, overtime is taxed at the same rate but increases taxable income.
+Are bonuses taxed differently?||Bonuses are taxed as regular income but may have supplemental withholding.
+What is supplemental wage withholding?||Supplemental wages may be withheld at a flat IRS percentage rate.
+What is backup withholding?||Backup withholding applies when the IRS requires payers to withhold tax due to invalid taxpayer details.
+Is babysitting income taxable?||Babysitting income is taxable and may require Schedule C reporting.
+Do I need to report cash income?||Yes, all income is taxable whether paid by cash, check, or digital transfer.
+Is Venmo income taxable?||Payments for goods or services received on Venmo or similar platforms are taxable.
+Is PayPal income taxable?||Yes, income received for business or services must be reported.
+Is Zelle income taxable?||Yes, taxable if payments are for business or services, even if no 1099 is issued.
+Does receiving a 1099-K mean I owe tax?||A 1099-K reports transactions; taxability depends on whether income was business or personal.
+Can I ignore a 1099-K?||No, 1099-K data must be reconciled on your return even if non-taxable.
+Is renting a room taxable?||Yes, rented room income is taxable and may require Schedule E.
+Can I deduct Airbnb expenses?||Yes, ordinary and necessary expenses used to generate rental income may be deductible.
+Is foreign rental income taxable?||Yes, worldwide rental income is taxable for U.S. citizens.
+Can I exclude foreign earned income?||Foreign earned income may be excluded up to IRS limits if residency tests are met.
+Can I deduct moving costs for a new job?||Moving expenses are only deductible for active-duty military under current IRS rules.
+Is severance pay taxable?||Yes, severance pay is fully taxable as wages and reported on your W-2.
+Is back pay taxable?||Back pay is taxable in the year you receive it, even if earned earlier.
+Is settlement income taxable?||Most settlements are taxable unless they relate to physical injury.
+Are disability benefits taxable?||Taxability depends on whether premiums were paid pre-tax or after-tax.
+Can I deduct gym memberships?||Gym memberships are generally not deductible unless prescribed for a medical condition.
+Are wellness programs taxable?||Employer-paid wellness benefits may be taxable depending on the benefit structure.
+Is employer-provided life insurance taxable?||Coverage above $50,000 may create taxable income.
+Can I deduct business gifts?||Business gifts are deductible up to $25 per recipient per year.
+Can I deduct meals while traveling?||Meals during overnight business travel are 50% deductible.
+Are per diem rates deductible?||Self-employed individuals may use federal per diem rates for meals only.
+Is home internet deductible?||Home internet is deductible to the extent used for business.
+Is cell phone deductible?||Business use of a cell phone is deductible; personal use is not.
+Can I deduct clothing for business?||Clothing is only deductible if not suitable for everyday wear and required for work.
+Can I deduct a home office?||A home office is deductible if used regularly and exclusively for business purposes.
+Is mileage to work deductible?||No, commuting miles are never deductible.
+Can volunteering mileage be deducted?||Yes, charitable mileage is deductible at IRS-approved rates.
+Can medical mileage be deducted?||Yes, medical mileage is deductible above 7.5% of AGI if itemized.
+Is tax prep deductible?||Tax prep fees were suspended for individuals except for business returns.
+Can I deduct investment fees?||Investment advisory fees are no longer deductible for individual investors under TCJA.
+Are union dues deductible?||Union dues may be deductible in certain unreimbursed employee categories.
+Is pet care deductible?||Pet expenses are not deductible unless the animal is a certified service animal.
+Can I deduct adoption expenses?||Qualified adoption expenses may be eligible for the federal adoption credit.
+Is foster income taxable?||Some foster payments may be tax-free depending on state programs.
+Are disaster losses deductible?||Casualty losses are deductible only for federally declared disaster areas.
+Can I deduct a personal loan?||Personal loans are not deductible because they are not income or expenses.
+Is forgiven credit card debt taxable?||Forgiven debt is generally taxable unless an exclusion applies.
+Can I deduct charitable mileage?||Charitable mileage is deductible at rates approved by the IRS.
+Can I deduct job search expenses?||Job search expenses were suspended except for performing artists and certain professions.
+Can I claim someone as a dependent if they don’t live with me?||Possible only if they are a qualifying relative and meet support and income tests.
+Can both parents claim the same child?||No, only one parent may claim a child each tax year.
+Is tuition deductible for parents?||Tuition may qualify for education credits if the student is a dependent.
+Are work-from-home expenses deductible?||Employees cannot deduct home office expenses; self-employed individuals can.
+Is interest from municipal bonds taxable?||Most municipal bond interest is tax-free federally.
+Is inheritance taxable as income?||Inherited assets are not income, but interest or dividends they produce are taxable.
+Is rental security deposit taxable?||Security deposits are not taxable unless kept for damages.
+Are babysitting payments taxable?||Yes, babysitting payments are taxable income.
+Is crowdfunding income taxable?||Crowdfunding is taxable if funds are for business or personal benefit unless it qualifies as a gift.
+Can I deduct a new roof?||A new roof is not deductible but increases your home's cost basis for a future sale.
+Are solar panels deductible?||Solar panels may qualify for a federal energy credit.
+Is my tax refund taxable?||State tax refunds may be taxable if you itemized in the prior year.
+Can I deduct loan interest?||Only certain interest (mortgage, investment, business) is deductible.
+Are education grants taxable?||Grants for non-qualified education expenses are taxable.
+Can I deduct exam fees?||Some professional exam fees may qualify as business expenses.
+Is mileage for charity deductible?||Yes, charitable mileage has a fixed IRS deduction rate.
+Is inherited IRA taxable?||Distributions from inherited IRAs are generally taxable unless it is a Roth IRA.
+Is gambling loss carryover allowed?||No, gambling losses cannot exceed winnings in the same year.
+Is rental property considered passive income?||Yes, rental activity is generally passive unless you qualify as a real estate professional.
+Can I deduct travel to a rental property?||Yes, travel expenses directly related to managing a rental property are deductible.
+Is inherited property taxable?||Inheriting property is not taxable, but the sale may produce a gain depending on stepped-up basis.
+What is stepped-up basis?||Stepped-up basis adjusts inherited property value to fair market value on the date of death.
+Is life insurance payout taxable?||Life insurance proceeds are typically not taxable to the beneficiary.
+Can I deduct mortgage points?||Points paid for purchasing a primary home may be deductible if they meet IRS rules.
+Is refinancing deductible?||Refinance points are generally deducted over the life of the loan.
+Can I deduct student loan origination fees?||Yes, they are included as interest over the life of the loan.
+Is disability income from SSDI taxable?||SSDI may be taxable depending on your total combined income.
+Is VA disability taxable?||VA disability payments are not taxable.
+Can I deduct adoption agency fees?||Yes, qualified adoption expenses may be eligible for the federal adoption credit.
+Is forgiven mortgage debt taxable?||Forgiven mortgage debt may be excluded depending on IRS mortgage relief provisions.
+Can I deduct a safe deposit box?||Safe deposit box fees are no longer deductible for individuals under TCJA.
+Is hobby income taxable?||Yes, hobby income is taxable, but expenses are not deductible.
+Can I deduct hobby expenses?||No, hobby expenses are not deductible, only hobby income must be reported.
+Are health savings accounts taxable?||HSA contributions are deductible; qualified withdrawals are tax-free.
+Can I deduct travel for medical reasons?||Medical travel is deductible above 7.5% of AGI if itemizing.
+Can I deduct chiropractic care?||Yes, chiropractic treatments qualify as medical expenses.
+Is mental health therapy deductible?||Yes, therapy counts as a deductible medical expense if you itemize.
+Is acupuncture deductible?||Acupuncture qualifies as a medical deduction.
+Can I deduct IVF or fertility treatments?||Yes, fertility treatments qualify as medical expenses.
+Is adoption assistance taxable?||Employer-provided adoption benefits may be excludable within IRS limits.
+Can I deduct unreimbursed business expenses?||These are limited but allowed for specific professions like performing artists and reservists.
+Are passport fees deductible?||Passport fees are not deductible unless required for business travel.
+Are bank fees deductible?||Bank fees may be deductible for business accounts but not personal accounts.
+Is overdraft fee deductible?||Business overdraft fees may be deductible; personal fees are not.
+Are late payment penalties deductible?||Business-related penalties may be deductible; personal penalties are not.
+Is credit card annual fee deductible?||Business credit card annual fees are deductible; personal card fees are not.
+Is refinancing interest deductible?||Interest on a refinance is deductible if the funds were used for home improvement or business.
+Is unemployment taxable by states?||Some states tax unemployment while others do not.
+Is Social Security taxed by states?||Some states tax Social Security; California does not.
+Can I deduct medical insurance premiums after COBRA?||Yes, COBRA premiums count as medical expenses for itemizing.
+Can I deduct mortgage insurance?||Mortgage insurance deductions depend on AGI limits and IRS extensions.
+Can I deduct union initiation fees?||These may be deductible only in special categories, not for most employees.
+Are legal settlements taxable?||Most settlements are taxable unless related to physical injury.
+Can I deduct business startup costs?||Startup costs up to $5,000 may be deducted in the first year with the remainder amortized.
+Can I deduct education for my job?||Education improving skills in your current job may be deductible.
+Is rental furniture deductible?||Yes, furniture used in a rental property is deductible and depreciable.
+Is rental insurance deductible?||Yes, insurance premiums for rental properties are deductible.
+Can I deduct HOA fees for a rental?||HOA fees for rental properties are deductible.
+Is rental loss deductible?||Rental losses may be deductible depending on passive activity rules and AGI.
+Are Roth IRA withdrawals taxable?||Qualified Roth IRA withdrawals are tax-free; non-qualified withdrawals may be taxable.
+Can I deduct Medigap premiums?||Medigap premiums are deductible as medical expenses.
+Is FSA money taxable?||FSA contributions are pre-tax; unused funds may be forfeited depending on plan rules.
+Are HSAs taxable when used?||HSA withdrawals are tax-free when used for qualified medical expenses.
+Can I deduct a swimming pool?||A pool is deductible only if medically necessary, supported by documentation.
+Is alternative medicine deductible?||Alternative medical treatments may qualify if prescribed by a licensed provider.
+Is rental depreciation recapture taxable?||Yes, depreciation recapture is taxed as ordinary income up to 25% when you sell a rental property.
+Can I deduct repairs to my home?||Home repairs are not deductible unless related to a rental property or business use.
+Can I deduct home improvements?||Home improvements add to the cost basis but are not deductible unless tied to rental or business use.
+Is inherited rental property depreciable?||Yes, inherited rental property receives a stepped-up basis and can be depreciated from that value.
+Are relocation benefits taxable?||Most employer-paid relocation benefits are taxable under current IRS rules.
+Is long-term capital gain taxed differently?||Yes, long-term capital gains receive preferential tax rates depending on income level.
+Is short-term capital gain taxed differently?||Short-term capital gains are taxed as ordinary income.
+Can I deduct professional license fees?||Yes, licenses required for your profession may be deductible as business expenses.
+Are union strike benefits taxable?||Yes, strike benefits are taxable income.
+Are employer reimbursements taxable?||Non-accountable plan reimbursements are taxable; accountable plan reimbursements are not.
+Can I deduct job-related training?||Job-related training is deductible only for the self-employed under Schedule C.
+Are business subscriptions deductible?||Subscriptions directly related to business operations are deductible.
+Is identity theft protection deductible?||Business-related identity protection may be deductible.
+Can I deduct moving for medical reasons?||Moving for medical care may qualify as a medical expense if meeting IRS criteria.
+Are over-the-counter drugs deductible?||Only if prescribed by a doctor or purchased with HSA/FSA under current rules.
+Can I deduct parking fees for work?||Parking fees are not deductible unless for business travel or Schedule C activity.
+Is babysitting for personal reasons deductible?||No, babysitting is deductible only if used to enable work for the Child and Dependent Care Credit.
+Does IRS tax bartering?||Yes, bartering is taxable at fair market value and must be reported as income.
+Are foreign pensions taxable?||Foreign pensions may be taxable depending on treaty rules and residency status.
+Is military pay taxable?||Base pay is taxable; combat zone exclusions may apply.
+Can I deduct military uniforms?||Military uniforms may be deductible if not permitted for routine wear off duty.
+Is disability severance pay taxable?||Some disability severance pay is taxable unless exempted under IRS P.L. 115-97.
+Can I deduct internet for remote work?||Employees cannot deduct home office costs; self-employed individuals may deduct business use.
+Are wash sale losses deductible?||Wash sale rules disallow losses repurchased within 30 days before or after sale.
+Is forgiven PPP loan taxable?||PPP loan forgiveness is not taxable at the federal level.
+Are EIDL grants taxable?||EIDL grants are taxable for federal purposes.
+Can I deduct mortgage prepayment penalties?||Yes, mortgage prepayment penalties may be deductible as interest.
+Is cancelation of debt taxable?||Canceled debt is taxable unless excluded by IRS rules such as insolvency.
+Can I deduct health insurance marketplace premiums?||Premiums may qualify for the Premium Tax Credit if income meets thresholds.
+Does ACA require filing Form 8962?||Form 8962 is required for anyone receiving advance premium tax credits.
+Is COBRA subsidy taxable?||Depending on the program year, subsidies may or may not be taxable.
+Can I deduct COBRA premiums?||COBRA premiums count toward medical expenses for itemization.
+Is back child support taxable?||Child support payments, including arrears, are not taxable income.
+Are jury duty payments taxable?||Yes, jury duty compensation is taxable and must be reported.
+Is life insurance through an employer taxable?||Coverage above $50,000 may create taxable imputed income.
+Can I deduct union work boots?||Safety boots required for work may be deductible if not suitable for everyday use.
+Can I deduct tools replaced due to damage?||Yes, tools necessary for work are deductible as business expenses.
+Are travel points taxable?||Travel reward points are generally not taxable unless received as a rebate for spending.
+Is forgiven rent taxable?||Forgiven rent is taxable if you are the landlord; for tenants it is not income.
+Are HELOC interest payments deductible?||HELOC interest is deductible only if used to improve the home securing the loan.
+Can I deduct work-from-home utilities?||Utilities are deductible only for self-employed business use.
+Is unemployment overpayment taxable?||If you did not repay it in the same year, the overpayment is still taxable.
+Can IRS tax illegal income?||Yes, all income must be reported regardless of source.
+Can I deduct a personal vehicle?||Only business-use portions of a vehicle are deductible under Schedule C.
+Are health club dues deductible?||Health club dues are not deductible unless prescribed for a medical condition.
+Are vitamins deductible?||Vitamins are deductible only if prescribed by a doctor.
+Can I deduct charitable donations without a receipt?||Cash donations require evidence such as a bank record or receipt to be deductible.
+Are volunteer hours deductible?||No, the value of your time is not deductible.

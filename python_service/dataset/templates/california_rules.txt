@@ -1,0 +1,196 @@
+Do I get CA renter credit?||You may qualify if you paid rent all year and meet CA income limits.
+Is CA refund taxable?||State refunds are taxable only if you itemized last year.
+Do I need to file a California tax return?||You must file if you are a resident, part-year resident, or earned CA-source income as a nonresident.
+What is Form 540?||Form 540 is the California Resident Income Tax Return.
+What is Form 540NR?||Form 540NR is for nonresidents and part-year residents with CA-source income.
+What is California AGI?||CA AGI starts with federal AGI and adjusts for California additions and subtractions.
+Does California tax Social Security?||No, California does not tax Social Security benefits.
+Does California tax unemployment?||Yes, California taxes unemployment benefits.
+Does California tax state tax refunds?||No, state tax refunds are not taxable in California.
+Does California tax pension income?||Yes, most pension and retirement distributions are taxable in CA.
+Does California tax disability income?||Certain disability payments may be excluded depending on the program.
+Does California tax HSA contributions?||California does not recognize HSAs; contributions are added back to income.
+Are 529 withdrawals taxable in CA?||California conforms to federal rules for qualified education withdrawals.
+Does California have standard deduction?||Yes, the standard deduction is smaller than federal and varies by filing status.
+Does California allow itemized deductions?||Yes, but CA has its own limits and does not allow all federal deductions.
+Are mortgage interest deductions different in CA?||California mostly follows federal rules but may disallow some high-income phaseouts.
+Does California cap state/local tax deductions?||California does not follow the federal $10,000 SALT cap for itemizing.
+Does California allow charitable deductions?||Yes, CA generally conforms to federal charitable deduction rules.
+Is California community property state?||Yes, income earned during marriage is typically split between spouses unless separated.
+What if spouses live apart in CA?||Special community property rules apply when married but living separately for the entire year.
+Are RDPs (Registered Domestic Partners) treated as married?||Yes, RDPs file as married for CA but single for federal.
+Does California offer Earned Income Credit?||Yes, California has its own CalEITC based on federal EIC rules with modifications.
+What is Young Child Tax Credit?||California’s YCTC applies if you qualify for CalEITC and have a child under age 6.
+Does California have renter’s credit?||Yes, eligible renters may claim the California Renter’s Credit.
+Does CA offer dependent credit?||Yes, California provides a Nonrefundable Dependent Exemption Credit.
+Does California tax capital gains differently?||No, CA taxes capital gains the same as ordinary income.
+Does CA have lower rates for long-term gains?||No, CA does not differentiate short- or long-term gains.
+Are RSUs taxed in California?||Yes, RSUs earned while residing or working in California are taxable.
+What if RSUs vest after leaving California?||If earned during CA residency or work, part may still be sourced to CA.
+Does CA tax ESPP income?||Yes, ESPP income is taxable to CA if earned in connection with CA work.
+Does California tax cryptocurrency?||Yes, crypto gains are taxed as capital gains (ordinary income in CA).
+Does California tax out-of-state income?||Residents are taxed on worldwide income; nonresidents only on CA-source income.
+What counts as CA-source income?||Income earned from work performed in CA, rentals in CA, business in CA, or sales to CA customers.
+How do I know if I'm a CA resident?||Residency is based on where your closest ties are: home, work, family, bank accounts, and intent to remain.
+What is part-year CA residency?||Part-year residents are taxed as residents during months in CA and nonresidents otherwise.
+I moved out of California mid-year||You file Form 540NR as a part-year resident.
+I moved into California mid-year||You also file Form 540NR and report worldwide income only for CA months.
+Do I pay CA tax on income earned before moving to CA?||No, only income earned while a CA resident or from CA sources.
+Do I pay CA tax after leaving CA?||Only on CA-source income such as CA rentals or CA business.
+Does CA allow 401(k) deductions?||Yes, CA conforms to federal retirement contributions.
+Does CA allow IRA deductions?||Yes, California generally follows federal IRA deduction rules.
+Does CA allow HSA deductions?||No, California does not conform to federal HSA deduction rules.
+Do I add back HSA earnings?||Yes, CA requires including HSA contributions and interest earnings.
+Does California tax lottery winnings?||Yes, California taxes winnings except CA state lottery.
+Are California lottery winnings taxable federally?||Yes, federal taxes apply, but CA excludes CA lottery winnings.
+Does California tax VA disability?||No, VA disability is exempt from CA tax.
+Does California tax worker’s compensation?||No, worker’s compensation is excluded from CA tax.
+Can I claim CA EITC with no SSN?||You may claim CalEITC with an ITIN under specific rules.
+Does California tax disability retirement income?||Yes, unless it qualifies as worker's compensation or certain excluded disability programs.
+Does California allow moving expense deductions?||No, CA does not conform to federal moving expense deductions.
+Does California allow alimony deductions?||No, CA does not follow federal TCJA rules; alimony may still be deductible for agreements before 2019.
+Does California tax alimony received?||Yes, alimony received may be taxable in California depending on the date of the divorce agreement.
+Does California tax gambling winnings?||Yes, gambling winnings are fully taxable in CA.
+Can I deduct gambling losses in CA?||Yes, but only if itemized and only to the extent of winnings.
+Does CA allow student loan interest deduction?||Yes, California conforms to the federal student loan interest deduction.
+Does CA allow educator expenses deduction?||Yes, educator deductions generally follow federal rules.
+Does California allow QBI deduction?||No, California does not allow the Qualified Business Income (QBI) deduction.
+Does CA tax 529 earnings?||No, CA conforms to federal treatment of qualified 529 withdrawals.
+What is CA “use tax”?||Use tax applies to out-of-state purchases where sales tax was not paid.
+Do I need to report use tax?||Yes, CA requires reporting use tax on Form 540.
+Does California tax HSAs?||Yes, CA taxes HSA contributions and interest earnings.
+Does CA recognize FSA or HRA?||Yes, FSAs and HRAs follow federal tax rules.
+Does CA have personal exemption credit?||Yes, CA provides a small personal exemption credit instead of federal deduction.
+Does CA have dependent exemption credit?||Yes, CA offers a dependent exemption credit for each qualifying dependent.
+Does California allow medical deductions?||Yes, CA uses the same 7.5% AGI threshold as federal.
+Does CA allow SALT deduction?||California does not follow the federal $10,000 SALT cap.
+What is a CA Schedule CA?||Schedule CA adjusts federal income for CA additions and subtractions.
+What are CA additions?||Items added back to federal AGI, such as HSA contributions or interest from non-CA municipal bonds.
+What are CA subtractions?||Deductions CA allows but federal does not, such as certain Social Security or railroad retirement.
+Do I need Schedule CA?||Yes, if you have any differences between federal and California tax treatment.
+Does California tax out-of-state rental income?||No, only rental income from CA properties is taxed by CA for nonresidents.
+Do I need to allocate income between states?||Yes, part-year and nonresident filers must allocate CA-source income.
+What is CA-source wages?||Wages earned while working in California, regardless of employer location.
+Does remote work count as CA income?||If work was physically performed in CA, it is CA-source income.
+Does CA tax consulting income earned out of state?||If the work was done outside CA, it is not CA-source income even if paid by a CA company.
+What is FTB Notice 4600?||A Notice 4600 requests documentation to verify withholding or income reported.
+What is FTB Notice 4601?||A 4601 notice requests verification for refundable credits or residency proof.
+What is FTB Notice 5818?||An FTB collection notice indicating past-due CA taxes.
+What is MyFTB?||MyFTB is California’s online portal for tax accounts, notices, and filing history.
+Does California audit residency?||Yes, CA aggressively audits residency to determine tax obligations.
+What triggers CA residency audit?||Owning a home, spending significant time in CA, or having CA employment or dependents may trigger review.
+How do I prove nonresidency?||Show ties to another state: home, voter registration, driver’s license, employment, banking, vehicle registration, etc.
+Does California tax RSUs after moving?||RSUs earned while working in CA remain CA-source income even if vesting occurs after leaving.
+How does CA tax stock options?||Option income is allocated based on the work performed during vesting period in CA.
+Do I file CA taxes if I moved mid-year?||Yes, file Form 540NR as a part-year resident and allocate income.
+Do I pay CA tax on income before moving to CA?||No, only income earned after becoming a CA resident.
+Do I pay CA tax after leaving CA?||Only CA-source income remains taxable.
+Does CA allow bonus depreciation?||No, CA does not conform to federal bonus depreciation rules.
+Does CA allow Section 179 the same as federal?||California has its own Section 179 limits, lower than federal limits.
+Does CA allow NOL carryforward?||Yes, CA allows NOL carryforward with specific rules but disallows carryback.
+Does CA conform to federal AMT rules?||CA has its own AMT calculations which differ from federal.
+Why is CA refund different from federal?||CA uses different income adjustments, deductions, and credits.
+Why did CA remove my dependent credit?||CA-dependent credit requires meeting CA-specific conditions separate from federal.
+Why does CA tax unemployment?||California considers unemployment compensation taxable income.
+Does CA tax alimony received before 2019?||Yes, CA generally taxes alimony based on older federal rules.
+Does CA require estimated tax payments?||Yes, estimated payments are required if withholding is insufficient.
+What is California safe harbor rule?||Safe harbor lets certain individuals working outside CA avoid residency classification if they are outside California under employment for at least 546 consecutive days.
+Does safe harbor apply if my family stays in CA?||Yes, as long as you did not exceed 45 days inside CA during the period.
+Does safe harbor apply to retirees?||No, safe harbor applies only to employment-related absences.
+Does CA tax my out-of-state business?||CA taxes business income sourced to California customers or activity performed in California.
+How does CA source business income?||CA uses market-based sourcing for services and sales of intangibles.
+Do I pay CA tax for remote work done in Nevada?||No, if the work is physically performed outside CA, it is not CA-source.
+What if employer is in California?||Employer location doesn't determine tax—location of work performed does.
+What is CA throwback rule?||Sales shipped from CA to states where taxpayer is not taxable may be sourced back to CA.
+Does CA tax rental property outside the state?||No, rental income is sourced to the state where the property is located.
+Does CA tax rental property inside CA?||Yes, CA taxes rental income from California property regardless of residency.
+How is CA tax calculated for 540NR?||CA tax is calculated on worldwide income but applied to CA-source income ratio.
+Why is CA tax higher than expected on Form 540NR?||CA computes tax as if resident, then applies a ratio of CA-source income.
+Does California tax retirement from another state?||Yes, retirement income is taxable to CA residents but not to CA nonresidents.
+Does CA tax military retirement?||Yes, California taxes military retirement income for residents.
+Does CA tax crypto mining income?||Yes, CA follows federal rules and taxes mining income as business or self-employment income.
+Does CA conform to federal crypto rules?||Generally yes, but CA taxes everything at ordinary income rates.
+Does CA allow casualty loss deductions?||Only for federally declared disasters.
+Does CA match federal disaster relief rules?||Often yes, but specific state declarations may differ.
+Does CA allow federal educator credit?||Yes, CA follows federal guidelines for educator expense deductions.
+Does CA allow adoption credit?||California does not currently offer a separate adoption credit.
+What is the California Child Adoption Costs Credit?||It applied in earlier years; check FTB updates for availability per tax year.
+Does CA allow Child and Dependent Care Credit?||Yes, but CA has its own percentage and income limitations.
+Does CA have Foster Youth Tax Credit?||Yes, CA offers a Foster Youth Credit for eligible taxpayers.
+Does CA match federal HOH rules?||Mostly, but CA may require additional documentation for custodial requirements.
+Can I file CA HOH without federal HOH?||Usually no—federal HOH must be correct first.
+Does CA require proof for HOH?||Yes, CA frequently requests documentation for HOH claims (school records, medical bills, leases, etc.).
+Why did CA remove my HOH filing?||FTB determined dependent eligibility or residency requirements were not met.
+Does CA follow federal dependent rules?||Generally yes, but CA enforces documentation more strictly.
+Can I claim CA EITC with ITIN?||Yes, California allows CalEITC for eligible ITIN filers.
+Does CalEITC require earned income?||Yes, earned income is required similar to federal EIC.
+What is Young Child Tax Credit?||YCTC is available if you qualify for CalEITC and have a child under age 6.
+Does CA allow excess APTC credits?||California does not use federal ACA subsidy reconciliation on Form 540.
+Does CA use 1095-A?||1095-A does not affect California tax calculations.
+Does CA require ACA coverage?||California formerly required coverage but penalties were adjusted depending on tax year.
+Does CA have penalty for no health insurance?||Yes, California has its own individual mandate penalties depending on tax year.
+Does CA tax out-of-state LLC income?||LLCs owe CA LLC fee if they do business in CA or have CA gross receipts.
+What is CA LLC Annual Franchise Tax?||LLCs doing business in CA must pay $800 annual minimum franchise tax.
+Do I need to pay CA LLC fee if income is not in CA?||If LLC has no CA activity and no CA receipts, fee may not apply.
+What is CA LLC “doing business” rule?||Includes having CA payroll, property, sales, or economic presence exceeding thresholds.
+Does CA tax installment sale income?||Installment income is CA-source if the asset is located or used in CA.
+Do I need to file CA if selling CA rental after leaving?||Yes, rental property sale is CA-source income regardless of residency.
+How does CA tax depreciation recapture?||California taxes recapture as ordinary income, similar to federal rules.
+Does CA allow like-kind exchanges?||CA conforms to federal 1031 rules for real estate but requires CA tracking (Form FTB 3840).
+What is FTB 3840?||Used to track property exchanged under 1031 when replacement property leaves California.
+What is CA mental health tax?||High-income taxpayers (over $1,000,000 taxable income) pay an additional 1% mental health tax.
+Does CA conform to federal bonus depreciation?||No, CA requires addbacks for bonus depreciation and special expensing.
+What is CA NOL carryforward rule?||CA allows NOL carryforward but suspended usage in certain years depending on budget rules.
+Can CA tax forgiven student loans?||Some forgiven loans may be taxable depending on conformity for the year.
+What is FTB Notice 6150?||A notice requesting proof of residency or requesting clarification on source of income.
+What is FTB Civil Penalty?||CA may impose penalties for failure to furnish information or residency misrepresentation.
+What is California safe harbor rule?||Safe harbor lets certain individuals working outside CA avoid residency classification if they are outside California under employment for at least 546 consecutive days.
+Does safe harbor apply if my family stays in CA?||Yes, as long as you did not exceed 45 days inside CA during the period.
+Does safe harbor apply to retirees?||No, safe harbor applies only to employment-related absences.
+Does CA tax my out-of-state business?||CA taxes business income sourced to California customers or activity performed in California.
+How does CA source business income?||CA uses market-based sourcing for services and sales of intangibles.
+Do I pay CA tax for remote work done in Nevada?||No, if the work is physically performed outside CA, it is not CA-source.
+What if employer is in California?||Employer location doesn't determine tax—location of work performed does.
+What is CA throwback rule?||Sales shipped from CA to states where taxpayer is not taxable may be sourced back to CA.
+Does CA tax rental property outside the state?||No, rental income is sourced to the state where the property is located.
+Does CA tax rental property inside CA?||Yes, CA taxes rental income from California property regardless of residency.
+How is CA tax calculated for 540NR?||CA tax is calculated on worldwide income but applied to CA-source income ratio.
+Why is CA tax higher than expected on Form 540NR?||CA computes tax as if resident, then applies a ratio of CA-source income.
+Does California tax retirement from another state?||Yes, retirement income is taxable to CA residents but not to CA nonresidents.
+Does CA tax military retirement?||Yes, California taxes military retirement income for residents.
+Does CA tax crypto mining income?||Yes, CA follows federal rules and taxes mining income as business or self-employment income.
+Does CA conform to federal crypto rules?||Generally yes, but CA taxes everything at ordinary income rates.
+Does CA allow casualty loss deductions?||Only for federally declared disasters.
+Does CA match federal disaster relief rules?||Often yes, but specific state declarations may differ.
+Does CA allow federal educator credit?||Yes, CA follows federal guidelines for educator expense deductions.
+Does CA allow adoption credit?||California does not currently offer a separate adoption credit.
+What is the California Child Adoption Costs Credit?||It applied in earlier years; check FTB updates for availability per tax year.
+Does CA allow Child and Dependent Care Credit?||Yes, but CA has its own percentage and income limitations.
+Does CA have Foster Youth Tax Credit?||Yes, CA offers a Foster Youth Credit for eligible taxpayers.
+Does CA match federal HOH rules?||Mostly, but CA may require additional documentation for custodial requirements.
+Can I file CA HOH without federal HOH?||Usually no—federal HOH must be correct first.
+Does CA require proof for HOH?||Yes, CA frequently requests documentation for HOH claims (school records, medical bills, leases, etc.).
+Why did CA remove my HOH filing?||FTB determined dependent eligibility or residency requirements were not met.
+Does CA follow federal dependent rules?||Generally yes, but CA enforces documentation more strictly.
+Can I claim CA EITC with ITIN?||Yes, California allows CalEITC for eligible ITIN filers.
+Does CalEITC require earned income?||Yes, earned income is required similar to federal EIC.
+What is Young Child Tax Credit?||YCTC is available if you qualify for CalEITC and have a child under age 6.
+Does CA allow excess APTC credits?||California does not use federal ACA subsidy reconciliation on Form 540.
+Does CA use 1095-A?||1095-A does not affect California tax calculations.
+Does CA require ACA coverage?||California formerly required coverage but penalties were adjusted depending on tax year.
+Does CA have penalty for no health insurance?||Yes, California has its own individual mandate penalties depending on tax year.
+Does CA tax out-of-state LLC income?||LLCs owe CA LLC fee if they do business in CA or have CA gross receipts.
+What is CA LLC Annual Franchise Tax?||LLCs doing business in CA must pay $800 annual minimum franchise tax.
+Do I need to pay CA LLC fee if income is not in CA?||If LLC has no CA activity and no CA receipts, fee may not apply.
+What is CA LLC “doing business” rule?||Includes having CA payroll, property, sales, or economic presence exceeding thresholds.
+Does CA tax installment sale income?||Installment income is CA-source if the asset is located or used in CA.
+Do I need to file CA if selling CA rental after leaving?||Yes, rental property sale is CA-source income regardless of residency.
+How does CA tax depreciation recapture?||California taxes recapture as ordinary income, similar to federal rules.
+Does CA allow like-kind exchanges?||CA conforms to federal 1031 rules for real estate but requires CA tracking (Form FTB 3840).
+What is FTB 3840?||Used to track property exchanged under 1031 when replacement property leaves California.
+What is CA mental health tax?||High-income taxpayers (over $1,000,000 taxable income) pay an additional 1% mental health tax.
+Does CA conform to federal bonus depreciation?||No, CA requires addbacks for bonus depreciation and special expensing.
+What is CA NOL carryforward rule?||CA allows NOL carryforward but suspended usage in certain years depending on budget rules.
+Can CA tax forgiven student loans?||Some forgiven loans may be taxable depending on conformity for the year.
+What is FTB Notice 6150?||A notice requesting proof of residency or requesting clarification on source of income.
+What is FTB Civil Penalty?||CA may impose penalties for failure to furnish information or residency misrepresentation.

@@ -1,0 +1,1 @@
+def calculate(data): return {'refund':1000}

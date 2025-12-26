@@ -1,0 +1,51 @@
+I want to deduct commuting miles||Commuting miles are not deductible; only business-related mileage qualifies.
+I can claim my friend, right?||You may only claim someone who meets IRS dependent tests for income and support.
+I can deduct my normal clothes for work||Clothing is deductible only if it is not suitable for everyday wear and is required for your job. Regular work clothes are not deductible.
+I can deduct my lunch every day||Meals during a normal workday are not deductible. Business meals are deductible only under IRS rules.
+I can deduct all my mileage||Only business, medical, charitable, or moving mileage (military) is deductible. Commuting miles are never deductible.
+I can claim my girlfriend as a dependent||You may claim someone only if they meet IRS dependent tests for income, residency, and support.
+I can claim my roommate||A roommate can be a dependent only if you provide over half their support and they meet income limits.
+My child’s other parent claimed them but I should too||Only one parent may claim a dependent per year. IRS tie-breaker rules apply.
+I don’t need to report cash income||All income must be reported, including cash, digital payments, and tips.
+I can ignore my 1099-K||A 1099-K must be reconciled on your tax return even if the income is not taxable.
+My crypto trades don’t matter||Crypto trades are taxable events and must be reported on Form 8949.
+I don’t pay tax on foreign income||U.S. citizens must report worldwide income. Credits or exclusions may apply.
+I can deduct 100% of my meals||Meals are generally 50% deductible unless special rules apply.
+I can deduct my commute to work||Commuting miles are not deductible under IRS rules.
+I can deduct my home internet because I work from home for my employer||Employees cannot deduct home office or internet expenses; self-employed individuals can.
+I don’t need to file because I made under $12k||Filing requirements also depend on self-employment and other income types.
+I can claim EIC even without income||EIC requires earned income; investment or unemployment income does not qualify.
+I can claim my child even if they lived with me only two months||Dependents must live with you more than half the year unless exceptions apply.
+I can file Head of Household because I pay rent||HOH requires a qualifying dependent, not just paying rent.
+I can file Single even though I’m married||Married individuals must file MFJ or MFS unless legally separated by year-end.
+I can deduct my pets||Pet expenses are not deductible unless the animal is a certified service animal.
+I can deduct my dog as a guard dog||Guard animals may be deductible only for legitimate business use, not personal residences.
+I can deduct my wedding||Wedding expenses are not deductible for tax purposes.
+I can deduct my entire car payment||Only the business-use percentage of your car is deductible under Schedule C.
+I don’t have to report tips||All tips are taxable income, whether cash or digital.
+I can deduct my rent||Rent is only deductible for business or home office use, not personal living.
+I can deduct my personal phone||Only business-use percentage of phone expenses is deductible.
+I don’t need a 1095-A to file||If you received advance premium tax credits, Form 1095-A is required.
+I can deduct babysitting as a normal expense||Babysitting is deductible only if used to enable work under the Child and Dependent Care Credit.
+I can deduct school lunch||School lunches are personal expenses and not deductible.
+I can deduct my child's sports fees||Sports fees are not deductible unless part of a qualified educational expense program.
+I can claim EIC if my child lives with me only weekends||A child must live with you more than half the year to qualify for EIC.
+I can claim education credits without a 1098-T||A 1098-T or equivalent documentation is required.
+I don’t need to report stock sales because I lost money||All stock sales must be reported even if losses occurred.
+I can deduct my medical marijuana||Medical marijuana is not deductible under federal law.
+I don’t have to repay excess ACA credits||Advance premium credits must be reconciled on Form 8962; excess may need repayment.
+I don’t need to report rental income if I used it for repairs||All rental income must be reported; repairs are deductible separately.
+I can deduct rental property improvements as repairs||Improvements must be depreciated; only repairs are currently deductible.
+I can deduct home improvements immediately||Most improvements must be added to basis and depreciated if rental or business property.
+I can deduct fines or traffic tickets||Fines and penalties are not deductible under IRS rules.
+I can deduct my vacation as a business trip||Only travel primarily for business is deductible; personal vacations do not qualify.
+I can deduct gifts over $25||Business gifts are limited to $25 per recipient per year.
+I can deduct my down payment||Down payments are capital investments, not deductible expenses.
+I can deduct my rent because I work from home||Employees cannot deduct home office expenses; only self-employed people may claim them.
+I can deduct my kids' toys||Toys are not deductible unless used in a qualified childcare business.
+I can ignore the IRS letter||IRS notices must be addressed; penalties can increase if ignored.
+I can deduct my gas for all driving||Only documented business mileage is deductible, not personal use.
+I can deduct personal interest||Most personal interest is not deductible; only business or investment interest may qualify.
+I can claim a dependent without their SSN||A valid SSN or ITIN is required for dependents.
+I can claim someone who files their own return||You generally cannot claim someone who claims themselves.
+I don’t need to file self-employment tax||Self-employment tax applies when net income is $400 or more.
