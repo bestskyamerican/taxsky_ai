@@ -49,25 +49,36 @@ from pathlib import Path
 # ============================================================
 # IMPORT THE REAL CALCULATOR (Single Source of Truth)
 # ============================================================
+
+# ============================================================
+# IMPORT THE REAL CALCULATOR (Single Source of Truth)
+# ============================================================
 try:
-    from .calculator import calculate as calculate_tax
+    # Try: calculator/federal/calculator.py (correct path based on folder structure)
+    from .calculator.federal.calculator import calculate as calculate_tax
     CALCULATOR_AVAILABLE = True
+    print("✅ calculator loaded from .calculator.federal.calculator")
 except ImportError:
     try:
-        # Try: calculator/federal/calculator.py
+        # Fallback: calculator/federal/calculator.py without relative import
         from calculator.federal.calculator import calculate as calculate_tax
         CALCULATOR_AVAILABLE = True
-        print("✅ calculator loaded from calculator/federal/")
+        print("✅ calculator loaded from calculator.federal.calculator")
     except ImportError:
         try:
             # Try: calculator.py in same directory
-            from calculator import calculate as calculate_tax
+            from .calculator import calculate as calculate_tax
             CALCULATOR_AVAILABLE = True
+            print("✅ calculator loaded from .calculator")
         except ImportError:
-            print("⚠️ calculator.py not found - tax calculations will fail")
-            CALCULATOR_AVAILABLE = False
-            calculate_tax = None
-
+            try:
+                from calculator import calculate as calculate_tax
+                CALCULATOR_AVAILABLE = True
+                print("✅ calculator loaded from calculator")
+            except ImportError as e:
+                print(f"⚠️ calculator.py not found - tax calculations will fail: {e}")
+                CALCULATOR_AVAILABLE = False
+                calculate_tax = None
 # ============================================================
 # CONFIGURATION
 # ============================================================
