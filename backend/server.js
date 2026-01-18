@@ -51,18 +51,10 @@ connectDB();
 // App Initialization
 // -------------------------
 const app = express();
-
-// ✅ UPDATED CORS - Added production URL
 app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'http://localhost:5174', 
-    'http://localhost:3000',
-    'https://goldfish-app-3qzug.ondigitalocean.app'
-  ],
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'],
   credentials: true,
 }));
-
 app.use(express.json());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
