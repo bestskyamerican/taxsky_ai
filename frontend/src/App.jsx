@@ -23,7 +23,7 @@ import {
   CheckoutPage, 
   PaymentSuccess, 
   PaymentHistory 
-} from './pages/Payment';
+} from './pages/payment';
 
 // ============================================================
 // CONFIGURATION
