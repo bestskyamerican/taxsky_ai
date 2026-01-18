@@ -1,0 +1,9 @@
+from openai import OpenAI
+client = OpenAI()
+
+response = client.responses.create(
+  prompt={
+    "id": "pmpt_6959ca4bb4c08194ae6c2011952c7bce06d67339e52d2b77",
+    "version": "1"
+  }
+)

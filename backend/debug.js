@@ -1,380 +1,205 @@
 // ============================================================
-// TAXSKY AI - FULL FLOW TEST SCRIPT
+// TEST FINE-TUNED INTERVIEW FLOW
 // ============================================================
-// Run: node test-full-flow.js
+// Tests the complete TaxSky interview conversation
+// Run: node test-interview-flow.js
 // ============================================================
 
-import fetch from 'node-fetch';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-
+import OpenAI from "openai";
+import dotenv from "dotenv";
 dotenv.config();
 
-const BASE_URL = 'http://localhost:3000';
-const TEST_USER = 'test_flow_' + Date.now();
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Use the SAME secret as your backend
-const JWT_SECRET = process.env.JWT_SECRET || 'taxsky-jwt-secret-2024-bestskyamerican-random-key';
+const MODEL = "ft:gpt-3.5-turbo-0125:banigi-ai:taxsky-interview:CkIjPvqg";
 
-// Generate valid token
-const TEST_TOKEN = jwt.sign(
-  { 
-    odisguserIdtest: TEST_USER, 
-    email: 'test@taxsky.com',
-    name: 'Test User'
-  }, 
-  JWT_SECRET, 
-  { expiresIn: '1h' }
-);
+// Simulated conversation history
+let conversationHistory = [];
 
-// Colors
-const GREEN = '\x1b[32m';
-const RED = '\x1b[31m';
-const YELLOW = '\x1b[33m';
-const BLUE = '\x1b[34m';
-const CYAN = '\x1b[36m';
-const RESET = '\x1b[0m';
-const BOLD = '\x1b[1m';
-
-function log(icon, message, color = RESET) {
-  console.log(`${color}${icon} ${message}${RESET}`);
-}
-
-function header(text) {
-  console.log(`\n${CYAN}${'═'.repeat(60)}${RESET}`);
-  console.log(`${CYAN}${BOLD}  ${text}${RESET}`);
-  console.log(`${CYAN}${'═'.repeat(60)}${RESET}\n`);
-}
-
-function subHeader(text) {
-  console.log(`\n${BLUE}── ${text} ──${RESET}\n`);
-}
-
-async function apiCall(endpoint, body = {}) {
+async function chat(userMessage) {
+  // Add user message to history
+  conversationHistory.push({ role: "user", content: userMessage });
+  
+  console.log(`\n👤 USER: ${userMessage}`);
+  console.log("-".repeat(50));
+  
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${TEST_TOKEN}`
-      },
-      body: JSON.stringify({ userId: TEST_USER, ...body })
+    const response = await openai.chat.completions.create({
+      model: MODEL,
+      messages: [
+        { 
+          role: "system", 
+          content: `You are TaxSky CPA Assistant. Guide the user through filing their 2025 taxes step by step.
+
+INTERVIEW FLOW:
+1. Welcome & document upload
+2. Filing status (confirm before proceeding)
+3. Spouse income (if MFJ)
+4. Dependents (how many, then ages for each)
+5. Income review
+6. Adjustments (IRA, student loan, HSA)
+7. Deductions (standard vs itemized)
+8. Credits review
+9. Final review & calculate
+
+RULES:
+- Always confirm user responses before moving to next step
+- For MFJ, always ask about spouse income
+- For dependents, ask age of EACH child to determine CTC eligibility
+- Child Tax Credit: $2,000 per child UNDER 17
+- Other Dependents Credit: $500 per dependent 17 or older
+- Be conversational and helpful`
+        },
+        ...conversationHistory
+      ],
+      max_tokens: 300,
+      temperature: 0.3
     });
-    return await response.json();
-  } catch (error) {
-    return { success: false, error: error.message };
+    
+    const assistantMessage = response.choices[0].message.content;
+    conversationHistory.push({ role: "assistant", content: assistantMessage });
+    
+    console.log(`🤖 TAXSKY: ${assistantMessage}`);
+    console.log(`   [${response.usage.total_tokens} tokens, ${Date.now()}]`);
+    
+    return assistantMessage;
+    
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
+    return null;
   }
 }
 
-async function chat(message) {
-  return await apiCall('/api/ai/chat', { message });
+async function runInterviewTest() {
+  console.log("\n" + "=".repeat(60));
+  console.log("🧪 TAXSKY INTERVIEW FLOW TEST");
+  console.log("   Model:", MODEL);
+  console.log("=".repeat(60));
+  
+  // Test conversation flow
+  const testFlow = [
+    // Step 1: Start
+    "I want to file my taxes for 2025",
+    
+    // Step 2: Filing status
+    "married filing jointly",
+    
+    // Step 3: Confirm
+    "yes",
+    
+    // Step 4: Spouse income (should ask this for MFJ)
+    "yes my wife has income too",
+    
+    // Step 5: Dependents
+    "we have 2 children",
+    
+    // Step 6: Confirm dependents
+    "yes 2 kids",
+    
+    // Step 7: Child ages
+    "my son is 16 years old",
+    
+    // Step 8: Second child age
+    "my daughter is 12",
+    
+    // Step 9: Review
+    "yes that looks correct",
+    
+    // Step 10: Adjustments
+    "I contributed $7000 to my IRA",
+    
+    // Step 11: Confirm IRA
+    "yes",
+    
+    // Step 12: More adjustments
+    "no more adjustments",
+    
+    // Step 13: Deductions
+    "I'll take the standard deduction",
+    
+    // Step 14: Final
+    "yes calculate my taxes"
+  ];
+  
+  for (const message of testFlow) {
+    await chat(message);
+    // Small delay between messages
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  
+  console.log("\n" + "=".repeat(60));
+  console.log("📊 TEST COMPLETE");
+  console.log(`   Total messages: ${conversationHistory.length}`);
+  console.log("=".repeat(60));
 }
 
-async function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// ============================================================
-// MAIN TEST
-// ============================================================
-async function runFullFlowTest() {
-  console.log('\n');
-  console.log(`${CYAN}╔════════════════════════════════════════════════════════════╗${RESET}`);
-  console.log(`${CYAN}║${RESET}${BOLD}          TAXSKY AI - FULL FLOW TEST                        ${RESET}${CYAN}║${RESET}`);
-  console.log(`${CYAN}╚════════════════════════════════════════════════════════════╝${RESET}`);
-  console.log(`\n🔑 Test User: ${TEST_USER}`);
+// Test specific scenarios
+async function testScenarios() {
+  console.log("\n" + "=".repeat(60));
+  console.log("🎯 SPECIFIC SCENARIO TESTS");
+  console.log("=".repeat(60));
   
-  let passed = 0;
-  let failed = 0;
-  const results = [];
-
-  // ============================================================
-  header('1. RESET SESSION');
-  // ============================================================
-  
-  const reset = await apiCall('/api/ai/reset');
-  if (reset.success) {
-    log('✅', 'Session reset successfully', GREEN);
-    passed++;
-  } else {
-    log('❌', `Reset failed: ${reset.error}`, RED);
-    failed++;
-  }
-  await delay(500);
-
-  // ============================================================
-  header('2. WELCOME MESSAGE');
-  // ============================================================
-  
-  const welcome = await apiCall('/api/ai/welcome');
-  if (welcome.success && welcome.reply) {
-    log('✅', 'Welcome message received', GREEN);
-    console.log(`   ${YELLOW}"${welcome.reply.substring(0, 80)}..."${RESET}`);
-    passed++;
-  } else {
-    log('❌', `Welcome failed: ${welcome.error}`, RED);
-    failed++;
-  }
-  await delay(500);
-
-  // ============================================================
-  header('3. CONVERSATION FLOW TEST');
-  // ============================================================
-
-  const conversations = [
+  const scenarios = [
     {
-      step: 'Start Filing',
-      input: 'I want to file my taxes',
-      expectContains: ['name', 'start', 'help', 'document'],
-      expectNotContains: ['IRS Publication', 'According to']
+      name: "Age confirmation (older)",
+      messages: [
+        "I want to contribute $8000 to my IRA",
+        "yes I'm over 50"
+      ]
     },
     {
-      step: 'Provide Name',
-      input: 'John Smith',
-      expectContains: ['filing', 'status', 'single', 'married'],
-      expectExtract: ['first_name', 'last_name']
+      name: "Dependent age edge case",
+      messages: [
+        "I have a 17 year old",
+      ]
     },
     {
-      step: 'Filing Status (Should NOT trigger RAG)',
-      input: 'Married Filing Jointly',
-      expectContains: ['spouse', 'dependent', 'wife', 'husband'],
-      expectNotContains: ['IRS Publication', 'standard deduction', '$29,200', 'According to'],
-      critical: true
+      name: "Correction flow",
+      messages: [
+        "married filing jointly",
+        "no wait, I meant single"
+      ]
     },
     {
-      step: 'Complex Input - Spouse & Dependents',
-      input: 'My wife is HA TRAN and we have 2 kids',
-      expectContains: ['address', 'noted', 'great', 'got it'],
-      expectExtract: ['spouse_first_name', 'spouse_last_name', 'dependent_count']
-    },
-    {
-      step: 'Address',
-      input: '123 Main St, Los Angeles, CA 90001',
-      expectContains: ['ssn', 'social', 'security', 'skip'],
-      expectExtract: ['address', 'city', 'state', 'zip']
-    },
-    {
-      step: 'Skip SSN',
-      input: 'skip',
-      expectContains: ['dependent', 'child', 'name', 'ok'],
-      expectNotContains: ['IRS Publication']
-    },
-    {
-      step: 'Dependent Name',
-      input: 'Tommy Smith',
-      expectContains: ['great', 'got', 'next', 'ssn', 'more'],
-      expectExtract: ['dependent_1_name']
+      name: "Tax question mid-flow",
+      messages: [
+        "what is the standard deduction for married filing jointly?"
+      ]
     }
   ];
-
-  for (const conv of conversations) {
-    subHeader(`Step: ${conv.step}`);
-    console.log(`   ${BLUE}You: "${conv.input}"${RESET}`);
-    
-    const result = await chat(conv.input);
-    await delay(800);
-    
-    if (!result.success) {
-      log('❌', `API Error: ${result.error}`, RED);
-      failed++;
-      results.push({ step: conv.step, passed: false, error: result.error });
-      continue;
-    }
-
-    const reply = (result.reply || '').toLowerCase();
-    let stepPassed = true;
-    let issues = [];
-
-    // Check expected content
-    if (conv.expectContains) {
-      const hasExpected = conv.expectContains.some(word => reply.includes(word.toLowerCase()));
-      if (!hasExpected) {
-        issues.push(`Missing expected words: ${conv.expectContains.join(', ')}`);
-        stepPassed = false;
-      }
-    }
-
-    // Check NOT expected content (like RAG answers)
-    if (conv.expectNotContains) {
-      const hasUnexpected = conv.expectNotContains.find(word => reply.includes(word.toLowerCase()));
-      if (hasUnexpected) {
-        issues.push(`Contains unexpected: "${hasUnexpected}" (RAG triggered incorrectly!)`);
-        stepPassed = false;
-      }
-    }
-
-    // Check extraction
-    if (conv.expectExtract && result.extracted) {
-      const extractedKeys = Object.keys(result.extracted);
-      const missingExtracts = conv.expectExtract.filter(key => !extractedKeys.includes(key));
-      if (missingExtracts.length > 0) {
-        issues.push(`Missing extractions: ${missingExtracts.join(', ')}`);
-        // Don't fail for missing extractions, just warn
-      }
-    }
-
-    // Log result
-    console.log(`   ${YELLOW}AI: "${result.reply.substring(0, 100)}..."${RESET}`);
-    
-    if (result.extracted && Object.keys(result.extracted).length > 0) {
-      console.log(`   ${GREEN}📤 Extracted: ${JSON.stringify(result.extracted)}${RESET}`);
-    }
-
-    if (stepPassed) {
-      log('✅', `${conv.step} - PASSED`, GREEN);
-      passed++;
-    } else {
-      log('❌', `${conv.step} - FAILED`, RED);
-      issues.forEach(issue => console.log(`      ${RED}└─ ${issue}${RESET}`));
-      failed++;
-      
-      if (conv.critical) {
-        log('🚨', 'CRITICAL TEST FAILED - RAG was triggered for filing status!', RED);
-      }
-    }
-
-    results.push({ step: conv.step, passed: stepPassed, issues });
-  }
-
-  // ============================================================
-  header('4. TAX QUESTION TEST (Should use RAG)');
-  // ============================================================
-
-  const taxQuestions = [
-    {
-      question: 'What is the standard deduction for 2024?',
-      expectContains: ['14,600', '29,200', 'deduction'],
-      shouldUseRAG: true
-    },
-    {
-      question: 'How much is the child tax credit?',
-      expectContains: ['2,000', 'child', 'credit'],
-      shouldUseRAG: true
-    }
-  ];
-
-  for (const tq of taxQuestions) {
-    subHeader(`Tax Q: "${tq.question}"`);
-    
-    const result = await chat(tq.question);
-    await delay(800);
-    
-    if (!result.success) {
-      log('❌', `API Error: ${result.error}`, RED);
-      failed++;
-      continue;
-    }
-
-    const reply = (result.reply || '').toLowerCase();
-    const hasExpected = tq.expectContains.some(word => reply.includes(word.toLowerCase()));
-    
-    console.log(`   ${YELLOW}AI: "${result.reply.substring(0, 150)}..."${RESET}`);
-    
-    if (hasExpected) {
-      log('✅', 'Tax question answered correctly (RAG used)', GREEN);
-      passed++;
-    } else {
-      log('❌', `Missing expected content: ${tq.expectContains.join(', ')}`, RED);
-      failed++;
-    }
-  }
-
-  // ============================================================
-  header('5. CHECK SAVED DATA');
-  // ============================================================
-
-  const data = await apiCall('/api/ai/data');
   
-  if (data.success && data.data) {
-    log('✅', 'Data retrieved successfully', GREEN);
-    console.log(`\n   ${CYAN}Saved Fields:${RESET}`);
+  for (const scenario of scenarios) {
+    console.log(`\n📌 Scenario: ${scenario.name}`);
+    console.log("-".repeat(40));
     
-    const importantFields = [
-      'first_name', 'last_name', 'filing_status', 
-      'spouse_first_name', 'spouse_last_name',
-      'has_dependents', 'dependent_count', 'dependent_1_name',
-      'address', 'city', 'state', 'zip'
-    ];
+    // Reset conversation
+    conversationHistory = [];
     
-    for (const field of importantFields) {
-      const value = data.data[field];
-      if (value) {
-        console.log(`   ${GREEN}✓ ${field}: ${value}${RESET}`);
-      } else {
-        console.log(`   ${YELLOW}○ ${field}: (not set)${RESET}`);
-      }
+    for (const msg of scenario.messages) {
+      await chat(msg);
+      await new Promise(r => setTimeout(r, 500));
     }
-    passed++;
-  } else {
-    log('❌', `Data retrieval failed: ${data.error}`, RED);
-    failed++;
   }
-
-  // ============================================================
-  header('6. CHECK 1040 READINESS');
-  // ============================================================
-
-  const validate = await fetch(`${BASE_URL}/api/tax/1040/validate?userId=${TEST_USER}`, {
-    headers: { 'Authorization': `Bearer ${TEST_TOKEN}` }
-  }).then(r => r.json());
-
-  if (validate.ready) {
-    log('✅', 'Form 1040 is READY to generate!', GREEN);
-    passed++;
-  } else {
-    log('⚠️', `Form 1040 not ready yet`, YELLOW);
-    console.log(`   Missing: ${(validate.missingFields || []).slice(0, 5).join(', ')}`);
-    // This is expected if we didn't provide income
-  }
-
-  // ============================================================
-  header('7. TAX CALCULATION');
-  // ============================================================
-
-  const status = await apiCall('/api/ai/status');
-  
-  if (status.success) {
-    console.log(`   ${CYAN}📊 Progress: ${status.progress}%${RESET}`);
-    console.log(`   ${CYAN}💵 Refund: $${status.refund || 0}${RESET}`);
-    console.log(`   ${CYAN}✅ Complete: ${status.isComplete ? 'Yes' : 'No'}${RESET}`);
-    log('✅', 'Status retrieved', GREEN);
-    passed++;
-  } else {
-    log('❌', `Status failed: ${status.error}`, RED);
-    failed++;
-  }
-
-  // ============================================================
-  // FINAL SUMMARY
-  // ============================================================
-  console.log('\n');
-  console.log(`${CYAN}╔════════════════════════════════════════════════════════════╗${RESET}`);
-  console.log(`${CYAN}║${RESET}${BOLD}                    TEST RESULTS                            ${RESET}${CYAN}║${RESET}`);
-  console.log(`${CYAN}╠════════════════════════════════════════════════════════════╣${RESET}`);
-  console.log(`${CYAN}║${RESET}  ${GREEN}✅ PASSED: ${passed.toString().padEnd(4)}${RESET}                                         ${CYAN}║${RESET}`);
-  console.log(`${CYAN}║${RESET}  ${RED}❌ FAILED: ${failed.toString().padEnd(4)}${RESET}                                         ${CYAN}║${RESET}`);
-  console.log(`${CYAN}║${RESET}  📊 TOTAL:  ${(passed + failed).toString().padEnd(4)}                                         ${CYAN}║${RESET}`);
-  console.log(`${CYAN}╚════════════════════════════════════════════════════════════╝${RESET}`);
-
-  const percentage = Math.round((passed / (passed + failed)) * 100);
-  
-  if (failed === 0) {
-    console.log(`\n${GREEN}${BOLD}🎉 ALL TESTS PASSED! TaxSky AI is working perfectly!${RESET}\n`);
-  } else if (percentage >= 80) {
-    console.log(`\n${YELLOW}${BOLD}✨ ${percentage}% tests passed. Most features working!${RESET}\n`);
-  } else {
-    console.log(`\n${RED}${BOLD}⚠️  ${percentage}% tests passed. Please check errors above.${RESET}\n`);
-  }
-
-  // Cleanup
-  await apiCall('/api/ai/reset');
-  console.log(`${CYAN}🧹 Test session cleaned up${RESET}\n`);
-
-  return { passed, failed, percentage };
 }
 
-// Run the test
-runFullFlowTest().catch(err => {
-  console.error(`${RED}Test runner error: ${err.message}${RESET}`);
-  process.exit(1);
-});
+// Quick single message test
+async function quickTest(message) {
+  conversationHistory = [];
+  console.log("\n🚀 Quick Test:");
+  await chat(message);
+}
+
+// Main
+async function main() {
+  const args = process.argv.slice(2);
+  
+  if (args[0] === "--quick" && args[1]) {
+    await quickTest(args.slice(1).join(" "));
+  } else if (args[0] === "--scenarios") {
+    await testScenarios();
+  } else {
+    await runInterviewTest();
+  }
+}
+
+main().catch(console.error);

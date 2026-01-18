@@ -1,1 +1,0 @@
-export default function LanguageSelector(){return <div>LanguageSelector.jsx</div>;}

@@ -1,787 +1,1075 @@
 // ============================================================
-// TAXSKY - SMART AI CHAT INTERFACE - MULTI-LANGUAGE
+// TAXSKY 2025 - SMART AI CHAT INTERFACE v2.0
 // ============================================================
-// Supports: English (en), Vietnamese (vi), Spanish (es)
-// Sends language to backend for AI responses
+// ✅ FIXED: Properly collects dependent AGES for CTC calculation
+// ✅ FIXED: Sends has_dependents flag to backend
+// ✅ FIXED: Language support
 // ============================================================
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-const api = axios.create({ baseURL: API_BASE });
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("taxsky_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+// Get language from localStorage or default to English
+const getLanguage = () => localStorage.getItem("taxsky_language") || "en";
 
 // ============================================================
-// TRANSLATIONS
+// CPA INTERVIEW PHASES
 // ============================================================
-const translations = {
+const PHASES = {
+  WELCOME: "welcome",
+  UPLOAD_DOCS: "upload_docs",
+  FILING_STATUS: "filing_status",
+  SPOUSE_INCOME: "spouse_income",
+  DEPENDENTS: "dependents",
+  DEPENDENT_DETAILS: "dependent_details",
+  INCOME_REVIEW: "income_review",
+  ADJUSTMENTS: "adjustments",
+  DEDUCTIONS: "deductions",
+  CREDITS: "credits",
+  REVIEW: "review",
+  COMPLETE: "complete"
+};
+
+// ============================================================
+// ✅ TRANSLATIONS - Frontend UI Labels
+// ============================================================
+const TRANSLATIONS = {
   en: {
-    title: "TaxSky AI",
-    taxYear: "Tax Year",
-    dashboard: "Dashboard",
-    showData: "Show Data",
-    hideData: "Hide Data",
-    placeholder: "Ask me anything about your taxes...",
-    send: "Send",
-    uploading: "Uploading",
-    downloadForm: "📄 Download 1040",
-    startOver: "🔄 Start Over",
-    yourTaxData: "📊 Your Tax Data",
-    name: "Name",
-    filingStatus: "Filing Status",
-    address: "Address",
-    dependents: "Dependents",
-    none: "None",
-    notProvided: "Not provided",
-    notSelected: "Not selected",
-    w2Wages: "W-2 Wages",
-    federalWithheld: "Federal Withheld",
-    estimatedRefund: "Estimated Refund",
-    amountOwed: "Amount Owed",
-    refresh: "🔄 Refresh",
-    loading: "Loading...",
-    error: "❌ Sorry, there was an error. Please try again.",
-    welcome: "👋 Hello! I'm TaxSky AI. How can I help you with your taxes today?",
-    quickActions: {
-      uploadW2: "📄 Upload W-2",
-      filingStatus: "👤 Filing Status",
-      addDependent: "👶 Add Dependent",
-      checkRefund: "💰 Check Refund"
-    },
-    filingStatuses: {
-      single: "Single",
-      married_filing_jointly: "Married Filing Jointly",
-      married_filing_separately: "Married Filing Separately",
-      head_of_household: "Head of Household"
-    }
+    welcome: (name, year) => `👋 Hi${name ? ` ${name}` : ""}! I'm your TaxSky CPA Assistant.
+
+I'll help you file your ${year} taxes step by step. I have access to the latest tax rules and can answer any questions you have along the way.
+
+📤 **Let's start by uploading your tax documents:**
+• W-2 (employment income)
+• 1099-NEC (self-employment)
+• 1099-INT (interest)
+• 1099-DIV (dividends)
+• 1099-R (retirement)
+• SSA-1099 (Social Security)
+
+Click the 📎 button or drag & drop your documents.
+
+Or just ask me a tax question!`,
+    uploadPrompt: "Please upload at least one tax document (W-2, 1099, etc.) to continue. Click the 📎 button below.\n\nOr ask me any tax question!",
+    filingStatusQuestion: (year) => `**What is your filing status for ${year}?**
+• Single
+• Married Filing Jointly
+• Married Filing Separately  
+• Head of Household
+• Qualifying Widow(er)`,
+    dependentsQuestion: (year) => `Do you have any dependents (children or other qualifying relatives) to claim on your ${year} tax return?`,
+    dependentAgeQuestion: (num) => `**Dependent #${num}:** What is their age?
+
+(This helps determine if they qualify for the $2,000 Child Tax Credit - must be under 17)`,
+    incomeCorrect: "Does this income summary look correct? Reply **Yes** to continue or **No** to make changes.",
+    placeholder: "Type your message or ask a tax question...",
+    uploadW2: "📄 Upload W-2",
+    standardDeduction: "❓ Standard Deduction",
+    checkEITC: "💰 Check EITC",
+    continueFile: "➡️ Continue Filing",
+    viewDashboard: "📊 View Dashboard",
+    reset: "🔄 Reset",
+    history: "📜 History",
+    ctcWarning: "⚠️ **Note:** Without qualifying children under 17, Child Tax Credit will be **$0**.",
+    ctcInfo: (count, amount) => `👶 ${count} child(ren) under 17 qualify for Child Tax Credit (up to $${amount.toLocaleString()}).`
   },
   vi: {
-    title: "TaxSky AI",
-    taxYear: "Năm Thuế",
-    dashboard: "Bảng Điều Khiển",
-    showData: "Xem Dữ Liệu",
-    hideData: "Ẩn Dữ Liệu",
-    placeholder: "Hỏi tôi bất cứ điều gì về thuế của bạn...",
-    send: "Gửi",
-    uploading: "Đang tải",
-    downloadForm: "📄 Tải Mẫu 1040",
-    startOver: "🔄 Làm Lại",
-    yourTaxData: "📊 Dữ Liệu Thuế",
-    name: "Họ Tên",
-    filingStatus: "Tình Trạng",
-    address: "Địa Chỉ",
-    dependents: "Người Phụ Thuộc",
-    none: "Không có",
-    notProvided: "Chưa có",
-    notSelected: "Chưa chọn",
-    w2Wages: "Lương W-2",
-    federalWithheld: "Thuế LB Đã Khấu Trừ",
-    estimatedRefund: "Hoàn Thuế Ước Tính",
-    amountOwed: "Số Tiền Nợ",
-    refresh: "🔄 Làm Mới",
-    loading: "Đang tải...",
-    error: "❌ Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại.",
-    welcome: "👋 Xin chào! Tôi là TaxSky AI. Tôi có thể giúp gì cho bạn về thuế?",
-    quickActions: {
-      uploadW2: "📄 Tải W-2",
-      filingStatus: "👤 Tình Trạng",
-      addDependent: "👶 Thêm Người Phụ Thuộc",
-      checkRefund: "💰 Kiểm Tra Hoàn Thuế"
-    },
-    filingStatuses: {
-      single: "Độc Thân",
-      married_filing_jointly: "Vợ Chồng Khai Chung",
-      married_filing_separately: "Vợ Chồng Khai Riêng",
-      head_of_household: "Chủ Hộ"
-    }
+    welcome: (name, year) => `👋 Xin chào${name ? ` ${name}` : ""}! Tôi là Trợ lý CPA của TaxSky.
+
+Tôi sẽ giúp bạn khai thuế ${year} từng bước. Tôi có quyền truy cập vào các quy tắc thuế mới nhất và có thể trả lời bất kỳ câu hỏi nào của bạn.
+
+📤 **Hãy bắt đầu bằng cách tải lên tài liệu thuế của bạn:**
+• W-2 (thu nhập từ việc làm)
+• 1099-NEC (tự kinh doanh)
+• 1099-INT (lãi suất)
+• 1099-DIV (cổ tức)
+• 1099-R (hưu trí)
+• SSA-1099 (An sinh xã hội)
+
+Nhấp vào nút 📎 hoặc kéo và thả tài liệu của bạn.
+
+Hoặc chỉ cần hỏi tôi một câu hỏi về thuế!`,
+    uploadPrompt: "Vui lòng tải lên ít nhất một tài liệu thuế (W-2, 1099, v.v.) để tiếp tục. Nhấp vào nút 📎 bên dưới.\n\nHoặc hỏi tôi bất kỳ câu hỏi thuế nào!",
+    filingStatusQuestion: (year) => `**Tình trạng khai thuế của bạn cho năm ${year} là gì?**
+• Độc thân (Single)
+• Vợ chồng khai chung (Married Filing Jointly)
+• Vợ chồng khai riêng (Married Filing Separately)
+• Chủ hộ (Head of Household)
+• Góa phụ đủ điều kiện (Qualifying Widow(er))`,
+    dependentsQuestion: (year) => `Bạn có người phụ thuộc (con cái hoặc người thân đủ điều kiện) để khai trên tờ khai thuế ${year} của bạn không?`,
+    dependentAgeQuestion: (num) => `**Người phụ thuộc #${num}:** Họ bao nhiêu tuổi?
+
+(Điều này giúp xác định xem họ có đủ điều kiện nhận Tín dụng Thuế Trẻ em $2,000 không - phải dưới 17 tuổi)`,
+    incomeCorrect: "Tóm tắt thu nhập này có đúng không? Trả lời **Có** để tiếp tục hoặc **Không** để thay đổi.",
+    placeholder: "Nhập tin nhắn hoặc hỏi câu hỏi về thuế...",
+    uploadW2: "📄 Tải W-2",
+    standardDeduction: "❓ Khấu trừ tiêu chuẩn",
+    checkEITC: "💰 Kiểm tra EITC",
+    continueFile: "➡️ Tiếp tục khai",
+    viewDashboard: "📊 Xem bảng điều khiển",
+    reset: "🔄 Đặt lại",
+    history: "📜 Lịch sử",
+    ctcWarning: "⚠️ **Lưu ý:** Không có trẻ dưới 17 tuổi đủ điều kiện, Tín dụng thuế trẻ em sẽ là **$0**.",
+    ctcInfo: (count, amount) => `👶 ${count} trẻ dưới 17 tuổi đủ điều kiện nhận Tín dụng Thuế Trẻ em (tối đa $${amount.toLocaleString()}).`
   },
   es: {
-    title: "TaxSky AI",
-    taxYear: "Año Fiscal",
-    dashboard: "Panel",
-    showData: "Ver Datos",
-    hideData: "Ocultar Datos",
-    placeholder: "Pregúntame cualquier cosa sobre tus impuestos...",
-    send: "Enviar",
-    uploading: "Subiendo",
-    downloadForm: "📄 Descargar 1040",
-    startOver: "🔄 Empezar de Nuevo",
-    yourTaxData: "📊 Tus Datos Fiscales",
-    name: "Nombre",
-    filingStatus: "Estado Civil",
-    address: "Dirección",
-    dependents: "Dependientes",
-    none: "Ninguno",
-    notProvided: "No proporcionado",
-    notSelected: "No seleccionado",
-    w2Wages: "Salarios W-2",
-    federalWithheld: "Impuesto Fed Retenido",
-    estimatedRefund: "Reembolso Estimado",
-    amountOwed: "Cantidad Adeudada",
-    refresh: "🔄 Actualizar",
-    loading: "Cargando...",
-    error: "❌ Lo siento, ocurrió un error. Por favor intenta de nuevo.",
-    welcome: "👋 ¡Hola! Soy TaxSky AI. ¿Cómo puedo ayudarte con tus impuestos?",
-    quickActions: {
-      uploadW2: "📄 Subir W-2",
-      filingStatus: "👤 Estado Civil",
-      addDependent: "👶 Agregar Dependiente",
-      checkRefund: "💰 Ver Reembolso"
-    },
-    filingStatuses: {
-      single: "Soltero/a",
-      married_filing_jointly: "Casado/a Juntos",
-      married_filing_separately: "Casado/a Separado",
-      head_of_household: "Jefe/a de Familia"
-    }
+    welcome: (name, year) => `👋 ¡Hola${name ? ` ${name}` : ""}! Soy tu Asistente CPA de TaxSky.
+
+Te ayudaré a presentar tus impuestos de ${year} paso a paso. Tengo acceso a las últimas reglas fiscales y puedo responder cualquier pregunta que tengas.
+
+📤 **Comencemos subiendo tus documentos fiscales:**
+• W-2 (ingresos de empleo)
+• 1099-NEC (trabajo por cuenta propia)
+• 1099-INT (intereses)
+• 1099-DIV (dividendos)
+• 1099-R (jubilación)
+• SSA-1099 (Seguro Social)
+
+Haz clic en el botón 📎 o arrastra y suelta tus documentos.
+
+¡O simplemente hazme una pregunta sobre impuestos!`,
+    uploadPrompt: "Por favor sube al menos un documento fiscal (W-2, 1099, etc.) para continuar. Haz clic en el botón 📎 abajo.\n\n¡O hazme cualquier pregunta sobre impuestos!",
+    filingStatusQuestion: (year) => `**¿Cuál es tu estado civil para ${year}?**
+• Soltero (Single)
+• Casado declarando juntos (Married Filing Jointly)
+• Casado declarando separado (Married Filing Separately)
+• Cabeza de familia (Head of Household)
+• Viudo(a) calificado (Qualifying Widow(er))`,
+    dependentsQuestion: (year) => `¿Tienes dependientes (hijos u otros familiares calificados) para reclamar en tu declaración de impuestos de ${year}?`,
+    dependentAgeQuestion: (num) => `**Dependiente #${num}:** ¿Cuál es su edad?
+
+(Esto ayuda a determinar si califican para el Crédito Tributario por Hijos de $2,000 - debe ser menor de 17)`,
+    incomeCorrect: "¿Este resumen de ingresos es correcto? Responde **Sí** para continuar o **No** para hacer cambios.",
+    placeholder: "Escribe tu mensaje o haz una pregunta sobre impuestos...",
+    uploadW2: "📄 Subir W-2",
+    standardDeduction: "❓ Deducción estándar",
+    checkEITC: "💰 Verificar EITC",
+    continueFile: "➡️ Continuar",
+    viewDashboard: "📊 Ver panel",
+    reset: "🔄 Reiniciar",
+    history: "📜 Historial",
+    ctcWarning: "⚠️ **Nota:** Sin hijos calificados menores de 17, el Crédito Tributario por Hijos será **$0**.",
+    ctcInfo: (count, amount) => `👶 ${count} hijo(s) menor(es) de 17 califican para el Crédito Tributario por Hijos (hasta $${amount.toLocaleString()}).`
   }
 };
 
-const languages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'es', name: 'Español', flag: '🇲🇽' },
-];
+// Helper to get translation
+const t = (lang, key, ...args) => {
+  const translations = TRANSLATIONS[lang] || TRANSLATIONS.en;
+  const value = translations[key];
+  if (typeof value === 'function') {
+    return value(...args);
+  }
+  return value || TRANSLATIONS.en[key] || key;
+};
 
 // ============================================================
-// COMPONENT
+// LANGUAGE SELECTOR COMPONENT
 // ============================================================
-export default function ChatInterface({ currentUser, showHeader = true, onNavigate }) {
+function LanguageSelector() {
+  const [lang, setLang] = useState(getLanguage());
+  
+  const handleChange = (e) => {
+    const newLang = e.target.value;
+    localStorage.setItem("taxsky_language", newLang);
+    setLang(newLang);
+    window.location.reload(); // Reload to apply language
+  };
+  
+  return (
+    <select 
+      value={lang} 
+      onChange={handleChange}
+      className="bg-slate-700 rounded px-2 py-1 text-sm border-0 text-white"
+    >
+      <option value="en" className="bg-slate-800 text-white">🇺🇸 English</option>
+      <option value="vi" className="bg-slate-800 text-white">🇻🇳 Tiếng Việt</option>
+      <option value="es" className="bg-slate-800 text-white">🇪🇸 Español</option>
+    </select>
+  );
+}
+
+// ============================================================
+// MAIN COMPONENT
+// ============================================================
+export default function SmartChatInterface() {
+  // ✅ Get language from localStorage - re-check on each render
+  const [language, setLanguageState] = useState(getLanguage());
+  
+  // Update language when localStorage changes
+  useEffect(() => {
+    const checkLanguage = () => {
+      const newLang = getLanguage();
+      if (newLang !== language) {
+        setLanguageState(newLang);
+      }
+    };
+    
+    // Check every second for language changes
+    const interval = setInterval(checkLanguage, 1000);
+    return () => clearInterval(interval);
+  }, [language]);
+  
+  // Get user from localStorage
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("taxsky_user") || "{}");
+    } catch {
+      return {};
+    }
+  });
+  
+  // State
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [refundAmount, setRefundAmount] = useState(0);
-  const [animatedRefund, setAnimatedRefund] = useState(0);
-  const [taxYear, setTaxYear] = useState("2024");
-  const [showDataPanel, setShowDataPanel] = useState(false);
-  const [serverData, setServerData] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [phase, setPhase] = useState(PHASES.WELCOME);
+  const [taxYear, setTaxYear] = useState(2025);
+  const [userState, setUserState] = useState(() => localStorage.getItem("taxsky_state") || "CA");
   
-  // Language state
-  const [lang, setLang] = useState(() => localStorage.getItem("taxsky_language") || "en");
-  const t = translations[lang] || translations.en;
-
+  // ============================================================
+  // ✅ TAX DATA - Now properly tracks dependent ages
+  // ============================================================
+  const [taxData, setTaxData] = useState({
+    filing_status: "",
+    // ════════════════════════════════════════════════════════════
+    // ⚠️ CRITICAL: Dependent tracking with ages
+    // ════════════════════════════════════════════════════════════
+    has_dependents: null,           // true/false/null - explicit flag
+    dependents: [],                  // Array of {name, age, relationship}
+    dependent_count: 0,              // Total count
+    qualifying_children_under_17: 0, // Count of children under 17 (for CTC)
+    other_dependents: 0,             // Count of dependents 17+ (for ODC)
+    collecting_dependent_details: false,
+    current_dependent_index: 0,
+    // ════════════════════════════════════════════════════════════
+    spouse_has_income: null,
+    spouse_first_name: "",
+    spouse_last_name: "",
+    spouse_ssn: "",
+    spouse_wages: 0,
+    spouse_federal_withheld: 0,
+    spouse_state_withheld: 0,
+    spouse_w2_uploaded: false,
+    wages: 0,
+    federal_withheld: 0,
+    state_withheld: 0,
+    interest_income: 0,
+    dividend_income: 0,
+    self_employment_income: 0,
+    retirement_income: 0,
+    social_security_benefits: 0,
+    capital_gains: 0,
+    other_income: 0,
+    documents: [],
+    w2_list: [],
+    form_1099_list: [],
+    w2_count: 0,
+    nec_count: 0,
+    int_count: 0,
+    div_count: 0,
+    first_name: "",
+    last_name: "",
+    ssn: "",
+    itemized_deductions: 0,
+    mortgage_interest: 0,
+    property_taxes: 0,
+    charitable_donations: 0,
+    ira_contributions: 0,
+    student_loan_interest: 0,
+    hsa_contributions: 0,
+    self_employment_health_insurance: 0,
+    total_adjustments: 0
+  });
+  
+  const [showTaxCalc, setShowTaxCalc] = useState(false);
+  const [taxResult, setTaxResult] = useState(null);
+  const [isOver50, setIsOver50] = useState(false);
+  const [pendingIRAAmount, setPendingIRAAmount] = useState(0);
+  const [pendingConfirmation, setPendingConfirmation] = useState(null);
+  
+  const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
-  const chatEndRef = useRef(null);
-  
-  const navigate = onNavigate || ((path) => { window.location.href = path; });
-  const userId = currentUser?.id || localStorage.getItem("taxsky_userId");
 
-  // Change language handler
-  const changeLang = (newLang) => {
-    setLang(newLang);
-    localStorage.setItem("taxsky_language", newLang);
-    // Reload welcome message in new language
-    loadWelcomeMessage(newLang);
+  // ============================================================
+  // NAVIGATION FUNCTIONS
+  // ============================================================
+  const goToDashboard = () => {
+    window.location.href = "/dashboard";
   };
 
-  const calculateNetFromTax = (tax) => {
-    if (!tax) return 0;
-    const fedNet = (tax.federalRefund || 0) - (tax.federalOwed || 0);
-    const stateNet = (tax.stateRefund || 0) - (tax.stateOwed || 0);
-    return fedNet + stateNet;
+  const goToDownloads = () => {
+    window.location.href = "/dashboard?tab=downloads";
   };
 
-  useEffect(() => {
-    loadWelcomeMessage(lang);
-  }, []);
+  const handleLogout = () => {
+    localStorage.removeItem("taxsky_token");
+    localStorage.removeItem("taxsky_user");
+    localStorage.removeItem("taxsky_userId");
+    window.location.href = "/";
+  };
 
-  const loadWelcomeMessage = async (language = lang) => {
+  // ============================================================
+  // SAVE DATA TO BACKEND
+  // ============================================================
+  const saveToBackend = async (updates) => {
     try {
-      const res = await api.post("/api/ai/welcome", {
-        userId,
-        userName: currentUser?.firstName || currentUser?.name?.split(" ")[0],
-        taxYear: parseInt(taxYear),
-        language: language  // <-- Send language to backend
+      const token = localStorage.getItem("taxsky_token");
+      const userId = localStorage.getItem("taxsky_userId") || user?.id || "guest";
+      
+      await fetch(`${API_BASE}/api/ai/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId, updates })
       });
-
-      if (res.data.message) {
-        setMessages([{ sender: "ai", text: formatMessage(res.data.message) }]);
-      }
-      if (res.data.tax) {
-        setRefundAmount(calculateNetFromTax(res.data.tax));
-      } else if (res.data.refund !== undefined) {
-        setRefundAmount(res.data.refund);
-      }
+      
+      console.log("✅ Data saved to backend:", updates);
     } catch (err) {
-      console.error("Welcome error:", err);
-      setMessages([{ sender: "ai", text: t.welcome }]);
+      console.error("❌ Save to backend error:", err);
     }
   };
 
+  // ============================================================
+  // ✅ SAVE CHAT HISTORY TO BACKEND
+  // ============================================================
+  const saveChatHistory = async (role, content) => {
+    try {
+      const token = localStorage.getItem("taxsky_token");
+      const userId = localStorage.getItem("taxsky_userId") || user?.id || "guest";
+      
+      await fetch(`${API_BASE}/api/ai/save-chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId,
+          role,
+          content,
+          timestamp: new Date().toISOString(),
+          language
+        })
+      });
+      
+      console.log("💬 Chat saved:", role);
+    } catch (err) {
+      console.error("❌ Save chat error:", err);
+    }
+  };
+
+  // ============================================================
+  // SCROLL TO BOTTOM
+  // ============================================================
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // ============================================================
+  // LOAD EXISTING SESSION & CHAT HISTORY
+  // ============================================================
   useEffect(() => {
-    let start = animatedRefund;
-    let end = refundAmount;
-    let step = (end - start) / 25;
-    const animate = () => {
-      start += step;
-      if ((step > 0 && start >= end) || (step < 0 && start <= end)) {
-        setAnimatedRefund(end);
-        return;
-      }
-      setAnimatedRefund(Math.round(start));
-      requestAnimationFrame(animate);
-    };
-    animate();
-  }, [refundAmount]);
-
-  const fetchServerData = async () => {
-    try {
-      const res = await api.post("/api/ai/data", { userId });
-      if (res.data.success) {
-        setServerData(res.data.data);
-        if (res.data.tax) {
-          setRefundAmount(calculateNetFromTax(res.data.tax));
+    const loadSession = async () => {
+      try {
+        const token = localStorage.getItem("taxsky_token");
+        const userId = localStorage.getItem("taxsky_userId") || user?.id;
+        
+        if (!userId || !token) {
+          showWelcomeMessage();
+          return;
         }
+        
+        const response = await fetch(`${API_BASE}/api/ai/data`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ userId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          const session = data.data;
+          
+          if (session.conversation_history && session.conversation_history.length > 0) {
+            console.log("📜 Restoring chat history:", session.conversation_history.length, "messages");
+            setMessages(session.conversation_history.map(msg => ({
+              role: msg.role,
+              content: msg.content,
+              timestamp: new Date(msg.timestamp)
+            })));
+          } else {
+            showWelcomeMessage();
+          }
+          
+          if (session.filing_status) {
+            // ════════════════════════════════════════════════════════════
+            // ✅ FIXED: Properly restore dependent data with ages
+            // ════════════════════════════════════════════════════════════
+            const dependentsArray = session.dependents || [];
+            let childrenUnder17 = 0;
+            let otherDeps = 0;
+            
+            // Count from dependents array if available
+            if (Array.isArray(dependentsArray) && dependentsArray.length > 0) {
+              dependentsArray.forEach(dep => {
+                const age = parseInt(dep.age) || 99;
+                if (age < 17) {
+                  childrenUnder17++;
+                } else {
+                  otherDeps++;
+                }
+              });
+            } else {
+              // Fallback to legacy fields
+              childrenUnder17 = session.qualifying_children_under_17 || 0;
+              otherDeps = session.other_dependents || 0;
+            }
+            
+            setTaxData(prev => ({
+              ...prev,
+              filing_status: session.filing_status,
+              wages: session.total_wages || session.wages || 0,
+              federal_withheld: session.total_withheld || session.federal_withheld || 0,
+              state_withheld: session.total_state_withheld || session.state_withheld || 0,
+              interest_income: session.total_interest || session.interest_income || 0,
+              dividend_income: session.total_dividends || session.dividend_income || 0,
+              self_employment_income: session.total_self_employment || session.self_employment_income || 0,
+              ira_contributions: session.ira_contributions || 0,
+              student_loan_interest: session.student_loan_interest || 0,
+              hsa_contributions: session.hsa_contributions || 0,
+              itemized_deductions: session.itemized_deductions || 0,
+              // ✅ FIXED: Properly restore dependent info
+              has_dependents: session.has_dependents,
+              dependents: dependentsArray,
+              dependent_count: session.dependent_count || dependentsArray.length || 0,
+              qualifying_children_under_17: childrenUnder17,
+              other_dependents: otherDeps,
+              first_name: session.first_name || "",
+              last_name: session.last_name || "",
+              ssn: session.ssn || "",
+              documents: session.documents || [],
+              w2_list: session.w2_list || [],
+              w2_count: session.w2_count || 0
+            }));
+            
+            // Determine current phase
+            if (session.tax_calculated || session.calculation_done) {
+              setPhase(PHASES.COMPLETE);
+            } else if (session.deductions_done) {
+              setPhase(PHASES.REVIEW);
+            } else if (session.adjustments_done) {
+              setPhase(PHASES.DEDUCTIONS);
+            } else if (session.income_confirmed) {
+              setPhase(PHASES.ADJUSTMENTS);
+            } else if (session.dependents_done) {
+              setPhase(PHASES.INCOME_REVIEW);
+            } else if (session.filing_status) {
+              setPhase(PHASES.DEPENDENTS);
+            } else if (session.w2_count > 0 || session.documents?.length > 0) {
+              setPhase(PHASES.FILING_STATUS);
+            } else {
+              setPhase(PHASES.UPLOAD_DOCS);
+            }
+          } else {
+            showWelcomeMessage();
+          }
+        } else {
+          showWelcomeMessage();
+        }
+      } catch (err) {
+        console.error("❌ Load session error:", err);
+        showWelcomeMessage();
       }
+    };
+    
+    loadSession();
+  }, []);
+
+  // ============================================================
+  // ✅ SHOW WELCOME MESSAGE - Uses translation
+  // ============================================================
+  const showWelcomeMessage = () => {
+    const userName = user?.name || user?.firstName || "";
+    const welcomeMsg = {
+      role: "assistant",
+      content: t(language, 'welcome', userName, taxYear),
+      timestamp: new Date()
+    };
+    setMessages([welcomeMsg]);
+    setPhase(PHASES.UPLOAD_DOCS);
+    saveChatHistory("assistant", welcomeMsg.content);
+  };
+
+  // ============================================================
+  // ADD MESSAGE HELPER
+  // ============================================================
+  const addMessage = (role, content) => {
+    setMessages(prev => [...prev, { role, content, timestamp: new Date() }]);
+    saveChatHistory(role, content);
+  };
+
+  // ============================================================
+  // ✅ CALL BACKEND CHAT API - With language support
+  // ============================================================
+  const callBackendChat = async (userMessage) => {
+    try {
+      const token = localStorage.getItem("taxsky_token");
+      const userId = localStorage.getItem("taxsky_userId") || user?.id || "guest";
+      
+      console.log(`🌐 [${language}] Calling backend chat API...`);
+      
+      const response = await fetch(`${API_BASE}/api/ai/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId,
+          message: userMessage,
+          language,
+          state: userState,
+          taxYear,
+          // ✅ Send current dependent info
+          taxData: {
+            has_dependents: taxData.has_dependents,
+            dependents: taxData.dependents,
+            dependent_count: taxData.dependent_count,
+            qualifying_children_under_17: taxData.qualifying_children_under_17,
+            other_dependents: taxData.other_dependents
+          }
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update phase if returned
+        if (data.phase) {
+          const phaseMap = {
+            "filing_status": PHASES.FILING_STATUS,
+            "dependents": PHASES.DEPENDENTS,
+            "dependent_details": PHASES.DEPENDENT_DETAILS,
+            "dependent_count": PHASES.DEPENDENT_DETAILS,
+            "income_review": PHASES.INCOME_REVIEW,
+            "adjustments": PHASES.ADJUSTMENTS,
+            "deductions": PHASES.DEDUCTIONS,
+            "review": PHASES.REVIEW,
+            "complete": PHASES.COMPLETE
+          };
+          if (phaseMap[data.phase]) {
+            setPhase(phaseMap[data.phase]);
+          }
+        }
+        
+        // ✅ Update dependent info from response
+        if (data.ctc_eligible !== undefined) {
+          setTaxData(prev => ({
+            ...prev,
+            has_dependents: data.ctc_eligible
+          }));
+        }
+        
+        return data.message;
+      }
+      
+      return data.error || "Sorry, something went wrong.";
     } catch (err) {
-      console.log("Fetch data error:", err.message);
+      console.error("Backend chat error:", err);
+      return "I'm having trouble connecting. Please try again.";
     }
   };
 
-  useEffect(() => {
-    if (showDataPanel) fetchServerData();
-  }, [showDataPanel]);
-
-  const sendMessage = async (customMessage = null) => {
-    const userMsg = customMessage || input;
-    if (!userMsg.trim() || isLoading) return;
-
-    setInput("");
-    setMessages((prev) => [...prev, { sender: "user", text: userMsg }]);
-    setIsLoading(true);
-
+  // ============================================================
+  // ✅ GET TAX KNOWLEDGE - RAG with language
+  // ============================================================
+  const getTaxKnowledge = async (topic, state = "CA") => {
     try {
-      const res = await api.post("/api/ai/chat", {
-        userId,
-        message: userMsg,
-        taxYear: parseInt(taxYear),
-        language: lang  // <-- Send language to backend
+      const response = await fetch(`${API_BASE}/api/tax/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          question: topic, 
+          state,
+          language
+        })
       });
-
-      const aiReply = res.data.reply || res.data.message || "I'm here to help!";
-      setMessages((prev) => [...prev, { sender: "ai", text: formatMessage(aiReply) }]);
-
-      if (res.data.tax) {
-        setRefundAmount(calculateNetFromTax(res.data.tax));
-      } else if (res.data.refund !== undefined) {
-        setRefundAmount(res.data.refund);
-      }
-
-      if (showDataPanel) fetchServerData();
+      const data = await response.json();
+      return data.answer || null;
     } catch (err) {
-      console.error("Chat error:", err);
-      setMessages((prev) => [...prev, { sender: "ai", text: t.error }]);
+      console.error("RAG error:", err);
+      return null;
+    }
+  };
+
+  // ============================================================
+  // ✅ PROCESS USER INPUT - Now calls backend with language
+  // ============================================================
+  const processUserInput = async (userMessage) => {
+    const msg = userMessage.toLowerCase().trim();
+    
+    // Check for navigation commands
+    if (msg.includes("dashboard") || msg.includes("view result") || msg.includes("see result") || msg.includes("my taxes")) {
+      goToDashboard();
+      return language === 'vi' ? "Đang chuyển đến Bảng điều khiển..." : 
+             language === 'es' ? "Llevándote al Panel..." :
+             "Taking you to the Dashboard...";
+    }
+    
+    if (msg.includes("download") || msg.includes("form 1040") || msg.includes("get forms")) {
+      goToDownloads();
+      return language === 'vi' ? "Đang chuyển đến Tải xuống..." :
+             language === 'es' ? "Llevándote a Descargas..." :
+             "Taking you to Downloads...";
+    }
+    
+    // ✅ Call backend - it will handle the interview flow
+    return await callBackendChat(userMessage);
+  };
+
+  // ============================================================
+  // HANDLE FILE UPLOAD
+  // ============================================================
+  const handleFileUpload = async (file) => {
+    if (!file) return;
+    
+    setIsUploading(true);
+    const uploadingMsg = language === 'vi' ? `📤 Đang tải lên: ${file.name}...` :
+                         language === 'es' ? `📤 Subiendo: ${file.name}...` :
+                         `📤 Uploading: ${file.name}...`;
+    addMessage("user", uploadingMsg);
+    
+    try {
+      const token = localStorage.getItem("taxsky_token");
+      const userId = localStorage.getItem("taxsky_userId") || user?.id || "guest";
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("userId", userId);
+      formData.append("taxYear", taxYear);
+      
+      const response = await fetch(`${API_BASE}/api/forms/upload`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        const { formType, extractedFields } = result;
+        
+        if (formType === "W-2") {
+          const w2Wages = extractedFields.wages_tips_other_comp || 0;
+          const w2FedWithheld = extractedFields.federal_income_tax_withheld || 0;
+          const w2StateWithheld = extractedFields.state_income_tax || 0;
+          
+          setTaxData(prev => {
+            const newWages = prev.wages + w2Wages;
+            const newFedWithheld = prev.federal_withheld + w2FedWithheld;
+            const newStateWithheld = prev.state_withheld + w2StateWithheld;
+            
+            const newW2List = [...prev.w2_list, {
+              employer: extractedFields.employer_name || "Unknown",
+              ein: extractedFields.employer_ein || "",
+              wages: w2Wages,
+              federal_withheld: w2FedWithheld,
+              state_withheld: w2StateWithheld
+            }];
+            
+            // Save to backend
+            saveToBackend({
+              total_wages: newWages,
+              total_withheld: newFedWithheld,
+              total_state_withheld: newStateWithheld,
+              w2_list: newW2List,
+              w2_count: newW2List.length
+            });
+            
+            return {
+              ...prev,
+              wages: newWages,
+              federal_withheld: newFedWithheld,
+              state_withheld: newStateWithheld,
+              w2_list: newW2List,
+              w2_count: newW2List.length
+            };
+          });
+          
+          const successMsg = language === 'vi' 
+            ? `✅ **W-2 đã được xử lý!**\n• Chủ lao động: ${extractedFields.employer_name || "Không rõ"}\n• Lương: $${w2Wages.toLocaleString()}\n• Thuế liên bang đã khấu trừ: $${w2FedWithheld.toLocaleString()}`
+            : language === 'es'
+            ? `✅ **¡W-2 procesado!**\n• Empleador: ${extractedFields.employer_name || "Desconocido"}\n• Salarios: $${w2Wages.toLocaleString()}\n• Impuesto federal retenido: $${w2FedWithheld.toLocaleString()}`
+            : `✅ **W-2 processed!**\n• Employer: ${extractedFields.employer_name || "Unknown"}\n• Wages: $${w2Wages.toLocaleString()}\n• Federal withheld: $${w2FedWithheld.toLocaleString()}`;
+          
+          addMessage("assistant", successMsg);
+          
+          if (phase === PHASES.UPLOAD_DOCS || phase === PHASES.WELCOME) {
+            setPhase(PHASES.FILING_STATUS);
+            setTimeout(() => {
+              addMessage("assistant", t(language, 'filingStatusQuestion', taxYear));
+            }, 500);
+          }
+        }
+      } else {
+        const errorMsg = language === 'vi' 
+          ? `❌ Không thể xử lý tài liệu: ${result.error || "Lỗi không xác định"}`
+          : language === 'es'
+          ? `❌ No se pudo procesar el documento: ${result.error || "Error desconocido"}`
+          : `❌ Could not process document: ${result.error || "Unknown error"}`;
+        addMessage("assistant", errorMsg);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      const errorMsg = language === 'vi'
+        ? "❌ Lỗi tải lên. Vui lòng thử lại."
+        : language === 'es'
+        ? "❌ Error al subir. Por favor intenta de nuevo."
+        : "❌ Upload error. Please try again.";
+      addMessage("assistant", errorMsg);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // ============================================================
+  // SEND MESSAGE
+  // ============================================================
+  const sendMessage = async () => {
+    const userMessage = input.trim();
+    if (!userMessage || isLoading) return;
+    
+    setInput("");
+    addMessage("user", userMessage);
+    setIsLoading(true);
+    
+    try {
+      const response = await processUserInput(userMessage);
+      addMessage("assistant", response);
+    } catch (err) {
+      console.error("Send message error:", err);
+      const errorMsg = language === 'vi'
+        ? "Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại."
+        : language === 'es'
+        ? "Lo siento, algo salió mal. Por favor intenta de nuevo."
+        : "Sorry, something went wrong. Please try again.";
+      addMessage("assistant", errorMsg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const formatMessage = (text) => {
-    return text
-      .replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
-      .replace(/\*(.+?)\*/g, "<i>$1</i>")
-      .replace(/\n/g, "<br/>");
-  };
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    setMessages((prev) => [...prev, { sender: "user", text: `📤 ${t.uploading}: ${file.name}...` }]);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("userId", userId);
-      formData.append("taxYear", taxYear);
-      formData.append("language", lang);
-
-      const res = await api.post("/api/forms/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (res.data.success) {
-        const extracted = res.data.extractedFields || {};
-        const formType = res.data.formType || "Document";
-
-        // Labels based on language
-        const labels = {
-          en: { 
-            uploaded: 'Uploaded Successfully!',
-            employee: '👤 EMPLOYEE INFO',
-            name: 'Name', ssn: 'SSN', address: 'Address',
-            employer: '🏢 EMPLOYER INFO',
-            empName: 'Company', empEin: 'EIN', empAddress: 'Address',
-            income: '💰 INCOME & TAXES',
-            wages: 'Wages (Box 1)', 
-            fedWith: 'Federal Withheld (Box 2)',
-            ssWages: 'Social Security Wages (Box 3)',
-            ssTax: 'Social Security Tax (Box 4)',
-            medWages: 'Medicare Wages (Box 5)',
-            medTax: 'Medicare Tax (Box 6)',
-            state: '🏛️ STATE',
-            stateCode: 'State',
-            stateWages: 'State Wages (Box 16)',
-            stateWith: 'State Tax Withheld (Box 17)',
-            confirm: '✅ Is this information correct?'
-          },
-          vi: { 
-            uploaded: 'Đã Tải Lên Thành Công!',
-            employee: '👤 THÔNG TIN NHÂN VIÊN',
-            name: 'Họ tên', ssn: 'Số An Sinh', address: 'Địa chỉ',
-            employer: '🏢 THÔNG TIN CÔNG TY',
-            empName: 'Công ty', empEin: 'EIN', empAddress: 'Địa chỉ',
-            income: '💰 THU NHẬP & THUẾ',
-            wages: 'Lương (Box 1)', 
-            fedWith: 'Thuế LB khấu trừ (Box 2)',
-            ssWages: 'Lương An Sinh XH (Box 3)',
-            ssTax: 'Thuế An Sinh XH (Box 4)',
-            medWages: 'Lương Medicare (Box 5)',
-            medTax: 'Thuế Medicare (Box 6)',
-            state: '🏛️ TIỂU BANG',
-            stateCode: 'Tiểu bang',
-            stateWages: 'Lương TB (Box 16)',
-            stateWith: 'Thuế TB khấu trừ (Box 17)',
-            confirm: '✅ Thông tin này đúng không?'
-          },
-          es: { 
-            uploaded: '¡Subido Exitosamente!',
-            employee: '👤 INFO DEL EMPLEADO',
-            name: 'Nombre', ssn: 'Seguro Social', address: 'Dirección',
-            employer: '🏢 INFO DEL EMPLEADOR',
-            empName: 'Empresa', empEin: 'EIN', empAddress: 'Dirección',
-            income: '💰 INGRESOS E IMPUESTOS',
-            wages: 'Salarios (Box 1)', 
-            fedWith: 'Imp. Fed. Retenido (Box 2)',
-            ssWages: 'Salarios Seg. Social (Box 3)',
-            ssTax: 'Imp. Seg. Social (Box 4)',
-            medWages: 'Salarios Medicare (Box 5)',
-            medTax: 'Imp. Medicare (Box 6)',
-            state: '🏛️ ESTADO',
-            stateCode: 'Estado',
-            stateWages: 'Salarios Est. (Box 16)',
-            stateWith: 'Imp. Est. Retenido (Box 17)',
-            confirm: '✅ ¿Es correcta esta información?'
-          }
-        };
-        const lbl = labels[lang] || labels.en;
-
-        // Build comprehensive confirmation message
-        let confirmMsg = `✅ <b>${formType} ${lbl.uploaded}</b>\n\n`;
-        
-        // ===== EMPLOYEE INFO =====
-        confirmMsg += `<b>${lbl.employee}</b>\n`;
-        
-        // Name
-        const empName = extracted.employee_name || 
-          `${extracted.employee_first_name || ''} ${extracted.employee_last_name || ''}`.trim();
-        if (empName) {
-          confirmMsg += `• ${lbl.name}: <b>${empName}</b>\n`;
-        }
-        
-        // SSN (masked)
-        if (extracted.employee_ssn) {
-          const ssn = String(extracted.employee_ssn).replace(/-/g, '');
-          confirmMsg += `• ${lbl.ssn}: <b>***-**-${ssn.slice(-4)}</b>\n`;
-        }
-        
-        // Address
-        const empAddr = [
-          extracted.employee_address,
-          extracted.employee_city,
-          extracted.employee_state,
-          extracted.employee_zip
-        ].filter(Boolean).join(', ');
-        if (empAddr) {
-          confirmMsg += `• ${lbl.address}: <b>${empAddr}</b>\n`;
-        }
-        
-        // ===== EMPLOYER INFO =====
-        confirmMsg += `\n<b>${lbl.employer}</b>\n`;
-        
-        if (extracted.employer_name) {
-          confirmMsg += `• ${lbl.empName}: <b>${extracted.employer_name}</b>\n`;
-        }
-        if (extracted.employer_ein) {
-          confirmMsg += `• ${lbl.empEin}: <b>${extracted.employer_ein}</b>\n`;
-        }
-        const emplAddr = [
-          extracted.employer_address,
-          extracted.employer_city,
-          extracted.employer_state,
-          extracted.employer_zip
-        ].filter(Boolean).join(', ');
-        if (emplAddr) {
-          confirmMsg += `• ${lbl.empAddress}: <b>${emplAddr}</b>\n`;
-        }
-        
-        // ===== INCOME & TAXES =====
-        confirmMsg += `\n<b>${lbl.income}</b>\n`;
-        
-        if (extracted.wages_tips_other_comp) {
-          confirmMsg += `• ${lbl.wages}: <b>$${Number(extracted.wages_tips_other_comp).toLocaleString()}</b>\n`;
-        }
-        if (extracted.federal_income_tax_withheld) {
-          confirmMsg += `• ${lbl.fedWith}: <b>$${Number(extracted.federal_income_tax_withheld).toLocaleString()}</b>\n`;
-        }
-        if (extracted.social_security_wages) {
-          confirmMsg += `• ${lbl.ssWages}: <b>$${Number(extracted.social_security_wages).toLocaleString()}</b>\n`;
-        }
-        if (extracted.social_security_tax_withheld || extracted.social_security_tax) {
-          const ssTax = extracted.social_security_tax_withheld || extracted.social_security_tax;
-          confirmMsg += `• ${lbl.ssTax}: <b>$${Number(ssTax).toLocaleString()}</b>\n`;
-        }
-        if (extracted.medicare_wages) {
-          confirmMsg += `• ${lbl.medWages}: <b>$${Number(extracted.medicare_wages).toLocaleString()}</b>\n`;
-        }
-        if (extracted.medicare_tax_withheld || extracted.medicare_tax) {
-          const medTax = extracted.medicare_tax_withheld || extracted.medicare_tax;
-          confirmMsg += `• ${lbl.medTax}: <b>$${Number(medTax).toLocaleString()}</b>\n`;
-        }
-        
-        // ===== STATE =====
-        if (extracted.state || extracted.state_wages || extracted.state_income_tax) {
-          confirmMsg += `\n<b>${lbl.state}</b>\n`;
-          
-          if (extracted.state) {
-            confirmMsg += `• ${lbl.stateCode}: <b>${extracted.state}</b>\n`;
-          }
-          if (extracted.state_wages) {
-            confirmMsg += `• ${lbl.stateWages}: <b>$${Number(extracted.state_wages).toLocaleString()}</b>\n`;
-          }
-          if (extracted.state_income_tax) {
-            confirmMsg += `• ${lbl.stateWith}: <b>$${Number(extracted.state_income_tax).toLocaleString()}</b>\n`;
-          }
-        }
-        
-        confirmMsg += `\n${lbl.confirm}`;
-
-        setMessages((prev) => [...prev, { sender: "ai", text: confirmMsg }]);
-
-        if (res.data.tax) {
-          setRefundAmount(calculateNetFromTax(res.data.tax));
-        }
-        if (showDataPanel) fetchServerData();
-      }
-    } catch (err) {
-      console.error("Upload error:", err);
-      setMessages((prev) => [...prev, { sender: "ai", text: t.error }]);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  const download1040 = async () => {
-    try {
-      const res = await api.post("/api/tax/1040", { userId, taxYear: parseInt(taxYear) }, { responseType: "blob" });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Form_1040_${taxYear}.pdf`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Download error:", err);
-      alert(lang === 'vi' ? "Lỗi tải form" : lang === 'es' ? "Error al descargar" : "Error downloading form");
-    }
-  };
-
-  const resetSession = async () => {
-    const confirmMsg = lang === 'vi' ? "Bạn có chắc muốn xóa tất cả dữ liệu?" :
-                       lang === 'es' ? "¿Seguro que quieres borrar todos los datos?" :
-                       "Are you sure you want to clear all data?";
+  // ============================================================
+  // RESET SESSION
+  // ============================================================
+  const handleResetSession = async () => {
+    const confirmMsg = language === 'vi' 
+      ? "Bạn có chắc muốn bắt đầu lại? Điều này sẽ xóa tất cả dữ liệu thuế của bạn."
+      : language === 'es'
+      ? "¿Estás seguro de que quieres empezar de nuevo? Esto borrará todos tus datos fiscales."
+      : "Are you sure you want to start over? This will clear all your tax data.";
+    
     if (!window.confirm(confirmMsg)) return;
     
     try {
-      await api.post("/api/ai/reset", { userId });
+      const token = localStorage.getItem("taxsky_token");
+      const userId = localStorage.getItem("taxsky_userId") || user?.id || "guest";
+      
+      await fetch(`${API_BASE}/api/ai/reset`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId })
+      });
+      
+      // Reset local state
+      setTaxData({
+        filing_status: "",
+        has_dependents: null,
+        dependents: [],
+        dependent_count: 0,
+        qualifying_children_under_17: 0,
+        other_dependents: 0,
+        collecting_dependent_details: false,
+        current_dependent_index: 0,
+        spouse_has_income: null,
+        spouse_first_name: "",
+        spouse_last_name: "",
+        spouse_ssn: "",
+        spouse_wages: 0,
+        spouse_federal_withheld: 0,
+        spouse_state_withheld: 0,
+        spouse_w2_uploaded: false,
+        wages: 0,
+        federal_withheld: 0,
+        state_withheld: 0,
+        interest_income: 0,
+        dividend_income: 0,
+        self_employment_income: 0,
+        retirement_income: 0,
+        social_security_benefits: 0,
+        capital_gains: 0,
+        other_income: 0,
+        documents: [],
+        w2_list: [],
+        form_1099_list: [],
+        w2_count: 0,
+        nec_count: 0,
+        int_count: 0,
+        div_count: 0,
+        first_name: "",
+        last_name: "",
+        ssn: "",
+        itemized_deductions: 0,
+        mortgage_interest: 0,
+        property_taxes: 0,
+        charitable_donations: 0,
+        ira_contributions: 0,
+        student_loan_interest: 0,
+        hsa_contributions: 0,
+        self_employment_health_insurance: 0,
+        total_adjustments: 0
+      });
+      
       setMessages([]);
-      setRefundAmount(0);
-      setServerData(null);
-      loadWelcomeMessage(lang);
+      setPhase(PHASES.WELCOME);
+      showWelcomeMessage();
+      
+      console.log("🔄 Session reset");
     } catch (err) {
       console.error("Reset error:", err);
     }
   };
 
-  const formatFilingStatus = (status) => {
-    return t.filingStatuses?.[status] || status || t.notSelected;
-  };
-
-  const quickActions = [
-    { label: t.quickActions.uploadW2, action: () => fileInputRef.current?.click() },
-    { label: t.quickActions.filingStatus, message: lang === 'vi' ? "Tình trạng khai thuế của tôi là gì?" : 
-                                                   lang === 'es' ? "¿Cuál es mi estado civil tributario?" : 
-                                                   "What is my filing status?" },
-    { label: t.quickActions.addDependent, message: lang === 'vi' ? "Tôi muốn thêm người phụ thuộc" : 
-                                                   lang === 'es' ? "Quiero agregar un dependiente" : 
-                                                   "I want to add a dependent" },
-    { label: t.quickActions.checkRefund, message: lang === 'vi' ? "Hoàn thuế của tôi là bao nhiêu?" : 
-                                                  lang === 'es' ? "¿Cuánto es mi reembolso?" : 
-                                                  "What is my refund?" },
-  ];
-
+  // ============================================================
+  // RENDER - DARK THEME
+  // ============================================================
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        {showHeader && (
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-3">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <span className="text-xl font-bold">🌟 {t.title}</span>
-                <select
-                  value={taxYear}
-                  onChange={(e) => setTaxYear(e.target.value)}
-                  className="bg-white/20 text-white border border-white/30 rounded px-2 py-1 text-sm"
-                >
-                  <option value="2024" className="text-gray-800">{t.taxYear} 2024</option>
-                  <option value="2023" className="text-gray-800">{t.taxYear} 2023</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {/* Language Selector */}
-                <select
-                  value={lang}
-                  onChange={(e) => changeLang(e.target.value)}
-                  className="bg-white/20 text-white border border-white/30 rounded-lg px-3 py-1.5 text-sm cursor-pointer"
-                >
-                  {languages.map((l) => (
-                    <option key={l.code} value={l.code} className="text-gray-800">
-                      {l.flag} {l.name}
-                    </option>
-                  ))}
-                </select>
-
-                {/* Refund Display */}
-                <div className={`px-4 py-2 rounded-lg font-bold ${
-                  animatedRefund >= 0 ? 'bg-green-500' : 'bg-red-500'
-                }`}>
-                  {animatedRefund >= 0 ? '💰' : '💸'} ${Math.abs(animatedRefund).toLocaleString()}
-                </div>
-
-                <button
-                  onClick={() => setShowDataPanel(!showDataPanel)}
-                  className="px-3 py-2 bg-white/20 rounded-lg hover:bg-white/30 text-sm"
-                >
-                  📊 {showDataPanel ? t.hideData : t.showData}
-                </button>
-                
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="px-3 py-2 bg-white/20 rounded-lg hover:bg-white/30 text-sm"
-                >
-                  {t.dashboard}
-                </button>
-
-                {currentUser && (
-                  <div className="flex items-center gap-2">
-                    <img 
-                      src={currentUser.picture} 
-                      alt={currentUser.name} 
-                      className="w-8 h-8 rounded-full border-2 border-white/30"
-                    />
-                    <span className="text-sm hidden md:block">{currentUser.firstName || currentUser.name}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+    <div className="flex flex-col h-full bg-slate-900">
+      {/* Header - Dark Theme */}
+      <div className="bg-slate-800 border-b border-slate-700 text-white px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {/* Logo SVG */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <rect width="32" height="32" rx="8" fill="url(#logoGradChat)"/>
+            <path d="M8 12h16M8 16h12M8 20h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="24" cy="20" r="4" fill="#10b981"/>
+            <path d="M22 20l1.5 1.5L26 19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <defs>
+              <linearGradient id="logoGradChat" x1="0" y1="0" x2="32" y2="32">
+                <stop stopColor="#3b82f6"/>
+                <stop offset="1" stopColor="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span className="font-bold text-lg">TaxSky</span>
+          
+          <div className="flex items-center gap-1 ml-4">
+            <button className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-sm font-medium">
+              💬 Tax Chat
+            </button>
+            <button
+              onClick={goToDashboard}
+              className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition"
+            >
+              📊 Dashboard
+            </button>
           </div>
-        )}
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[80%] px-4 py-3 rounded-2xl ${
-                  msg.sender === "user"
-                    ? "bg-blue-600 text-white rounded-br-md"
-                    : "bg-white shadow-md rounded-bl-md"
-                }`}
-                dangerouslySetInnerHTML={{ __html: msg.text }}
-              />
-            </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-white shadow-md rounded-2xl rounded-bl-md px-4 py-3">
-                <div className="flex space-x-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }} />
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }} />
-                </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <select 
+            value={taxYear} 
+            onChange={(e) => setTaxYear(parseInt(e.target.value))}
+            className="bg-slate-700 rounded px-2 py-1 text-sm border-0 text-white"
+          >
+            <option value={2025}>Tax Year 2025</option>
+            <option value={2024}>Tax Year 2024</option>
+          </select>
+          
+          <span className="bg-slate-700 rounded px-2 py-1 text-sm">📍 {userState}</span>
+          
+          {/* ✅ Language Selector in Header */}
+          <LanguageSelector />
+          
+          <span className="text-sm bg-emerald-500 px-2 py-1 rounded font-medium">CPA Expert</span>
+          
+          <div className="flex items-center gap-2">
+            {user?.picture ? (
+              <img src={user.picture} alt="" className="w-8 h-8 rounded-full ring-2 ring-slate-600" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-bold">
+                {user?.name?.charAt(0) || "U"}
               </div>
-            </div>
-          )}
-
-          <div ref={chatEndRef} />
-        </div>
-
-        {/* Quick Actions */}
-        <div className="px-4 py-2 bg-gray-50 border-t flex gap-2 overflow-x-auto">
-          {quickActions.map((action, i) => (
+            )}
+            <span className="text-sm hidden md:inline text-slate-300">{user?.name || "Guest"}</span>
             <button
-              key={i}
-              onClick={() => (action.action ? action.action() : sendMessage(action.message))}
-              className="px-3 py-2 bg-white border rounded-full text-sm whitespace-nowrap hover:bg-blue-50 hover:border-blue-300"
+              onClick={handleLogout}
+              className="text-slate-400 hover:text-white text-sm transition"
+              title="Logout"
             >
-              {action.label}
-            </button>
-          ))}
-          <button
-            onClick={download1040}
-            className="px-3 py-2 bg-green-100 border border-green-300 rounded-full text-sm whitespace-nowrap hover:bg-green-200"
-          >
-            {t.downloadForm}
-          </button>
-          <button
-            onClick={resetSession}
-            className="px-3 py-2 bg-red-100 border border-red-300 rounded-full text-sm whitespace-nowrap hover:bg-red-200"
-          >
-            {t.startOver}
-          </button>
-        </div>
-
-        {/* Input */}
-        <div className="p-4 bg-white border-t">
-          <div className="flex gap-2">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="hidden"
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="px-4 py-3 bg-gray-100 rounded-xl hover:bg-gray-200 disabled:opacity-50"
-            >
-              📎
-            </button>
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              placeholder={t.placeholder}
-              className="flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-            <button
-              onClick={() => sendMessage()}
-              disabled={isLoading || !input.trim()}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50"
-            >
-              {t.send}
+              🚪
             </button>
           </div>
         </div>
       </div>
 
-      {/* Data Panel Sidebar */}
-      {showDataPanel && (
-        <div className="w-80 bg-white border-l shadow-lg overflow-y-auto p-4">
-          <h2 className="font-bold text-lg mb-4">{t.yourTaxData}</h2>
-
-          {currentUser && (
-            <div className="mb-4 pb-4 border-b">
-              <div className="flex items-center gap-3">
-                <img src={currentUser.picture} alt="" className="w-10 h-10 rounded-full" />
-                <div>
-                  <div className="font-medium">{currentUser.name}</div>
-                  <div className="text-xs text-gray-500">{currentUser.email}</div>
-                </div>
+      {/* Messages - Dark Theme */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-900">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+          >
+            <div
+              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                msg.role === "user"
+                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                  : "bg-slate-800 border border-slate-700 text-slate-200"
+              }`}
+            >
+              <div className="whitespace-pre-wrap text-sm">
+                {msg.content.split(/(\*\*.*?\*\*)/).map((part, i) => {
+                  if (part.startsWith("**") && part.endsWith("**")) {
+                    return <strong key={i} className="text-white">{part.slice(2, -2)}</strong>;
+                  }
+                  return part;
+                })}
               </div>
             </div>
-          )}
-
-          {serverData ? (
-            <div className="space-y-3 text-sm">
-              <div>
-                <span className="text-gray-500">{t.name}:</span>{" "}
-                <b>{serverData.first_name && serverData.last_name
-                  ? `${serverData.first_name} ${serverData.last_name}`
-                  : t.notProvided}</b>
+          </div>
+        ))}
+        
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <span className="text-slate-400 text-sm">
+                  {language === 'vi' ? "Đang suy nghĩ..." : 
+                   language === 'es' ? "Pensando..." : 
+                   "Thinking..."}
+                </span>
               </div>
-              <div>
-                <span className="text-gray-500">{t.filingStatus}:</span>{" "}
-                <b>{formatFilingStatus(serverData.filing_status)}</b>
-              </div>
-              <div>
-                <span className="text-gray-500">{t.address}:</span>{" "}
-                <b>{serverData.address || t.notProvided}</b>
-              </div>
-              <div>
-                <span className="text-gray-500">{t.dependents}:</span>{" "}
-                <b>{serverData.dependent_count > 0 ? serverData.dependent_count : t.none}</b>
-              </div>
-
-              {serverData.dependent_count > 0 && (
-                <div className="ml-3 text-xs text-gray-600 space-y-1">
-                  {[1, 2, 3, 4].map((i) => {
-                    const name = serverData[`dependent_${i}_name`];
-                    const age = serverData[`dependent_${i}_age`];
-                    const under17 = serverData[`dependent_${i}_under_17`];
-                    if (!name) return null;
-                    return (
-                      <div key={i}>
-                        • {name} {age ? `(${age} yrs)` : ""}{" "}
-                        {under17 === "yes" && <span className="text-green-600">✓ CTC</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              <div>
-                <span className="text-gray-500">{t.w2Wages}:</span>{" "}
-                <b>{serverData.total_wages > 0 ? `$${Number(serverData.total_wages).toLocaleString()}` : t.none}</b>
-              </div>
-              <div>
-                <span className="text-gray-500">{t.federalWithheld}:</span>{" "}
-                <b>{serverData.total_withheld > 0 ? `$${Number(serverData.total_withheld).toLocaleString()}` : "—"}</b>
-              </div>
-
-              <div className="pt-3 border-t">
-                <div className="text-gray-500">
-                  {refundAmount >= 0 ? t.estimatedRefund : t.amountOwed}:
-                </div>
-                <div className={`text-2xl font-bold ${refundAmount >= 0 ? "text-green-600" : "text-red-600"}`}>
-                  ${Math.abs(refundAmount).toLocaleString()}
-                </div>
-              </div>
-
-              <button
-                onClick={fetchServerData}
-                className="w-full py-2 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 mt-4"
-              >
-                {t.refresh}
-              </button>
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-              <p className="text-gray-500 mt-2 text-sm">{t.loading}</p>
-            </div>
-          )}
+          </div>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input Area - Dark Theme */}
+      <div className="border-t border-slate-700 bg-slate-800 p-4">
+        <div className="flex items-center gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*,.pdf"
+            onChange={(e) => handleFileUpload(e.target.files[0])}
+          />
+          
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="p-3 bg-slate-700 hover:bg-slate-600 rounded-xl transition text-white"
+            title={language === 'vi' ? "Tải tài liệu" : "Upload Document"}
+          >
+            {isUploading ? "⏳" : "📎"}
+          </button>
+          
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+            placeholder={t(language, 'placeholder')}
+            className="flex-1 bg-slate-700 border border-slate-600 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400"
+            disabled={isLoading}
+          />
+          
+          <button
+            onClick={sendMessage}
+            disabled={isLoading || !input.trim()}
+            className="p-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl transition disabled:opacity-50"
+          >
+            {isLoading ? "⏳" : "📤"}
+          </button>
         </div>
-      )}
+        
+        {/* Quick Actions - Dark Theme */}
+        <div className="flex gap-2 mt-3 flex-wrap">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/30 transition"
+          >
+            {t(language, 'uploadW2')}
+          </button>
+          <button
+            onClick={() => setInput(
+              language === 'vi' ? "Mức khấu trừ tiêu chuẩn là bao nhiêu?" :
+              language === 'es' ? "¿Cuál es la deducción estándar?" :
+              "What is the standard deduction for 2025?"
+            )}
+            className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-full transition"
+          >
+            {t(language, 'standardDeduction')}
+          </button>
+          <button
+            onClick={() => setInput(
+              language === 'vi' ? "Tôi có đủ điều kiện nhận EITC không?" :
+              language === 'es' ? "¿Soy elegible para EITC?" :
+              "Am I eligible for EITC?"
+            )}
+            className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-full transition"
+          >
+            {t(language, 'checkEITC')}
+          </button>
+          <button
+            onClick={() => setInput(
+              language === 'vi' ? "tiếp tục" :
+              language === 'es' ? "continuar" :
+              "continue"
+            )}
+            className="text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-full border border-emerald-500/30 transition"
+          >
+            {t(language, 'continueFile')}
+          </button>
+          <button
+            onClick={goToDashboard}
+            className="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 px-3 py-1.5 rounded-full border border-purple-500/30 transition"
+          >
+            {t(language, 'viewDashboard')}
+          </button>
+          <button
+            onClick={handleResetSession}
+            className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-full transition"
+            title={language === 'vi' ? "Bắt đầu khai thuế mới" : "Start a new tax return"}
+          >
+            {t(language, 'reset')}
+          </button>
+          <button
+            onClick={() => {
+              console.log("📜 Full Chat History:", messages);
+              console.log("📋 Tax Data:", taxData);
+              alert(`Chat has ${messages.length} messages.\nDependents: ${taxData.dependent_count}\nChildren under 17: ${taxData.qualifying_children_under_17}`);
+            }}
+            className="text-xs bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded-full transition"
+          >
+            {t(language, 'history')} ({messages.length})
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

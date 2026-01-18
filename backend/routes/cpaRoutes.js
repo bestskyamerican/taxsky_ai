@@ -1,14 +1,26 @@
 // ============================================================
-// CPA ROUTES - Tax Filing Review System
+// CPA ROUTES - Complete Auth + Review + ZIP Code System
 // ============================================================
 // Location: backend/routes/cpaRoutes.js
-// 
-// Add to your server.js:
-// import cpaRoutes from './routes/cpaRoutes.js';
-// app.use('/api/cpa', cpaRoutes);
+// ✅ UPDATED: Added ZIP code management routes
 // ============================================================
 
 import express from 'express';
+
+// Auth Controller
+import {
+  register,
+  login,
+  getProfile,
+  updateProfile,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+  verifyToken,
+  logout
+} from '../controllers/cpaAuthController.js';
+
+// CPA Controller (Review)
 import {
   getPendingReviews,
   getAllFiles,
@@ -16,90 +28,106 @@ import {
   submitReview,
   getFileDetails,
   getUserFilings,
-  bulkApprove
+  bulkApprove,
+  createTestFile
 } from '../controllers/cpaController.js';
+
+// Admin Controller
+import {
+  getAllCPAs,
+  getCPAById,
+  approveCPA,
+  updateCPAStatus,
+  updateCPAPermissions,
+  deleteCPA,
+  getCPAStats,
+  getSystemStats,
+  // ✅ NEW: ZIP Code functions
+  updateCPAZipcodes,
+  bulkAssignZipcodes,
+  getAllZipcodes,
+  getZipcodeCoverage
+} from '../controllers/cpaAdminController.js';
+
+// Auth Middleware
+import { protect, restrictTo } from '../middleware/cpaAuth.js';
 
 const router = express.Router();
 
 // ============================================================
-// OPTIONAL: CPA Authentication Middleware
-// ============================================================
-// Uncomment and customize if you need CPA login protection
-/*
-const cpaAuth = (req, res, next) => {
-  const cpaToken = req.headers['x-cpa-token'];
-  const validTokens = process.env.CPA_TOKENS?.split(',') || ['cpa123'];
-  
-  if (!cpaToken || !validTokens.includes(cpaToken)) {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'Unauthorized. CPA token required.' 
-    });
-  }
-  next();
-};
-
-router.use(cpaAuth);
-*/
-
-// ============================================================
-// DASHBOARD ROUTES
+// PUBLIC ROUTES (No auth required)
 // ============================================================
 
-/**
- * GET /api/cpa/stats
- * Get review statistics
- * Query: ?taxYear=2024
- */
-router.get('/stats', getReviewStats);
+// Auth
+router.post('/auth/register', register);
+router.post('/auth/login', login);
+router.post('/auth/forgot-password', forgotPassword);
+router.post('/auth/reset-password', resetPassword);
 
-/**
- * GET /api/cpa/pending
- * Get all pending files for review
- * Query: ?taxYear=2024&limit=50
- */
-router.get('/pending', getPendingReviews);
-
-/**
- * GET /api/cpa/files
- * Get all files with filters
- * Query: ?status=approved&taxYear=2024&userId=user_123&page=1&limit=20
- */
-router.get('/files', getAllFiles);
+// Test endpoint (for development)
+router.post('/test/create-file', createTestFile);
 
 // ============================================================
-// FILE REVIEW ROUTES
+// PROTECTED ROUTES (Auth required)
 // ============================================================
 
-/**
- * GET /api/cpa/file/:fileId
- * Get single file details with user data
- */
-router.get('/file/:fileId', getFileDetails);
-
-/**
- * POST /api/cpa/review/:fileId
- * Submit CPA review for a file
- * Body: { status, reviewedBy, comments, corrections }
- */
-router.post('/review/:fileId', submitReview);
-
-/**
- * POST /api/cpa/bulk-approve
- * Approve multiple files at once
- * Body: { fileIds: [...], reviewedBy: "CPA Name" }
- */
-router.post('/bulk-approve', bulkApprove);
+// Auth (protected)
+router.get('/auth/verify', protect, verifyToken);
+router.post('/auth/logout', protect, logout);
+router.get('/auth/profile', protect, getProfile);
+router.put('/auth/profile', protect, updateProfile);
+router.post('/auth/change-password', protect, changePassword);
 
 // ============================================================
-// USER DATA ROUTES
+// REVIEW ROUTES
 // ============================================================
 
-/**
- * GET /api/cpa/user/:userId
- * Get all filings for a specific user
- */
-router.get('/user/:userId', getUserFilings);
+// Dashboard stats
+router.get('/stats', protect, getReviewStats);
+
+// Pending reviews
+router.get('/pending', protect, getPendingReviews);
+
+// All files (with filters)
+router.get('/files', protect, getAllFiles);
+
+// Single file details
+router.get('/files/:fileId', protect, getFileDetails);
+router.get('/file/:fileId', protect, getFileDetails);
+
+// Submit review
+router.post('/files/:fileId/review', protect, submitReview);
+router.post('/review/:fileId', protect, submitReview);
+
+// Bulk approve
+router.post('/bulk-approve', protect, bulkApprove);
+
+// User filings
+router.get('/users/:userId/filings', protect, getUserFilings);
+router.get('/user/:userId', protect, getUserFilings);
+
+// ============================================================
+// ADMIN ROUTES
+// ============================================================
+
+// CPA Management
+router.get('/admin/cpas', protect, restrictTo('admin', 'senior_cpa'), getAllCPAs);
+router.get('/admin/cpas/:cpaId', protect, restrictTo('admin', 'senior_cpa'), getCPAById);
+router.post('/admin/cpas/:cpaId/approve', protect, restrictTo('admin'), approveCPA);
+router.put('/admin/cpas/:cpaId/status', protect, restrictTo('admin'), updateCPAStatus);
+router.put('/admin/cpas/:cpaId/permissions', protect, restrictTo('admin'), updateCPAPermissions);
+router.delete('/admin/cpas/:cpaId', protect, restrictTo('admin'), deleteCPA);
+
+// ✅ NEW: ZIP Code Management Routes
+router.put('/admin/cpas/:cpaId/zipcodes', protect, restrictTo('admin'), updateCPAZipcodes);
+router.post('/admin/zipcodes/bulk-assign', protect, restrictTo('admin'), bulkAssignZipcodes);
+router.get('/admin/zipcodes', protect, restrictTo('admin', 'senior_cpa'), getAllZipcodes);
+router.get('/admin/zipcodes/coverage', protect, restrictTo('admin', 'senior_cpa'), getZipcodeCoverage);
+
+// Stats
+router.get('/admin/stats', protect, restrictTo('admin', 'senior_cpa'), getCPAStats);
+router.get('/admin/cpa-stats', protect, restrictTo('admin', 'senior_cpa'), getCPAStats);
+router.get('/admin/system-stats', protect, restrictTo('admin'), getSystemStats);
 
 // ============================================================
 // EXPORT

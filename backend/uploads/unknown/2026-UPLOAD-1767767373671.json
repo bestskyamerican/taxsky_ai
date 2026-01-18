@@ -1,0 +1,2077 @@
+[{
+  "_id": {
+    "$oid": "695abb9710604671cfefd69d"
+  },
+  "userId": "user_1767229004780_luwx7i3hz",
+  "taxYear": 2025,
+  "messages": [
+    {
+      "sender": "user",
+      "text": "hello",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:26.098Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Hey there! 👋 Welcome to TaxSky!\n\nI'll help you file your 2025 taxes step by step. No confusing tax jargon - I promise! 😊\n\n🔒 For your security, I won't ask for SSN or bank info here. You'll enter those safely in our secure form later.\n\nLet's get started!\n\n📋 What is your filing status?\n• Single\n• Married Filing Jointly\n• Married Filing Separately\n• Head of Household",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:26.098Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "single",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:31.181Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📋 Filing Status: **Single**\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:31.181Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:35.708Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Filing Status saved!\n\n📅 What is YOUR date of birth?",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:35.708Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "11/11/2000",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:46.719Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📅 Your birthday: **November 11, 2000**\n📊 Age: **25 years old** (2025 - 2000 = 25)\n💡 Since you're under 50, your IRA limit is $7,000!\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:46.719Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:54.239Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your birthday saved!\n\n🏠 What state do you live in?",
+      "timestamp": {
+        "$date": "2026-01-04T19:12:54.239Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "ca",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:01.879Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! State: **California**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:01.879Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:07.141Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ State saved!\n\n👶 Do you have any dependents? (children, parents, etc.)\n\n(Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:07.141Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "no",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:15.920Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ No dependents noted!\n\nNow let's talk about income! 💰\n\nWhat type of income did YOU have in 2025?\n• W-2 (job)\n• 1099-NEC (self-employed/freelance)\n• 1099-R (retirement)\n• SSA-1099 (Social Security)\n• 1099-INT (interest)\n• Multiple types\n• None",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:15.920Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "w2",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:22.014Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! You have W-2 income.\n\n💰 What is your W-2 wages? (Box 1)",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:22.014Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "150000",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:30.954Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! W-2 Wages: **$150,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:30.954Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:37.910Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ W-2 Wages saved!\n\n💳 What is your federal tax withheld? (Box 2)What is your federal tax withheld? (Box 2)",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:37.910Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:54.179Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Federal Withheld: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:13:54.179Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:00.079Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Federal Withheld saved!\n\n🏛️ What is your state tax withheld? (Box 17, or 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:00.079Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:11.756Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! State Withheld: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:11.756Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:17.922Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ State Withheld saved!\n\n💰 How much did YOU contribute to a Traditional IRA in 2025?\n(Your limit: $7,000 since you're under 50. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:17.922Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "7000",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:24.743Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Your IRA: **$7,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:24.743Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:31.442Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your IRA saved!\n\n🎉 Great job! Here's your complete summary:\n\n**📋 Personal:**\n• Filing: Single\n• You: 11/11/2000 (Age 25, under 50)\n• State: California\n\n**👶 Dependents:**\n• None\n\n**💰 Your Income:**\n• W-2 Wages: $150,000\n• Federal Withheld: $0\n• State Withheld: $0\n\n**💵 Adjustments:**\n• Your IRA: $7,000\n• HSA: $0\n• Student Loan Interest: $0\n\n**📝 Deduction:** Standard ($15,750 Single)\n\n════════════════════════════════\nIs everything correct? (Yes/No)\n════════════════════════════════",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:31.442Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:47.688Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Perfect! All your information is saved!\n\n🔐 **Next Step: Secure Form**\nClick 'Continue' to enter:\n• Social Security Number\n• Address\n• Bank info for direct deposit\n\n⏳ Then we'll calculate your taxes!\n\nThanks for using TaxSky! 🌟",
+      "timestamp": {
+        "$date": "2026-01-04T19:14:47.688Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "hello",
+      "timestamp": {
+        "$date": "2026-01-04T19:25:10.228Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Hi again! 😊 Your info is already saved.\n\nIf you want to continue, please click 'Continue' to enter your SSN and address securely in the next form.\n\nIs there anything you'd like to review or change before that?",
+      "timestamp": {
+        "$date": "2026-01-04T19:25:10.228Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "review",
+      "timestamp": {
+        "$date": "2026-01-04T19:25:29.442Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Sure! What would you like to review or change?\n\nYou can pick one:\n• Filing status\n• Your birthday\n• State\n• Dependents\n• Your income\n• IRA contribution\n• Deduction type\n\nPlease tell me which one to review or change.",
+      "timestamp": {
+        "$date": "2026-01-04T19:25:29.442Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "change",
+      "timestamp": {
+        "$date": "2026-01-04T19:25:51.572Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "No problem! Which field would you like to change?\nPlease pick one:\n• Filing status\n• Your birthday\n• State\n• Dependents\n• Your income\n• IRA contribution\n• Deduction type",
+      "timestamp": {
+        "$date": "2026-01-04T19:25:51.572Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "IRA contribution",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:18.979Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! How much did YOU contribute to a Traditional IRA in 2025?\n(Your limit: $7,000 since you're under 50. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:18.979Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "6000",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:26.181Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Your IRA: **$6,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:26.181Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:32.133Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your IRA contribution updated to $6,000!\n\nIs there anything else you'd like to review or change? If not, you can click 'Continue' to enter your SSN and address securely.",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:32.133Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "continue",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:52.984Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "🔐 Great! Please click 'Continue' to enter:\n• Your Social Security Number\n• Address\n• Bank info for direct deposit\n\n⏳ After that, we'll calculate your taxes for 2025!\n\nThanks for using TaxSky! 🌟",
+      "timestamp": {
+        "$date": "2026-01-04T19:26:52.984Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "744-44-6666",
+      "timestamp": {
+        "$date": "2026-01-04T19:27:10.352Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Thanks, but please don't share your SSN in chat! 🔒\nYou'll enter that safely in our secure form after we finish.\n\nIs there anything else you'd like to review or change before you proceed?",
+      "timestamp": {
+        "$date": "2026-01-04T19:27:10.352Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "xin chào",
+      "timestamp": {
+        "$date": "2026-01-04T22:40:20.119Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Chào bạn! 👋 How can I help you with your 2025 US taxes today?",
+      "timestamp": {
+        "$date": "2026-01-04T22:40:20.119Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "bạn có thể nói tiếng viêt?",
+      "timestamp": {
+        "$date": "2026-01-04T22:40:41.615Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Mình có thể giúp bạn bằng tiếng Việt nhé! 😊\n\nBạn muốn bắt đầu khai thuế 2025 chứ? \n\nTrước tiên, cho mình biết tình trạng khai thuế của bạn:\n• Độc thân (Single)\n• Đã kết hôn khai chung (Married Filing Jointly)\n• Đã kết hôn khai riêng (Married Filing Separately)\n• Đầu gia đình (Head of Household)\n\nBạn chọn tình trạng nào?",
+      "timestamp": {
+        "$date": "2026-01-04T22:40:41.615Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Độc thân (Single)",
+      "timestamp": {
+        "$date": "2026-01-04T22:40:57.463Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📋 Filing Status: **Single**\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T22:40:57.463Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T22:41:10.443Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Filing Status saved!\n\n📅 What is YOUR date of birth? (Please use MM/DD/YYYY format)",
+      "timestamp": {
+        "$date": "2026-01-04T22:41:10.443Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "tại sao bạn thay sang tiếng Anh",
+      "timestamp": {
+        "$date": "2026-01-04T22:41:28.419Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Mình xin lỗi nhé! Mình sẽ tiếp tục bằng tiếng Việt cho bạn.\n\n📅 Bạn cho mình biết ngày sinh của bạn nhé? (Định dạng MM/DD/YYYY)",
+      "timestamp": {
+        "$date": "2026-01-04T22:41:28.419Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "xin chao",
+      "timestamp": {
+        "$date": "2026-01-04T22:49:00.696Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Chào bạn! 👋 Bạn cần mình giúp gì về thuế 2025?",
+      "timestamp": {
+        "$date": "2026-01-04T22:49:00.696Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "vang",
+      "timestamp": {
+        "$date": "2026-01-04T22:49:16.256Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Cảm ơn bạn! 😊\n\n📅 Bạn cho mình biết ngày sinh của bạn nhé? (Định dạng MM/DD/YYYY)",
+      "timestamp": {
+        "$date": "2026-01-04T22:49:16.256Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Xin chào",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:05.829Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Chào bạn! 👋 Bạn muốn bắt đầu khai thuế 2025 chứ? \n\n📋 Tình trạng khai thuế của bạn là gì?\n• Độc thân (Single)\n• Đã kết hôn khai chung (Married Filing Jointly)\n• Đã kết hôn khai riêng (Married Filing Separately)\n• Đầu gia đình (Head of Household)\n\nBạn chọn tình trạng nào?",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:05.829Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Độc thân (Single)",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:22.662Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📋 Filing Status: **Single**\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:22.662Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "vui lòng nói tiếng việt",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:48.377Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Chắc chắn rồi! \n\n📋 Tình trạng khai thuế của bạn là **Độc thân (Single)** đúng không? (Có/Không)",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:48.377Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "có",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:59.251Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Đã lưu tình trạng khai thuế: Độc thân!\n\n📅 Bạn cho mình biết ngày sinh của bạn nhé? (Định dạng MM/DD/YYYY)",
+      "timestamp": {
+        "$date": "2026-01-05T01:14:59.251Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "11/12/2005",
+      "timestamp": {
+        "$date": "2026-01-05T01:15:11.244Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📅 Your birthday: **November 12, 2005**\n📊 Age: **20 years old** (2025 - 2005 = 20)\n💡 Bạn dưới 50 tuổi, giới hạn đóng IRA là $7,000!\n\nThông tin này có đúng không? (Có/Không)",
+      "timestamp": {
+        "$date": "2026-01-05T01:15:11.244Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Hello",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:25.379Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Hi there! 👋 It looks like you switched back to English.\n\nWould you like to continue in English or Vietnamese? \n\nAlso, your birthday is saved as November 12, 2005, age 20. Is that correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:25.379Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "English",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:40.594Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Great! Your birthday is November 12, 2005, age 20. Is that correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:40.594Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:49.409Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your birthday saved!\n\n🏠 What state do you live in?",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:49.409Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "CA",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:56.243Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! State: **California**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:24:56.243Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:02.510Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ State saved!\n\n👶 Do you have any dependents? (children, parents, etc.)\n\n(Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:02.510Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "no",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:12.447Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ No dependents noted!\n\nNow let's talk about income! 💰\n\nWhat type of income did YOU have in 2025?\n• W-2 (job)\n• 1099-NEC (self-employed/freelance)\n• 1099-R (retirement)\n• SSA-1099 (Social Security)\n• 1099-INT (interest)\n• Multiple types\n• None",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:12.447Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "w2",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:22.325Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! You have W-2 income.\n\n💰 What is your W-2 wages? (Box 1)",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:22.325Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "110000",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:33.852Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! W-2 Wages: **$110,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:33.852Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:38.205Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ W-2 Wages saved!\n\n💳 What is your federal tax withheld? (Box 2)",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:38.205Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "11000",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:47.484Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Federal Withheld: **$11,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:47.484Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:53.182Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Federal Withheld saved!\n\n🏛️ What is your state tax withheld? (Box 17, or 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-05T13:25:53.182Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:00.288Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! State Withheld: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:00.288Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:04.998Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ State Withheld saved!\n\n💰 How much did YOU contribute to a Traditional IRA in 2025?\n(Your limit: $7,000 since you're under 50. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:04.998Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "4000",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:13.172Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Your IRA: **$4,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:13.172Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:20.042Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your IRA saved!\n\n💰 Did you contribute to a Health Savings Account (HSA) in 2025?\n(Limits: Individual $4,300, Family $8,550. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:20.042Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:27.818Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! HSA: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:27.818Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:32.834Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ HSA contribution saved!\n\n💸 Did you pay any student loan interest in 2025?\n(Maximum deduction: $2,500. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:32.834Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:48.498Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Student loan interest: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:48.498Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:53.033Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Student loan interest saved!\n\n📝 For your 2025 tax return, do you want to take the Standard Deduction or Itemize deductions?\n• Standard\n• Itemized\n\n(Most people choose Standard!)",
+      "timestamp": {
+        "$date": "2026-01-05T13:26:53.033Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "• Standard",
+      "timestamp": {
+        "$date": "2026-01-05T13:27:01.977Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Deduction type: **Standard**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T13:27:01.977Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T13:27:10.408Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "🎉 Great job! Here's your complete summary:\n\n**📋 Personal:**\n• Filing: Single\n• You: 11/12/2005 (Age 20, under 50)\n• State: California\n\n**👶 Dependents:**\n• None\n\n**💰 Your Income:**\n• W-2 Wages: $110,000\n• Federal Withheld: $11,000\n• State Withheld: $0\n\n**💵 Adjustments:**\n• Your IRA: $4,000\n• HSA: $0\n• Student Loan Interest: $0\n\n**📝 Deduction:** Standard ($15,000 Single)\n\n════════════════════════════════\nIs everything correct? (Yes/No)\n════════════════════════════════",
+      "timestamp": {
+        "$date": "2026-01-05T13:27:10.408Z"
+      }
+    }
+  ],
+  "answers": {
+    "filing_status": "single",
+    "taxpayer_dob": "11/12/2005",
+    "state": "CA",
+    "taxpayer_wages": 110000,
+    "taxpayer_federal_withheld": 11000,
+    "taxpayer_state_withheld": 0,
+    "taxpayer_ira": 4000,
+    "hsa": 0,
+    "student_loan_interest": 0,
+    "dependent_count": 0,
+    "has_dependents": false,
+    "total_state_withheld": 0,
+    "total_wages": 130377,
+    "total_withheld": 15184
+  },
+  "forms": {},
+  "stepIndex": 0,
+  "rawData": {
+    "uploads": []
+  },
+  "interviewState": {
+    "currentStep": "welcome",
+    "completedSteps": []
+  },
+  "status": "ready_to_file",
+  "normalizedData": {
+    "income": {
+      "w2": [],
+      "interest": [],
+      "dividends": [],
+      "self_employment": [],
+      "capital_gains": [],
+      "unemployment": [],
+      "social_security": []
+    },
+    "dependents": []
+  },
+  "form1040": {
+    "header": {
+      "tax_year": 2025,
+      "presidential_campaign": false
+    },
+    "income": {
+      "line_1_wages": 0,
+      "line_2a_tax_exempt_interest": 0,
+      "line_2b_taxable_interest": 0,
+      "line_3a_qualified_dividends": 0,
+      "line_3b_ordinary_dividends": 0,
+      "line_4a_ira_distributions": 0,
+      "line_4b_taxable_ira": 0,
+      "line_5a_pensions": 0,
+      "line_5b_taxable_pensions": 0,
+      "line_6a_social_security": 0,
+      "line_6b_taxable_social_security": 0,
+      "line_7_capital_gain": 0,
+      "line_8_schedule_1_income": 0,
+      "line_9_total_income": 0
+    },
+    "adjustments": {
+      "line_10_schedule_1_adjustments": 0,
+      "line_11_agi": 0
+    },
+    "deductions": {
+      "line_12_deduction": 0,
+      "line_13_qbi": 0,
+      "line_14_total_deductions": 0,
+      "line_15_taxable_income": 0
+    },
+    "tax_and_credits": {
+      "line_16_tax": 0,
+      "line_17_schedule_2_taxes": 0,
+      "line_18_total_tax": 0,
+      "line_19_child_credit": 0,
+      "line_20_schedule_3_credits": 0,
+      "line_21_total_credits": 0,
+      "line_22_tax_after_credits": 0,
+      "line_23_schedule_2_other_taxes": 0,
+      "line_24_total_tax": 0
+    },
+    "payments": {
+      "line_25a_w2_withholding": 0,
+      "line_25b_1099_withholding": 0,
+      "line_25c_other_withholding": 0,
+      "line_25d_total_withholding": 0,
+      "line_26_estimated_payments": 0,
+      "line_27_eic": 0,
+      "line_28_schedule_3_credits": 0,
+      "line_29_total_payments": 0
+    },
+    "refund_or_owe": {
+      "line_33_overpayment": 0,
+      "line_34_apply_to_2025": 0,
+      "line_35_refund": 0,
+      "line_37_amount_owe": 0,
+      "line_38_estimated_penalty": 0
+    }
+  },
+  "createdAt": {
+    "$date": "2026-01-04T19:12:23.727Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-05T13:27:10.432Z"
+  },
+  "__v": 59
+},
+{
+  "_id": {
+    "$oid": "695abfa093d38027222e2408"
+  },
+  "userId": "user_1767073770689_9q55ri633",
+  "taxYear": 2025,
+  "messages": [
+    {
+      "sender": "user",
+      "text": "hello",
+      "timestamp": {
+        "$date": "2026-01-04T19:29:39.062Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Hey there! 👋 Welcome to TaxSky!\n\nI'll help you file your 2025 taxes step by step. No confusing tax jargon - I promise! 😊\n\n🔒 For your security, I won't ask for SSN or bank info here. You'll enter those safely in our secure form later.\n\nLet's get started!\n\n📋 What is your filing status?\n• Single\n• Married Filing Jointly\n• Married Filing Separately\n• Head of Household",
+      "timestamp": {
+        "$date": "2026-01-04T19:29:39.062Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "married filing jointly",
+      "timestamp": {
+        "$date": "2026-01-04T19:29:45.117Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📋 Filing Status: **Married Filing Jointly**\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:29:45.117Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:29:49.499Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Filing Status saved!\n\n📅 What is YOUR date of birth? Please use MM/DD/YYYY format.",
+      "timestamp": {
+        "$date": "2026-01-04T19:29:49.499Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "12/12/2000",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:00.193Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📅 Your birthday: **December 12, 2000**\n📊 Age: **25 years old** (2025 - 2000 = 25)\n💡 Since you're under 50, your IRA limit is $7,000!\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:00.193Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:03.855Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your birthday saved!\n\n👫 What is your spouse's full name? (First and Last)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:03.855Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "lan tran",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:14.871Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Spouse name: **Lan Tran**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:14.871Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "YES",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:18.657Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Spouse name saved!\n\n📅 What is Lan Tran's date of birth? Please use MM/DD/YYYY format.",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:18.657Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "12/12/2004",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:26.641Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n📅 Lan Tran's birthday: **December 12, 2004**\n📊 Age: **21 years old** (2025 - 2004 = 21)\n💡 Lan Tran is under 50, so their IRA limit is $7,000!\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:26.641Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:30.681Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Spouse birthday saved!\n\n🏠 What state do you live in? Please provide the state name or abbreviation.",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:30.681Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "ca",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:35.591Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! State: **California**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:35.591Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:39.898Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ State saved!\n\n👶 Do you have any dependents? (children, parents, etc.)\n\n(Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:39.898Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "no",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:47.441Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ No dependents saved!\n\nNow let's talk about income! 💰\n\nWhat type of income did YOU have in 2025?\n• W-2 (job/employment)\n• 1099-NEC (self-employed/freelance/gig work)\n• 1099-K (Uber, DoorDash, Etsy)\n• 1099-R (retirement/pension)\n• SSA-1099 (Social Security)\n• 1099-INT (bank interest)\n• 1099-DIV (dividends)\n• 1099-G (unemployment)\n• Multiple types\n• None\n\nPlease choose one option.",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:47.441Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "W2",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:59.204Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! You have W-2 income.\n\n💰 What is your W-2 wages? (Box 1)",
+      "timestamp": {
+        "$date": "2026-01-04T19:30:59.204Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "200000",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:06.320Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! W-2 Wages: **$200,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:06.320Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "YES",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:11.618Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ W-2 Wages saved!\n\n💳 What is your federal tax withheld? (Box 2)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:11.618Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "20000",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:18.210Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Federal Withheld: **$20,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:18.210Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:22.772Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Federal Withheld saved!\n\n🏛️ What is your state tax withheld? (Box 17, or 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:22.772Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:30.258Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! State tax withheld: **$0**. Is this correct? (Yes/No)Got it! State tax withheld: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:30.258Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:36.910Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your income saved!\n\nNow let's get **Lan Tran's** income.\n\nWhat type of income did Lan Tran have in 2025?\n• W-2\n• 1099-NEC (self-employed)\n• 1099-R (retirement)\n• SSA-1099 (Social Security)\n• None\n\nPlease choose one.",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:36.910Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "w2",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:43.642Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Lan Tran has W-2 income.\n\n💰 What is Lan Tran's W-2 wages? (Box 1)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:43.642Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "100000",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:50.481Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Lan Tran's W-2 Wages: **$100,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:50.481Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:56.845Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Lan Tran's W-2 Wages saved!\n\n💳 What is Lan Tran's federal tax withheld? (Box 2)",
+      "timestamp": {
+        "$date": "2026-01-04T19:31:56.845Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "10000",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:08.924Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Lan Tran's Federal Withheld: **$10,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:08.924Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:13.761Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Lan Tran's Federal Withheld saved!\n\n🏛️ What is Lan Tran's state tax withheld? (Box 17, or 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:13.761Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:19.180Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Lan Tran's State tax withheld: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:19.180Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:24.260Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Lan Tran's income saved!\n\nNow for retirement savings! 💰\n\nHow much did YOU contribute to a Traditional IRA in 2025?\n(Your limit: $7,000 since you're under 50. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:24.260Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "7000",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:31.636Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Your IRA: **$7,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:31.636Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:36.491Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Your IRA saved!\n\n💰 How much did **Lan Tran** contribute to their Traditional IRA?\n(Limit: $7,000 since under 50. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:36.491Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "6000",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:41.265Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Lan Tran's IRA: **$6,000**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:41.265Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:47.128Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Lan Tran's IRA saved!\n\n💰 Did you contribute to a Health Savings Account (HSA) in 2025?\n(Limits: Individual $4,300, Family $8,550. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:32:47.128Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:03.151Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! HSA: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:03.151Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:16.271Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ HSA saved!\n\n💸 Did you pay any student loan interest in 2025?\n(Maximum deduction: $2,500. Enter 0 if none)",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:16.271Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:26.844Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Student loan interest: **$0**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:26.844Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:32.424Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Student loan interest saved!\n\n📝 For your 2025 tax return, do you want to take the Standard Deduction or Itemize deductions?\n• Standard\n• Itemized\n\n(Most people choose Standard!)",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:32.424Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Standard",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:40.393Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Deduction type: **Standard**. Is this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:40.393Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:46.245Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "🎉 Great job! Here's your complete summary:\n\n**📋 Personal:**\n• Filing: Married Filing Jointly\n• You: 12/12/2000 (Age 25, under 50)\n• Spouse: Lan Tran, 12/12/2004 (Age 21, under 50)\n• State: California\n\n**👶 Dependents:** None\n\n**💰 Your Income:**\n• W-2 Wages: $200,000\n• Federal Withheld: $20,000\n• State Withheld: $0\n\n**💰 Lan Tran's Income:**\n• W-2 Wages: $100,000\n• Federal Withheld: $10,000\n• State Withheld: $0\n\n**💵 Adjustments:**\n• Your IRA: $7,000\n• Lan Tran's IRA: $6,000\n• HSA: $0\n• Student Loan Interest: $0\n\n**📝 Deduction:** Standard ($30,000 MFJ)\n\n════════════════════════════════════════════════════════════\nIs everything correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T19:33:46.245Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "xin châp",
+      "timestamp": {
+        "$date": "2026-01-04T22:39:54.945Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Thanks for your message! Just to confirm, is everything in your tax summary correct as shown? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-04T22:39:54.945Z"
+      }
+    }
+  ],
+  "answers": {
+    "filing_status": "married_filing_jointly",
+    "taxpayer_dob": "12/12/2000",
+    "spouse_name": "Lan Tran",
+    "spouse_dob": "12/12/2004",
+    "state": "CA",
+    "taxpayer_wages": 200000,
+    "taxpayer_federal_withheld": 20000,
+    "spouse_wages": 100000,
+    "spouse_federal_withheld": 10000,
+    "taxpayer_ira": 7000,
+    "spouse_ira": 6000,
+    "hsa": 0,
+    "student_loan_interest": 0,
+    "taxpayer_state_withheld": 0,
+    "first_name": "JOHN",
+    "last_name": "TRAN",
+    "ssn": "222222222",
+    "address": "2083 BAYHAVEN DR",
+    "city": "SANJOSE",
+    "zip": "95122",
+    "spouse_first_name": "NIckyyy",
+    "spouse_last_name": "TRAN",
+    "spouse_ssn": "323423423"
+  },
+  "forms": {},
+  "stepIndex": 0,
+  "rawData": {
+    "uploads": []
+  },
+  "interviewState": {
+    "currentStep": "welcome",
+    "completedSteps": []
+  },
+  "status": "ready_to_file",
+  "normalizedData": {
+    "income": {
+      "w2": [],
+      "interest": [],
+      "dividends": [],
+      "self_employment": [],
+      "capital_gains": [],
+      "unemployment": [],
+      "social_security": []
+    },
+    "personal": {
+      "first_name": "JOHN",
+      "last_name": "TRAN",
+      "ssn": "222222222",
+      "address": "2083 BAYHAVEN DR",
+      "city": "SANJOSE",
+      "state": "CA",
+      "zip": "95122",
+      "filing_status": "married_filing_jointly",
+      "spouse_first_name": "NIckyyy",
+      "spouse_last_name": "TRAN",
+      "spouse_ssn": "323423423"
+    },
+    "dependents": []
+  },
+  "form1040": {
+    "header": {
+      "tax_year": 2025,
+      "presidential_campaign": false
+    },
+    "income": {
+      "line_1_wages": 0,
+      "line_2a_tax_exempt_interest": 0,
+      "line_2b_taxable_interest": 0,
+      "line_3a_qualified_dividends": 0,
+      "line_3b_ordinary_dividends": 0,
+      "line_4a_ira_distributions": 0,
+      "line_4b_taxable_ira": 0,
+      "line_5a_pensions": 0,
+      "line_5b_taxable_pensions": 0,
+      "line_6a_social_security": 0,
+      "line_6b_taxable_social_security": 0,
+      "line_7_capital_gain": 0,
+      "line_8_schedule_1_income": 0,
+      "line_9_total_income": 0
+    },
+    "adjustments": {
+      "line_10_schedule_1_adjustments": 0,
+      "line_11_agi": 0
+    },
+    "deductions": {
+      "line_12_deduction": 0,
+      "line_13_qbi": 0,
+      "line_14_total_deductions": 0,
+      "line_15_taxable_income": 0
+    },
+    "tax_and_credits": {
+      "line_16_tax": 0,
+      "line_17_schedule_2_taxes": 0,
+      "line_18_total_tax": 0,
+      "line_19_child_credit": 0,
+      "line_20_schedule_3_credits": 0,
+      "line_21_total_credits": 0,
+      "line_22_tax_after_credits": 0,
+      "line_23_schedule_2_other_taxes": 0,
+      "line_24_total_tax": 0
+    },
+    "payments": {
+      "line_25a_w2_withholding": 0,
+      "line_25b_1099_withholding": 0,
+      "line_25c_other_withholding": 0,
+      "line_25d_total_withholding": 0,
+      "line_26_estimated_payments": 0,
+      "line_27_eic": 0,
+      "line_28_schedule_3_credits": 0,
+      "line_29_total_payments": 0
+    },
+    "refund_or_owe": {
+      "line_33_overpayment": 0,
+      "line_34_apply_to_2025": 0,
+      "line_35_refund": 0,
+      "line_37_amount_owe": 0,
+      "line_38_estimated_penalty": 0
+    }
+  },
+  "createdAt": {
+    "$date": "2026-01-04T19:29:36.834Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-04T22:39:54.959Z"
+  },
+  "__v": 37
+},
+{
+  "_id": {
+    "$oid": "695b1fffed13d0d939318284"
+  },
+  "userId": "user_1767066185683_qxlzx840c",
+  "taxYear": 2025,
+  "answers": {
+    "w_2_data": {
+      "employer_name": "Ivy Technologies Inc.",
+      "employer_address": "436 E. 35 Ave.",
+      "employer_city": "Gary",
+      "employer_state": "IN",
+      "employer_zip": "46409",
+      "employer_ein": "12-3456789",
+      "employee_name": "Eric Hayes",
+      "employee_first_name": "Eric",
+      "employee_last_name": "Hayes",
+      "employee_address": "555 E. 81st Street",
+      "employee_city": "Merrillville",
+      "employee_state": "IN",
+      "employee_zip": "46410",
+      "employee_ssn": "791-51-4335",
+      "control_number": "",
+      "wages_tips_other_comp": 130377,
+      "federal_income_tax_withheld": 15184,
+      "social_security_wages": 128400,
+      "social_security_tax_withheld": 7960.8,
+      "medicare_wages": 137627,
+      "medicare_tax_withheld": 1995.59,
+      "state": "IN",
+      "state_id": "00122231001",
+      "state_wages": 130377,
+      "state_income_tax": 4956,
+      "local_wages": 130377,
+      "local_income_tax": 987,
+      "locality_name": "LAKE",
+      "owner": "taxpayer"
+    },
+    "address": "555 E. 81st Street",
+    "city": "Merrillville",
+    "employer_ein": "12-3456789",
+    "employer_name": "Ivy Technologies Inc.",
+    "first_name": "Eric",
+    "has_w2": "yes",
+    "last_name": "Hayes",
+    "ssn": "791-51-4335",
+    "state": "IN",
+    "total_state_withheld": 4956,
+    "total_wages": 130377,
+    "total_withheld": 15184,
+    "w2_count": 1,
+    "zip": "46410",
+    "filing_status": "single"
+  },
+  "stepIndex": 0,
+  "rawData": {
+    "uploads": []
+  },
+  "normalizedData": {
+    "income": {
+      "w2": [],
+      "interest": [],
+      "dividends": [],
+      "self_employment": [],
+      "capital_gains": [],
+      "unemployment": [],
+      "social_security": []
+    },
+    "dependents": []
+  },
+  "interviewState": {
+    "currentStep": "welcome",
+    "completedSteps": []
+  },
+  "status": "in_progress",
+  "messages": [
+    {
+      "sender": "user",
+      "text": "hello",
+      "timestamp": {
+        "$date": "2026-01-05T03:48:47.798Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Hey there! 👋 Welcome to TaxSky!\n\nI'll help you file your 2025 taxes step by step. No confusing tax jargon - I promise! 😊\n\n🔒 For your security, I won't ask for SSN or bank info here. You'll enter those safely in our secure form later.\n\nLet's get started!\n\n📋 What is your filing status?\n• Single\n• Married Filing Jointly\n• Married Filing Separately\n• Head of Household",
+      "timestamp": {
+        "$date": "2026-01-05T03:48:47.798Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Khai thuế 2025",
+      "timestamp": {
+        "$date": "2026-01-05T05:23:12.549Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Chào bạn! 👋 Mình sẽ giúp bạn khai thuế năm 2025 từng bước một, đơn giản và dễ hiểu nhé! 😊\n\n📋 Bạn cho mình biết tình trạng khai thuế (filing status) của bạn là gì?\n• Độc thân (Single)\n• Kết hôn khai chung (Married Filing Jointly)\n• Kết hôn khai riêng (Married Filing Separately)\n• Chủ hộ gia đình (Head of Household)\n\nBạn chọn tình trạng nào?",
+      "timestamp": {
+        "$date": "2026-01-05T05:23:12.549Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Độc thân",
+      "timestamp": {
+        "$date": "2026-01-05T05:23:32.120Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Đã hiểu! Để mình xác nhận nhé:\n\n📋 Tình trạng khai thuế: **Độc thân (Single)**\n\nBạn có đồng ý đúng như vậy không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:23:32.120Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Vang",
+      "timestamp": {
+        "$date": "2026-01-05T05:23:46.391Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Tình trạng khai thuế: Độc thân (Single) đã được lưu!\n\n📅 Bạn cho mình biết ngày sinh của bạn? (Ví dụ: 09/16/1971)",
+      "timestamp": {
+        "$date": "2026-01-05T05:23:46.391Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "09/16/1971",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:03.040Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n\n📅 Your birthday: **September 16, 1971**\n📊 Age: **54 years old** (2025 - 1971 = 54)\n💡 Since you are 50+, your IRA contribution limit is $8,000!\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:03.040Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "tại sao quay sang tiếng Anh",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:22.223Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Xin lỗi bạn nhé! Mình sẽ tiếp tục bằng tiếng Việt.\n\n📅 Ngày sinh của bạn: **16/09/1971**\n📊 Tuổi của bạn: **54 tuổi** (2025 - 1971 = 54)\n💡 Bạn trên 50 tuổi, nên giới hạn đóng IRA là $8,000!\n\nThông tin này có đúng không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:22.223Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "đúng",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:37.072Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Ngày sinh và tuổi của bạn đã được lưu!\n\n🏠 Bạn đang sống ở bang nào? (ví dụ: California, Texas, New York)",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:37.072Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "CA",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:43.310Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n\n🏠 Bang bạn sống: **California**\n\nThông tin này có đúng không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:43.310Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Dúng",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:51.468Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Bang California đã được lưu!\n\n👶 Bạn có người phụ thuộc (con cái, cha mẹ, v.v.) trong năm 2025 không?\n(Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:24:51.468Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Không",
+      "timestamp": {
+        "$date": "2026-01-05T05:25:02.710Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Không có người phụ thuộc đã được lưu!\n\n💰 Bây giờ mình hỏi về thu nhập của bạn nhé.\n\nBạn có loại thu nhập nào trong năm 2025?\n• W-2 (lương công việc)\n• 1099-NEC (làm tự do/freelance)\n• 1099-R (hưu trí)\n• SSA-1099 (An sinh xã hội)\n• 1099-INT (lãi ngân hàng)\n• Nhiều loại\n• Không có thu nhập\n\nBạn chọn loại thu nhập nào?",
+      "timestamp": {
+        "$date": "2026-01-05T05:25:02.710Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "W2",
+      "timestamp": {
+        "$date": "2026-01-05T05:25:10.100Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Đã rõ! Bạn có thu nhập W-2.\n\n💰 Bạn cho mình biết:\n\nW-2 wages (Tiền lương trên mẫu W-2, ô 1) của bạn là bao nhiêu?",
+      "timestamp": {
+        "$date": "2026-01-05T05:25:10.100Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Doc than",
+      "timestamp": {
+        "$date": "2026-01-05T05:37:44.298Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Bạn vừa chọn \"Độc thân\" làm tình trạng khai thuế, và bạn có thu nhập W-2.\n\nBạn vui lòng cho mình biết số tiền lương trên mẫu W-2 (ô 1) của bạn trong năm 2025 là bao nhiêu? (ví dụ: 50000)",
+      "timestamp": {
+        "$date": "2026-01-05T05:37:44.298Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "✅ W-2 đã được xử lý! • Chủ lao động: Ivy Technologies Inc. • Lương: $130,377 • Thuế liên bang đã khấu trừ: $15,184",
+      "timestamp": {
+        "$date": "2026-01-05T05:38:05.575Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Cảm ơn bạn đã cung cấp thông tin!\n\n💰 Để xác nhận:\n\nW-2 lương: **$130,377**  \nThuế liên bang đã khấu trừ (ô 2): **$15,184**\n\nThông tin này có đúng không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:38:05.575Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yé",
+      "timestamp": {
+        "$date": "2026-01-05T05:38:13.796Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ W-2 lương và thuế liên bang đã được lưu!\n\n🏛️ Bạn có thể cho mình biết số thuế tiểu bang đã bị khấu trừ trên W-2 (ô 17) là bao nhiêu? Nếu không có, bạn nhập 0 nhé!",
+      "timestamp": {
+        "$date": "2026-01-05T05:38:13.796Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-05T05:38:31.885Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n\n🏛️ Thuế tiểu bang đã khấu trừ (Box 17): **$0**\n\nThông tin này có đúng không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:38:31.885Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:01.212Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Thuế tiểu bang đã khấu trừ: $0 đã được lưu!\n\n💰 Tiếp theo, bạn đã đóng góp bao nhiêu tiền vào IRA truyền thống (Traditional IRA) trong năm 2025?  \n(Limit của bạn là $8,000 vì bạn 54 tuổi. Nếu không có, vui lòng nhập 0)Bạn chưa trả lời câu hỏi của mình. Bạn đã đóng góp bao nhiêu tiền vào IRA truyền thống trong năm 2025? (Giới hạn của bạn là $8,000 vì bạn 54 tuổi. Nếu không có, vui lòng nhập 0)",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:01.212Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "8000",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:18.758Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n\n💰 Your IRA contribution: **$8,000**\n\nIs this correct? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:18.758Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "lai chuyen sang tieng anh, tai sao vay?",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:40.561Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Xin lỗi bạn vì chuyển sang tiếng Anh nhé! Mình sẽ tiếp tục bằng tiếng Việt.\n\n💰 Bạn đã đóng góp vào IRA: **$8,000**\n\nThông tin này có đúng không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:40.561Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "Dúng",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:57.085Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Đóng góp IRA $8,000 đã được lưu!\n\n💰 Bây giờ cho mình hỏi:\n\nBạn có đóng góp vào Health Savings Account (HSA) trong năm 2025 không?  \n(Giới hạn: Cá nhân $4,300, Gia đình $8,550. Nếu không có, nhập 0)",
+      "timestamp": {
+        "$date": "2026-01-05T05:39:57.085Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:08.588Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Đóng góp HSA: $0 đã được lưu!\n\n💸 Bạn có trả bất kỳ khoản lãi vay sinh viên (student loan interest) nào trong năm 2025 không?  \n(Tối đa được khấu trừ $2,500. Nếu không có, nhập 0)",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:08.588Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "0",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:17.279Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Lãi vay sinh viên $0 đã được lưu!\n\n📝 Bạn muốn chọn khấu trừ tiêu chuẩn (Standard Deduction) hay khấu trừ theo từng mục (Itemized Deductions) cho tờ khai thuế 2025?  \n• Standard (Tiêu chuẩn)  \n• Itemized (Theo từng mục)  \n\nBạn chọn phương án nào?",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:17.279Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "(Tiêu chuẩn)",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:30.409Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "Got it! Let me confirm:\n\n📝 Loại khấu trừ: **Tiêu chuẩn (Standard)**\n\nThông tin này có đúng không? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:30.409Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "dung",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:41.754Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Loại khấu trừ Tiêu chuẩn đã được lưu!\n\n🎉 Dưới đây là bản tóm tắt thông tin của bạn:\n\n**📋 Thông tin cá nhân:**\n• Tình trạng khai thuế: Độc thân (Single)\n• Sinh ngày: 16/09/1971 (Tuổi 54, 50+)\n• Bang: California\n\n**💰 Thu nhập:**\n• W-2 lương: $130,377\n• Thuế liên bang đã khấu trừ: $15,184\n• Thuế tiểu bang đã khấu trừ: $0\n\n**💵 Điều chỉnh:**\n• Đóng góp IRA: $8,000\n• Đóng góp HSA: $0\n• Lãi vay sinh viên: $0\n\n**📝 Khấu trừ:** Tiêu chuẩn ($15,000 cho Độc thân)\n\n════════════════════════════════════════════════════════════\n\nMọi thông tin trên đã chính xác chưa? (Yes/No)",
+      "timestamp": {
+        "$date": "2026-01-05T05:40:41.754Z"
+      }
+    },
+    {
+      "sender": "user",
+      "text": "yes",
+      "timestamp": {
+        "$date": "2026-01-05T05:41:01.124Z"
+      }
+    },
+    {
+      "sender": "assistant",
+      "text": "✅ Hoàn hảo! Tất cả thông tin của bạn đã được lưu lại!\n\n🔐 **Bước tiếp theo: Biểu mẫu an toàn**  \nBạn nhấn \"Tiếp tục\" để nhập:  \n• Số An Sinh Xã Hội (SSN)  \n• Địa chỉ  \n• Thông tin ngân hàng để nhận tiền hoàn thuế (nếu có)  \n\n⏳ Sau đó, chúng ta sẽ tính toán chính xác số thuế bạn phải nộp hoặc được hoàn!\n\nCảm ơn bạn đã sử dụng TaxSky! 🌟",
+      "timestamp": {
+        "$date": "2026-01-05T05:41:01.124Z"
+      }
+    }
+  ],
+  "forms": {},
+  "form1040": {
+    "header": {
+      "tax_year": 2025,
+      "presidential_campaign": false
+    },
+    "income": {
+      "line_1_wages": 0,
+      "line_2a_tax_exempt_interest": 0,
+      "line_2b_taxable_interest": 0,
+      "line_3a_qualified_dividends": 0,
+      "line_3b_ordinary_dividends": 0,
+      "line_4a_ira_distributions": 0,
+      "line_4b_taxable_ira": 0,
+      "line_5a_pensions": 0,
+      "line_5b_taxable_pensions": 0,
+      "line_6a_social_security": 0,
+      "line_6b_taxable_social_security": 0,
+      "line_7_capital_gain": 0,
+      "line_8_schedule_1_income": 0,
+      "line_9_total_income": 0
+    },
+    "adjustments": {
+      "line_10_schedule_1_adjustments": 0,
+      "line_11_agi": 0
+    },
+    "deductions": {
+      "line_12_deduction": 0,
+      "line_13_qbi": 0,
+      "line_14_total_deductions": 0,
+      "line_15_taxable_income": 0
+    },
+    "tax_and_credits": {
+      "line_16_tax": 0,
+      "line_17_schedule_2_taxes": 0,
+      "line_18_total_tax": 0,
+      "line_19_child_credit": 0,
+      "line_20_schedule_3_credits": 0,
+      "line_21_total_credits": 0,
+      "line_22_tax_after_credits": 0,
+      "line_23_schedule_2_other_taxes": 0,
+      "line_24_total_tax": 0
+    },
+    "payments": {
+      "line_25a_w2_withholding": 0,
+      "line_25b_1099_withholding": 0,
+      "line_25c_other_withholding": 0,
+      "line_25d_total_withholding": 0,
+      "line_26_estimated_payments": 0,
+      "line_27_eic": 0,
+      "line_28_schedule_3_credits": 0,
+      "line_29_total_payments": 0
+    },
+    "refund_or_owe": {
+      "line_33_overpayment": 0,
+      "line_34_apply_to_2025": 0,
+      "line_35_refund": 0,
+      "line_37_amount_owe": 0,
+      "line_38_estimated_penalty": 0
+    }
+  },
+  "createdAt": {
+    "$date": "2026-01-05T02:20:47.821Z"
+  },
+  "updatedAt": {
+    "$date": "2026-01-05T05:41:01.159Z"
+  },
+  "__v": 24,
+  "filing_status": "single"
+}]

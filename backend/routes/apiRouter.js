@@ -1,5 +1,5 @@
 import express from "express";
-import aiRoutes from "./aiRoutes.js";
+import aiRoutes from "./smartAiRoutes.js"; 
 import taxRoutes from "./taxRoutes.js";
 import fileRoutes from "./fileRoutes.js";
 import verificationRoutes from "./verificationRoutes.js";

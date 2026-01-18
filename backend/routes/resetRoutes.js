@@ -1,5 +1,5 @@
 import express from "express";
-import { clearSession } from "../tax/sessionDB.js";
+import { clearSession } from "../services/session/sessionDB.js";
 
 const router = express.Router();
 

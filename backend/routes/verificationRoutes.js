@@ -1,11 +1,221 @@
-// verificationRoutes.js - Final verification and submission
-// Works WITHOUT PDF generation and IRS submission (optional features)
+// ============================================================
+// VERIFICATION ROUTES - Fixed with proper userId validation
+// ============================================================
+// Location: backend/routes/verificationRoutes.js
+// 
+// ✅ FIXED: Validates userId before any operation
+// ✅ FIXED: Reads from ALL data sources (answers, forms, normalizedData)
+// ✅ FIXED: Handles both old and new field names
+// ============================================================
 
 import express from 'express';
-import { getSession } from '../tax/sessionDB.js';
-import { calculateFullTax } from '../tax/fullCalculator.js';
+import { getSession, getOrCreateSession } from '../services/session/sessionDB.js';
+//import { calculateFullTax } from '../services/tax/fullCalculator.js';
+import { calculateFullTax } from '../services/tax/pythonCalculator.js';
 
 const router = express.Router();
+
+// ============================================================
+// ✅ HELPER: Validate userId
+// ============================================================
+function validateUserId(userId) {
+  if (!userId || userId === 'undefined' || userId === 'null' || userId === 'guest' || userId === '') {
+    return { valid: false, error: `Invalid userId: "${userId}"` };
+  }
+  return { valid: true };
+}
+
+// ============================================================
+// ✅ HELPER: Get value from session (checks all sources)
+// ============================================================
+function getSessionValue(session, ...keys) {
+  // Check answers Map first
+  for (const key of keys) {
+    let val;
+    if (session.answers instanceof Map) {
+      val = session.answers.get(key);
+    } else if (session.answers) {
+      val = session.answers[key];
+    }
+    if (val !== undefined && val !== null && val !== '') return val;
+  }
+  
+  // Check normalizedData.personal
+  const personal = session.normalizedData?.personal || {};
+  for (const key of keys) {
+    if (personal[key] !== undefined && personal[key] !== null && personal[key] !== '') {
+      return personal[key];
+    }
+  }
+  
+  // Check form1040.header
+  const header = session.form1040?.header || {};
+  for (const key of keys) {
+    if (header[key] !== undefined && header[key] !== null && header[key] !== '') {
+      return header[key];
+    }
+  }
+  
+  return '';
+}
+
+// ============================================================
+// ✅ HELPER: Get income from session (checks all sources)
+// ============================================================
+function getIncomeValue(session, formType) {
+  const forms = session.forms || new Map();
+  const answers = session.answers || new Map();
+  const normalizedIncome = session.normalizedData?.income || {};
+  
+  // Helper to get from Map or Object
+  const getVal = (map, key) => {
+    if (map instanceof Map) return map.get(key);
+    return map?.[key];
+  };
+  
+  // Helper to parse number
+  const parseNum = (val) => {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    return parseFloat(String(val).replace(/[$,]/g, '')) || 0;
+  };
+  
+  let total = 0;
+  
+  switch (formType) {
+    case 'W2':
+    case 'W-2':
+      // Check normalizedData.income.w2 array
+      (normalizedIncome.w2 || []).forEach(w2 => {
+        total += parseNum(w2.wages);
+      });
+      
+      // Check forms Map
+      if (total === 0) {
+        const w2Form = getVal(forms, 'W-2') || getVal(forms, 'W2') || getVal(forms, 'w2') || {};
+        total = parseNum(w2Form.wages) || parseNum(w2Form.box1) || parseNum(w2Form.wagesTipsOther) || parseNum(w2Form['Wages, Tips, Other Compensation']);
+      }
+      
+      // Check answers Map
+      if (total === 0) {
+        total = parseNum(getVal(answers, 'wages')) || 
+                parseNum(getVal(answers, 'w2_wages')) || 
+                parseNum(getVal(answers, 'w2_income')) ||
+                parseNum(getVal(answers, 'total_wages'));
+      }
+      break;
+      
+    case '1099-NEC':
+      // Check normalizedData
+      (normalizedIncome.self_employment || []).forEach(se => {
+        total += parseNum(se.nonemployee_compensation);
+      });
+      
+      // Check forms Map
+      if (total === 0) {
+        const necForm = getVal(forms, '1099-NEC') || getVal(forms, '1099NEC') || {};
+        total = parseNum(necForm.nonemployee_compensation) || parseNum(necForm.amount) || parseNum(necForm.box1);
+      }
+      
+      // Check answers
+      if (total === 0) {
+        total = parseNum(getVal(answers, 'self_employment_income')) || 
+                parseNum(getVal(answers, 'self_employed_income')) ||
+                parseNum(getVal(answers, '1099_income'));
+      }
+      break;
+      
+    case '1099-INT':
+      // Check normalizedData
+      (normalizedIncome.interest || []).forEach(i => {
+        total += parseNum(i.interest_income);
+      });
+      
+      // Check forms Map
+      if (total === 0) {
+        const intForm = getVal(forms, '1099-INT') || getVal(forms, '1099INT') || {};
+        total = parseNum(intForm.interest_income) || parseNum(intForm.interestIncome) || parseNum(intForm.box1);
+      }
+      
+      // Check answers
+      if (total === 0) {
+        total = parseNum(getVal(answers, 'interest_income')) || 
+                parseNum(getVal(answers, 'interestIncome'));
+      }
+      break;
+      
+    case '1099-DIV':
+      // Check normalizedData
+      (normalizedIncome.dividends || []).forEach(d => {
+        total += parseNum(d.ordinary_dividends);
+      });
+      
+      // Check forms Map
+      if (total === 0) {
+        const divForm = getVal(forms, '1099-DIV') || getVal(forms, '1099DIV') || {};
+        total = parseNum(divForm.ordinary_dividends) || parseNum(divForm.ordinaryDividends) || parseNum(divForm.box1a);
+      }
+      
+      // Check answers
+      if (total === 0) {
+        total = parseNum(getVal(answers, 'dividend_income')) || 
+                parseNum(getVal(answers, 'dividendIncome'));
+      }
+      break;
+  }
+  
+  return total;
+}
+
+// ============================================================
+// ✅ HELPER: Get withholding from session
+// ============================================================
+function getWithholding(session) {
+  const forms = session.forms || new Map();
+  const answers = session.answers || new Map();
+  const normalizedIncome = session.normalizedData?.income || {};
+  
+  const getVal = (map, key) => {
+    if (map instanceof Map) return map.get(key);
+    return map?.[key];
+  };
+  
+  const parseNum = (val) => {
+    if (!val) return 0;
+    if (typeof val === 'number') return val;
+    return parseFloat(String(val).replace(/[$,]/g, '')) || 0;
+  };
+  
+  let federal = 0;
+  let state = 0;
+  
+  // Check normalizedData.income.w2 array
+  (normalizedIncome.w2 || []).forEach(w2 => {
+    federal += parseNum(w2.federal_withholding);
+    state += parseNum(w2.state_withholding);
+  });
+  
+  // Check forms Map
+  if (federal === 0) {
+    const w2Form = getVal(forms, 'W-2') || getVal(forms, 'W2') || {};
+    federal = parseNum(w2Form.federal_withholding) || parseNum(w2Form.federalWithheld) || parseNum(w2Form.box2);
+    state = parseNum(w2Form.state_withholding) || parseNum(w2Form.stateWithheld) || parseNum(w2Form.box17);
+  }
+  
+  // Check answers
+  if (federal === 0) {
+    federal = parseNum(getVal(answers, 'federal_withheld')) || 
+              parseNum(getVal(answers, 'federal_withholding')) ||
+              parseNum(getVal(answers, 'federalWithheld'));
+  }
+  if (state === 0) {
+    state = parseNum(getVal(answers, 'state_withheld')) || 
+            parseNum(getVal(answers, 'state_withholding')) ||
+            parseNum(getVal(answers, 'stateWithheld'));
+  }
+  
+  return { federal, state };
+}
 
 /**
  * GET /api/verification/data
@@ -15,10 +225,12 @@ router.get('/data', async (req, res) => {
   try {
     const { userId } = req.query;
     
-    if (!userId) {
+    // ✅ Validate userId
+    const validation = validateUserId(userId);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'userId is required'
+        message: validation.error
       });
     }
     
@@ -31,44 +243,64 @@ router.get('/data', async (req, res) => {
       });
     }
     
-    // Get user's state
-    const userState = session.answers.get('employee_state') || 'CA';
+    // Get user's state (check multiple field names)
+    const userState = getSessionValue(session, 'state', 'employee_state') || 'CA';
     
     // Calculate taxes using fullCalculator
-    const taxResults = calculateFullTax(session, userState);
+    let taxResults = {};
+    try {
+      taxResults = calculateFullTax(session, userState);
+    } catch (err) {
+      console.error('Tax calculation error:', err);
+      taxResults = { federal: {}, state: {}, totalRefund: 0, totalTaxDue: 0 };
+    }
+    
+    // Get withholding
+    const withholding = getWithholding(session);
     
     // Build verification data
     const verificationData = {
-      // Personal Info
+      // Personal Info - ✅ Check both old and new field names
       personalInfo: {
-        name: session.answers.get('employee_name') || '',
-        ssn: maskSSN(session.answers.get('employee_ssa_number') || ''),
-        address: session.answers.get('employee_address') || '',
-        city: session.answers.get('employee_city') || '',
+        name: getSessionValue(session, 'first_name', 'employee_name') + ' ' + getSessionValue(session, 'last_name'),
+        firstName: getSessionValue(session, 'first_name', 'employee_name'),
+        lastName: getSessionValue(session, 'last_name'),
+        ssn: maskSSN(getSessionValue(session, 'ssn', 'employee_ssa_number', 'employee_ssn')),
+        address: getSessionValue(session, 'address', 'employee_address'),
+        city: getSessionValue(session, 'city', 'employee_city'),
         state: userState,
-        zip: session.answers.get('employee_zip') || ''
+        zip: getSessionValue(session, 'zip', 'employee_zip')
       },
       
       // Filing Info
       filingInfo: {
-        filingStatus: session.answers.get('filing_status') || '',
-        dependents: parseInt(session.answers.get('dependents')) || 0
+        filingStatus: getSessionValue(session, 'filing_status'),
+        dependents: session.normalizedData?.dependents?.length || parseInt(getSessionValue(session, 'dependents')) || 0
       },
       
-      // Income Summary
+      // Income Summary - ✅ Uses new helper that checks all sources
       income: {
-        w2Income: getFormIncome(session, 'W2'),
-        selfEmployment: getFormIncome(session, '1099-NEC'),
-        interest: getFormIncome(session, '1099-INT'),
-        dividends: getFormIncome(session, '1099-DIV'),
-        totalIncome: taxResults.federal?.totalIncome || 0
+        w2Income: getIncomeValue(session, 'W2'),
+        selfEmployment: getIncomeValue(session, '1099-NEC'),
+        interest: getIncomeValue(session, '1099-INT'),
+        dividends: getIncomeValue(session, '1099-DIV'),
+        totalIncome: taxResults.federal?.totalIncome || 
+                     (getIncomeValue(session, 'W2') + getIncomeValue(session, '1099-NEC') + 
+                      getIncomeValue(session, '1099-INT') + getIncomeValue(session, '1099-DIV'))
+      },
+      
+      // Withholding
+      withholding: {
+        federal: withholding.federal,
+        state: withholding.state,
+        total: withholding.federal + withholding.state
       },
       
       // Federal Tax Summary
-      federal: extractFederalSummary(taxResults.federal),
+      federal: extractFederalSummary(taxResults.federal, withholding.federal),
       
       // State Tax Summary
-      state: extractStateSummary(taxResults.state, userState),
+      state: extractStateSummary(taxResults.state, userState, withholding.state),
       
       // Combined Totals
       totals: {
@@ -80,22 +312,22 @@ router.get('/data', async (req, res) => {
       
       // Verification Status
       verificationStatus: {
-        ssnVerified: session.answers.get('ssn_verified') || false,
-        ssnVerifiedAt: session.answers.get('ssn_verified_at'),
-        addressVerified: session.answers.get('address_verified') || false,
-        addressVerifiedAt: session.answers.get('address_verified_at'),
-        dataReviewed: session.answers.get('data_reviewed') || false,
-        dataReviewedAt: session.answers.get('data_reviewed_at'),
-        certifications: session.answers.get('certifications') || null,
-        certifiedAt: session.answers.get('certified_at') || null
+        ssnVerified: getSessionValue(session, 'ssn_verified') === true || getSessionValue(session, 'ssn_verified') === 'true',
+        ssnVerifiedAt: getSessionValue(session, 'ssn_verified_at'),
+        addressVerified: getSessionValue(session, 'address_verified') === true || getSessionValue(session, 'address_verified') === 'true',
+        addressVerifiedAt: getSessionValue(session, 'address_verified_at'),
+        dataReviewed: getSessionValue(session, 'data_reviewed') === true || getSessionValue(session, 'data_reviewed') === 'true',
+        dataReviewedAt: getSessionValue(session, 'data_reviewed_at'),
+        certifications: getSessionValue(session, 'certifications') || null,
+        certifiedAt: getSessionValue(session, 'certified_at') || null
       },
       
       // Overall Status
       overallStatus: {
         interviewComplete: checkInterviewComplete(session),
         readyToFile: checkReadyToFile(session),
-        filed: session.answers.get('filed') || false,
-        filedAt: session.answers.get('filed_at') || null
+        filed: getSessionValue(session, 'filed') === true || getSessionValue(session, 'filed') === 'true',
+        filedAt: getSessionValue(session, 'filed_at') || null
       },
       
       // Tax Calculation Metadata
@@ -107,6 +339,11 @@ router.get('/data', async (req, res) => {
         stateMessage: taxResults.state?.message || null
       }
     };
+    
+    console.log(`[VERIFICATION] ✅ Data for ${userId}:`, {
+      income: verificationData.income,
+      withholding: verificationData.withholding
+    });
     
     res.json({
       success: true,
@@ -131,10 +368,19 @@ router.post('/update', async (req, res) => {
   try {
     const { userId, field, value } = req.body;
     
-    if (!userId || !field) {
+    // ✅ Validate userId
+    const validation = validateUserId(userId);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'userId and field are required'
+        message: validation.error
+      });
+    }
+    
+    if (!field) {
+      return res.status(400).json({
+        success: false,
+        message: 'field is required'
       });
     }
     
@@ -147,13 +393,23 @@ router.post('/update', async (req, res) => {
       });
     }
     
+    // ✅ Map old field names to new ones
+    const fieldMapping = {
+      'employee_name': 'first_name',
+      'employee_ssa_number': 'ssn',
+      'employee_ssn': 'ssn',
+      'employee_address': 'address',
+      'employee_city': 'city',
+      'employee_state': 'state',
+      'employee_zip': 'zip'
+    };
+    
+    const normalizedField = fieldMapping[field] || field;
+    
     // Validate field
     const allowedFields = [
-      'employee_name',
-      'employee_address',
-      'employee_city',
-      'employee_state',
-      'employee_zip'
+      'first_name', 'last_name', 'ssn', 'address', 'city', 'state', 'zip',
+      'employee_name', 'employee_address', 'employee_city', 'employee_state', 'employee_zip'
     ];
     
     if (!allowedFields.includes(field)) {
@@ -164,7 +420,7 @@ router.post('/update', async (req, res) => {
     }
     
     // Validate value
-    const validationError = validateField(field, value);
+    const validationError = validateField(normalizedField, value);
     if (validationError) {
       return res.status(400).json({
         success: false,
@@ -172,15 +428,32 @@ router.post('/update', async (req, res) => {
       });
     }
     
-    // Update field
-    session.answers.set(field, value);
-    
-    // Mark as needing re-verification if address changed
-    if (field.startsWith('employee_address') || field === 'employee_city' || 
-        field === 'employee_state' || field === 'employee_zip') {
-      session.answers.set('address_verified', false);
+    // Update field in answers Map
+    if (session.answers instanceof Map) {
+      session.answers.set(field, value);
+      session.answers.set(normalizedField, value); // Also set normalized name
+    } else {
+      session.answers = session.answers || {};
+      session.answers[field] = value;
+      session.answers[normalizedField] = value;
     }
     
+    // Also update normalizedData.personal
+    if (!session.normalizedData) session.normalizedData = {};
+    if (!session.normalizedData.personal) session.normalizedData.personal = {};
+    session.normalizedData.personal[normalizedField] = value;
+    
+    // Mark as needing re-verification if address changed
+    if (['address', 'city', 'state', 'zip', 'employee_address', 'employee_city', 'employee_state', 'employee_zip'].includes(field)) {
+      if (session.answers instanceof Map) {
+        session.answers.set('address_verified', false);
+      } else {
+        session.answers.address_verified = false;
+      }
+    }
+    
+    session.markModified('answers');
+    session.markModified('normalizedData.personal');
     await session.save();
     
     console.log(`✅ Updated ${field} for ${userId}`);
@@ -210,10 +483,12 @@ router.post('/verify-ssn', async (req, res) => {
   try {
     const { userId, ssn } = req.body;
     
-    if (!userId) {
+    // ✅ Validate userId
+    const validation = validateUserId(userId);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'userId is required'
+        message: validation.error
       });
     }
     
@@ -226,9 +501,11 @@ router.post('/verify-ssn', async (req, res) => {
       });
     }
     
+    // Get stored SSN (check multiple field names)
+    const storedSSN = getSessionValue(session, 'ssn', 'employee_ssa_number', 'employee_ssn');
+    
     // Optional: Verify SSN matches
     if (ssn) {
-      const storedSSN = session.answers.get('employee_ssa_number');
       const cleanSSN = ssn.replace(/\D/g, '');
       const cleanStoredSSN = storedSSN ? storedSSN.replace(/\D/g, '') : '';
       
@@ -241,17 +518,24 @@ router.post('/verify-ssn', async (req, res) => {
     }
     
     // Validate SSN format
-    const ssnValue = session.answers.get('employee_ssa_number');
-    if (!validateSSN(ssnValue)) {
+    if (!validateSSN(storedSSN)) {
       return res.status(400).json({
         success: false,
         message: 'Invalid SSN format'
       });
     }
     
-    session.answers.set('ssn_verified', true);
-    session.answers.set('ssn_verified_at', new Date().toISOString());
+    // Update verification status
+    if (session.answers instanceof Map) {
+      session.answers.set('ssn_verified', true);
+      session.answers.set('ssn_verified_at', new Date().toISOString());
+    } else {
+      session.answers = session.answers || {};
+      session.answers.ssn_verified = true;
+      session.answers.ssn_verified_at = new Date().toISOString();
+    }
     
+    session.markModified('answers');
     await session.save();
     
     console.log(`✅ SSN verified for ${userId}`);
@@ -279,10 +563,12 @@ router.post('/verify-address', async (req, res) => {
   try {
     const { userId } = req.body;
     
-    if (!userId) {
+    // ✅ Validate userId
+    const validation = validateUserId(userId);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'userId is required'
+        message: validation.error
       });
     }
     
@@ -295,22 +581,36 @@ router.post('/verify-address', async (req, res) => {
       });
     }
     
-    // Validate address is complete
-    const address = session.answers.get('employee_address');
-    const city = session.answers.get('employee_city');
-    const state = session.answers.get('employee_state');
-    const zip = session.answers.get('employee_zip');
+    // Validate address is complete (check both old and new field names)
+    const address = getSessionValue(session, 'address', 'employee_address');
+    const city = getSessionValue(session, 'city', 'employee_city');
+    const state = getSessionValue(session, 'state', 'employee_state');
+    const zip = getSessionValue(session, 'zip', 'employee_zip');
     
     if (!address || !city || !state || !zip) {
       return res.status(400).json({
         success: false,
-        message: 'Address is incomplete'
+        message: 'Address is incomplete',
+        missing: {
+          address: !address,
+          city: !city,
+          state: !state,
+          zip: !zip
+        }
       });
     }
     
-    session.answers.set('address_verified', true);
-    session.answers.set('address_verified_at', new Date().toISOString());
+    // Update verification status
+    if (session.answers instanceof Map) {
+      session.answers.set('address_verified', true);
+      session.answers.set('address_verified_at', new Date().toISOString());
+    } else {
+      session.answers = session.answers || {};
+      session.answers.address_verified = true;
+      session.answers.address_verified_at = new Date().toISOString();
+    }
     
+    session.markModified('answers');
     await session.save();
     
     console.log(`✅ Address verified for ${userId}`);
@@ -331,63 +631,26 @@ router.post('/verify-address', async (req, res) => {
 });
 
 /**
- * POST /api/verification/review-data
- * Mark that user has reviewed all data
- */
-router.post('/review-data', async (req, res) => {
-  try {
-    const { userId } = req.body;
-    
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'userId is required'
-      });
-    }
-    
-    const session = await getSession(userId);
-    
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        message: 'Session not found'
-      });
-    }
-    
-    session.answers.set('data_reviewed', true);
-    session.answers.set('data_reviewed_at', new Date().toISOString());
-    
-    await session.save();
-    
-    console.log(`✅ Data reviewed for ${userId}`);
-    
-    res.json({
-      success: true,
-      message: 'Data review confirmed'
-    });
-    
-  } catch (err) {
-    console.error('❌ Data review error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to confirm data review',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-  }
-});
-
-/**
  * POST /api/verification/certify
- * Save user certifications
+ * User certifies their return
  */
 router.post('/certify', async (req, res) => {
   try {
-    const { userId, certifications } = req.body;
+    const { userId, certifications, signature } = req.body;
     
-    if (!userId || !certifications) {
+    // ✅ Validate userId
+    const validation = validateUserId(userId);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'userId and certifications are required'
+        message: validation.error
+      });
+    }
+    
+    if (!certifications || !signature) {
+      return res.status(400).json({
+        success: false,
+        message: 'certifications and signature are required'
       });
     }
     
@@ -400,335 +663,33 @@ router.post('/certify', async (req, res) => {
       });
     }
     
-    // Validate certifications
-    const required = ['accuracy', 'electronicSignature', 'reviewed'];
-    const allChecked = required.every(cert => certifications[cert] === true);
-    
-    if (!allChecked) {
-      return res.status(400).json({
-        success: false,
-        message: 'All required certifications must be checked',
-        missing: required.filter(cert => !certifications[cert])
-      });
+    // Update certification status
+    if (session.answers instanceof Map) {
+      session.answers.set('certifications', certifications);
+      session.answers.set('signature', signature);
+      session.answers.set('certified_at', new Date().toISOString());
+    } else {
+      session.answers = session.answers || {};
+      session.answers.certifications = certifications;
+      session.answers.signature = signature;
+      session.answers.certified_at = new Date().toISOString();
     }
     
-    // Additional validation: ensure SSN and address verified
-    if (!session.answers.get('ssn_verified')) {
-      return res.status(400).json({
-        success: false,
-        message: 'SSN must be verified before certification'
-      });
-    }
-    
-    if (!session.answers.get('address_verified')) {
-      return res.status(400).json({
-        success: false,
-        message: 'Address must be verified before certification'
-      });
-    }
-    
-    session.answers.set('certifications', certifications);
-    session.answers.set('certified_at', new Date().toISOString());
-    
+    session.markModified('answers');
     await session.save();
     
-    console.log(`✅ Certifications saved for ${userId}`);
+    console.log(`✅ Return certified for ${userId}`);
     
     res.json({
       success: true,
-      message: 'Certifications saved successfully'
+      message: 'Return certified successfully'
     });
     
   } catch (err) {
     console.error('❌ Certification error:', err);
     res.status(500).json({
       success: false,
-      message: 'Failed to save certifications',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-  }
-});
-
-/**
- * POST /api/verification/submit
- * Final submission - Calculate and store final tax results
- * PDF and IRS submission are optional (add later when ready)
- */
-router.post('/submit', async (req, res) => {
-  try {
-    const { userId } = req.body;
-    
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'userId is required'
-      });
-    }
-    
-    const session = await getSession(userId);
-    
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        message: 'Session not found'
-      });
-    }
-    
-    // Verify all requirements met
-    const readyToFile = checkReadyToFile(session);
-    
-    if (!readyToFile.ready) {
-      return res.status(400).json({
-        success: false,
-        message: 'Requirements not met for filing',
-        missing: readyToFile.missing
-      });
-    }
-    
-    // Prevent duplicate filing
-    if (session.answers.get('filed')) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tax return already filed',
-        filedAt: session.answers.get('filed_at')
-      });
-    }
-    
-    // Calculate final taxes
-    const userState = session.answers.get('employee_state') || 'CA';
-    const taxResults = calculateFullTax(session, userState);
-    
-    // Check if tax calculation is ready
-    if (!taxResults.readyToFile) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tax calculation has errors',
-        errors: taxResults.federal?.errors || [],
-        warnings: taxResults.federal?.warnings || []
-      });
-    }
-    
-    // Store final tax results
-    session.answers.set('final_tax_calculation', {
-      federal: taxResults.federal,
-      state: taxResults.state,
-      totals: {
-        totalRefund: taxResults.totalRefund,
-        totalTaxDue: taxResults.totalTaxDue
-      },
-      calculatedAt: new Date().toISOString()
-    });
-    
-    // Mark as filed
-    session.answers.set('filed', true);
-    session.answers.set('filed_at', new Date().toISOString());
-    session.answers.set('filing_method', 'digital_record');
-    
-    await session.save();
-    
-    console.log(`✅ Tax return filed for ${userId} (${userState})`);
-    console.log(`   Federal Refund: $${taxResults.federal?.refund || 0}`);
-    console.log(`   State Refund: $${taxResults.state?.refund || 0}`);
-    console.log(`   Total Refund: $${taxResults.totalRefund || 0}`);
-    
-    res.json({
-      success: true,
-      message: 'Tax return filed successfully',
-      filing: {
-        state: userState,
-        filedAt: new Date().toISOString(),
-        method: 'digital_record',
-        taxResults: {
-          federal: {
-            refund: taxResults.federal?.refund || 0,
-            taxDue: taxResults.federal?.taxDue || 0
-          },
-          state: {
-            state: userState,
-            supported: taxResults.state?.supported || false,
-            refund: taxResults.state?.refund || 0,
-            taxDue: taxResults.state?.taxDue || 0
-          },
-          totals: {
-            totalRefund: taxResults.totalRefund || 0,
-            totalTaxDue: taxResults.totalTaxDue || 0
-          }
-        }
-      },
-      nextSteps: [
-        'Your tax calculation has been saved',
-        'You can download a summary using GET /api/verification/summary',
-        'PDF generation will be available when form1040Generator is added',
-        'IRS e-file will be available when efileSubmitter is added'
-      ]
-    });
-    
-  } catch (err) {
-    console.error('❌ Submission error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to submit tax return',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-  }
-});
-
-/**
- * GET /api/verification/status
- * Check verification and filing status
- */
-router.get('/status', async (req, res) => {
-  try {
-    const { userId } = req.query;
-    
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'userId is required'
-      });
-    }
-    
-    const session = await getSession(userId);
-    
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        message: 'Session not found'
-      });
-    }
-    
-    const readyToFile = checkReadyToFile(session);
-    
-    const status = {
-      // Interview Progress
-      interview: {
-        complete: checkInterviewComplete(session),
-        aiReviewComplete: session.answers.get('ai_review_complete') || false
-      },
-      
-      // Verification Steps
-      verification: {
-        ssnVerified: session.answers.get('ssn_verified') || false,
-        ssnVerifiedAt: session.answers.get('ssn_verified_at'),
-        addressVerified: session.answers.get('address_verified') || false,
-        addressVerifiedAt: session.answers.get('address_verified_at'),
-        dataReviewed: session.answers.get('data_reviewed') || false,
-        dataReviewedAt: session.answers.get('data_reviewed_at')
-      },
-      
-      // Certifications
-      certifications: {
-        certified: !!session.answers.get('certifications'),
-        certifiedAt: session.answers.get('certified_at'),
-        details: session.answers.get('certifications')
-      },
-      
-      // Filing Status
-      filing: {
-        readyToFile: readyToFile.ready,
-        missing: readyToFile.missing,
-        filed: session.answers.get('filed') || false,
-        filedAt: session.answers.get('filed_at'),
-        filingMethod: session.answers.get('filing_method')
-      }
-    };
-    
-    res.json({
-      success: true,
-      status: status
-    });
-    
-  } catch (err) {
-    console.error('❌ Status check error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve status',
-      error: process.env.NODE_ENV === 'development' ? err.message : undefined
-    });
-  }
-});
-
-/**
- * GET /api/verification/summary
- * Get a printable summary of the tax return
- */
-router.get('/summary', async (req, res) => {
-  try {
-    const { userId } = req.query;
-    
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: 'userId is required'
-      });
-    }
-    
-    const session = await getSession(userId);
-    
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        message: 'Session not found'
-      });
-    }
-    
-    // Get user's state and calculate
-    const userState = session.answers.get('employee_state') || 'CA';
-    const taxResults = calculateFullTax(session, userState);
-    
-    const summary = {
-      taxYear: 2024,
-      generatedAt: new Date().toISOString(),
-      
-      taxpayer: {
-        name: session.answers.get('employee_name'),
-        ssn: maskSSN(session.answers.get('employee_ssa_number')),
-        address: {
-          street: session.answers.get('employee_address'),
-          city: session.answers.get('employee_city'),
-          state: userState,
-          zip: session.answers.get('employee_zip')
-        },
-        filingStatus: session.answers.get('filing_status'),
-        dependents: parseInt(session.answers.get('dependents')) || 0
-      },
-      
-      income: {
-        w2Wages: getFormIncome(session, 'W2'),
-        selfEmployment: getFormIncome(session, '1099-NEC'),
-        interest: getFormIncome(session, '1099-INT'),
-        dividends: getFormIncome(session, '1099-DIV'),
-        total: taxResults.federal?.totalIncome || 0
-      },
-      
-      federal: extractFederalSummary(taxResults.federal),
-      state: extractStateSummary(taxResults.state, userState),
-      
-      totals: {
-        totalRefund: taxResults.totalRefund || 0,
-        totalTaxDue: taxResults.totalTaxDue || 0,
-        netAmount: (taxResults.totalRefund || 0) - (taxResults.totalTaxDue || 0),
-        outcome: (taxResults.totalRefund || 0) > 0 ? 'REFUND' : 
-                 (taxResults.totalTaxDue || 0) > 0 ? 'TAX DUE' : 'EVEN'
-      },
-      
-      filingInfo: {
-        filed: session.answers.get('filed') || false,
-        filedAt: session.answers.get('filed_at'),
-        filingMethod: session.answers.get('filing_method')
-      }
-    };
-    
-    res.json({
-      success: true,
-      summary: summary
-    });
-    
-  } catch (err) {
-    console.error('❌ Summary generation error:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate summary',
+      message: 'Failed to certify return',
       error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
   }
@@ -742,10 +703,12 @@ router.get('/calculate', async (req, res) => {
   try {
     const { userId } = req.query;
     
-    if (!userId) {
+    // ✅ Validate userId
+    const validation = validateUserId(userId);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: 'userId is required'
+        message: validation.error
       });
     }
     
@@ -759,8 +722,15 @@ router.get('/calculate', async (req, res) => {
     }
     
     // Get user's state and calculate
-    const userState = session.answers.get('employee_state') || 'CA';
-    const taxResults = calculateFullTax(session, userState);
+    const userState = getSessionValue(session, 'state', 'employee_state') || 'CA';
+    
+    let taxResults = {};
+    try {
+      taxResults = calculateFullTax(session, userState);
+    } catch (err) {
+      console.error('Tax calculation error:', err);
+      taxResults = { error: err.message };
+    }
     
     res.json({
       success: true,
@@ -785,7 +755,7 @@ router.get('/calculate', async (req, res) => {
 /**
  * Extract federal tax summary
  */
-function extractFederalSummary(federal) {
+function extractFederalSummary(federal, withholding = 0) {
   if (!federal) {
     return {
       totalIncome: 0,
@@ -793,7 +763,7 @@ function extractFederalSummary(federal) {
       federalIncomeTax: 0,
       selfEmploymentTax: 0,
       totalTax: 0,
-      withholding: 0,
+      withholding: withholding,
       refund: 0,
       taxDue: 0,
       errors: [],
@@ -801,15 +771,17 @@ function extractFederalSummary(federal) {
     };
   }
   
+  const fedWithholding = federal.withholding || withholding;
+  
   return {
     totalIncome: federal.totalIncome || 0,
     taxableIncome: federal.taxableIncome || 0,
     federalIncomeTax: federal.federalTax || 0,
     selfEmploymentTax: federal.seTax || 0,
     totalTax: federal.totalTaxOwed || 0,
-    withholding: federal.withholding || 0,
-    refund: federal.refund || 0,
-    taxDue: federal.taxDue || 0,
+    withholding: fedWithholding,
+    refund: federal.refund || Math.max(0, fedWithholding - (federal.totalTaxOwed || 0)),
+    taxDue: federal.taxDue || Math.max(0, (federal.totalTaxOwed || 0) - fedWithholding),
     errors: federal.errors || [],
     warnings: federal.warnings || []
   };
@@ -818,22 +790,26 @@ function extractFederalSummary(federal) {
 /**
  * Extract state tax summary (state-agnostic)
  */
-function extractStateSummary(state, stateName) {
+function extractStateSummary(state, stateName, withholding = 0) {
   if (!state) {
     return {
       state: stateName,
       supported: false,
       refund: 0,
       taxDue: 0,
+      withholding: withholding,
       message: 'State not calculated'
     };
   }
+  
+  const stateWithholding = state.withholding || withholding;
   
   const summary = {
     state: state.state || stateName,
     supported: state.supported || false,
     refund: state.refund || 0,
     taxDue: state.taxDue || 0,
+    withholding: stateWithholding,
     message: state.message || null
   };
   
@@ -862,46 +838,6 @@ function extractStateSummary(state, stateName) {
 }
 
 /**
- * Get form income (works with any form type)
- */
-function getFormIncome(session, formType) {
-  const forms = session.forms || new Map();
-  const formArray = forms instanceof Map ? forms.get(formType) || [] : forms[formType] || [];
-  
-  if (!Array.isArray(formArray) || formArray.length === 0) {
-    const answerKeys = {
-      'W2': 'w2_income',
-      '1099-NEC': 'self_employed_income',
-      '1099-INT': 'interest_income',
-      '1099-DIV': 'dividend_income'
-    };
-    return Number(session.answers.get(answerKeys[formType])) || 0;
-  }
-  
-  const fieldMappings = {
-    'W2': ['Wages, Tips, Other Compensation', 'wages_tips_other_compensation', 'Box 1'],
-    '1099-NEC': ['Nonemployee compensation', 'Box 1'],
-    '1099-INT': ['Interest income', 'Box 1'],
-    '1099-DIV': ['Total ordinary dividends', 'Box 1a']
-  };
-  
-  const fields = fieldMappings[formType] || ['Box 1'];
-  
-  let total = 0;
-  formArray.forEach(form => {
-    for (const field of fields) {
-      const value = Number(form[field]);
-      if (value) {
-        total += value;
-        break;
-      }
-    }
-  });
-  
-  return total;
-}
-
-/**
  * Validate field value
  */
 function validateField(field, value) {
@@ -910,30 +846,36 @@ function validateField(field, value) {
   }
   
   switch (field) {
+    case 'first_name':
+    case 'last_name':
     case 'employee_name':
-      if (value.length < 2 || value.length > 100) {
-        return 'Name must be between 2 and 100 characters';
+      if (value.length < 1 || value.length > 100) {
+        return 'Name must be between 1 and 100 characters';
       }
       break;
       
+    case 'address':
     case 'employee_address':
       if (value.length < 5 || value.length > 200) {
         return 'Address must be between 5 and 200 characters';
       }
       break;
       
+    case 'city':
     case 'employee_city':
       if (value.length < 2 || value.length > 50) {
         return 'City must be between 2 and 50 characters';
       }
       break;
       
+    case 'state':
     case 'employee_state':
       if (!/^[A-Z]{2}$/.test(value)) {
         return 'State must be a 2-letter code (e.g., CA, NY)';
       }
       break;
       
+    case 'zip':
     case 'employee_zip':
       if (!/^\d{5}(-\d{4})?$/.test(value)) {
         return 'ZIP code must be in format 12345 or 12345-6789';
@@ -977,19 +919,19 @@ function maskSSN(ssn) {
  * Check if interview is complete
  */
 function checkInterviewComplete(session) {
-  const required = [
-    'filing_status',
-    'dependents',
-    'employee_name',
-    'employee_ssa_number',
-    'employee_address',
-    'employee_city',
-    'employee_state',
-    'employee_zip'
+  // Check for new OR old field names
+  const requiredGroups = [
+    ['filing_status'],
+    ['first_name', 'employee_name'],
+    ['ssn', 'employee_ssa_number', 'employee_ssn'],
+    ['address', 'employee_address'],
+    ['city', 'employee_city'],
+    ['state', 'employee_state'],
+    ['zip', 'employee_zip']
   ];
   
-  return required.every(field => {
-    const value = session.answers.get(field);
+  return requiredGroups.every(group => {
+    const value = getSessionValue(session, ...group);
     return value !== undefined && value !== null && value !== '';
   });
 }
@@ -1004,15 +946,18 @@ function checkReadyToFile(session) {
     missing.push('Complete the tax interview');
   }
   
-  if (!session.answers.get('ssn_verified')) {
+  const ssnVerified = getSessionValue(session, 'ssn_verified');
+  if (ssnVerified !== true && ssnVerified !== 'true') {
     missing.push('Verify your Social Security Number');
   }
   
-  if (!session.answers.get('address_verified')) {
+  const addressVerified = getSessionValue(session, 'address_verified');
+  if (addressVerified !== true && addressVerified !== 'true') {
     missing.push('Verify your address');
   }
   
-  if (!session.answers.get('certifications')) {
+  const certifications = getSessionValue(session, 'certifications');
+  if (!certifications) {
     missing.push('Complete required certifications');
   }
   
