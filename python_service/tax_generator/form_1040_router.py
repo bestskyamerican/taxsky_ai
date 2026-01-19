@@ -18,8 +18,6 @@ import tempfile
 import os
 
 form_1040_router = APIRouter(prefix="/generate", tags=["Form 1040"])
-
-//form_1040_router = APIRouter(prefix="/api/forms", tags=["Form 1040"])
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), "templates")
 
 
