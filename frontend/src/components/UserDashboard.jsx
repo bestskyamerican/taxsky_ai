@@ -278,18 +278,22 @@ export default function UserDashboard() {
         console.log("[DASHBOARD] ⚠️ No form1040.income found, showing interview prompt");
       }
       
-      // ✅ NEW: Load uploaded documents
+      // ✅ NEW: Load uploaded documents (optional - may not exist)
       try {
         const docsRes = await fetch(`${API_BASE}/api/forms/user/${userId}?taxYear=${selectedYear}`, {
           headers: { "Authorization": `Bearer ${getToken()}` }
         });
-        const docsData = await docsRes.json();
-        if (docsData.files && docsData.files.length > 0) {
-          setUploadedDocs(docsData.files);
-          console.log("[DASHBOARD] 📄 Uploaded docs loaded:", docsData.files.length);
+        if (docsRes.ok) {
+          const docsData = await docsRes.json();
+          if (docsData.files && docsData.files.length > 0) {
+            setUploadedDocs(docsData.files);
+            console.log("[DASHBOARD] 📄 Uploaded docs loaded:", docsData.files.length);
+          }
+        } else {
+          console.log("[DASHBOARD] ℹ️ No documents endpoint available (this is normal)");
         }
       } catch (docsErr) {
-        console.log("[DASHBOARD] ⚠️ No uploaded docs or error:", docsErr);
+        console.log("[DASHBOARD] ℹ️ Documents not available:", docsErr.message);
       }
       
     } catch (err) { console.error("Error:", err); }
