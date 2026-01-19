@@ -3,16 +3,19 @@
 // ============================================================
 // Standalone login page for /login route
 // Matches Onboarding & Dashboard dark theme
+// Updated: New TaxSky AI Hexagon Logo
 // ============================================================
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../App";  // ✅ Import useAuth from App
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();  // ✅ Get login function from context
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [language, setLanguage] = useState(() => localStorage.getItem("taxsky_language") || "en");
@@ -80,10 +83,10 @@ export default function Login() {
           throw new Error("Server did not return a valid user ID");
         }
         
-        // Store auth data
-        localStorage.setItem("taxsky_token", data.token);
-        localStorage.setItem("taxsky_user", JSON.stringify(data.user));
-        localStorage.setItem("taxsky_userId", userId);
+        // ✅ Use login() from useAuth context to properly update state
+        login(data.user, data.token);
+        
+        // Also store language
         localStorage.setItem("taxsky_language", language);
         
         // Navigate to tax chat
@@ -172,20 +175,30 @@ export default function Login() {
         opacity: mounted ? 1 : 0, 
         transform: mounted ? 'translateY(0)' : 'translateY(20px)'
       }}>
-        {/* Header */}
+        {/* Header with NEW TaxSky AI Logo */}
         <div style={styles.header}>
           <div style={styles.logoIcon}>
-            <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="url(#logoGradLogin)"/>
-              <path d="M8 12h16M8 16h12M8 20h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="24" cy="20" r="4" fill="#10b981"/>
-              <path d="M22 20l1.5 1.5L26 19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* TaxSky AI Logo - Tech Hexagon */}
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
               <defs>
-                <linearGradient id="logoGradLogin" x1="0" y1="0" x2="32" y2="32">
-                  <stop stopColor="#3b82f6"/>
-                  <stop offset="1" stopColor="#8b5cf6"/>
+                <linearGradient id="hexGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6366f1"/>
+                  <stop offset="100%" stopColor="#8b5cf6"/>
                 </linearGradient>
+                <filter id="glowLogin">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
+              {/* Hexagon layers */}
+              <polygon points="48,8 72,20 72,52 48,64 24,52 24,20" fill="url(#hexGradLogin)" opacity="0.2"/>
+              <polygon points="48,16 68,26 68,50 48,60 28,50 28,26" fill="url(#hexGradLogin)" opacity="0.4"/>
+              <polygon points="48,24 64,32 64,48 48,56 32,48 32,32" fill="url(#hexGradLogin)" filter="url(#glowLogin)"/>
+              {/* Dollar sign */}
+              <path d="M48 34 L48 50 M42 38 Q48 34 54 38 Q48 42 42 46 Q48 50 54 46" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none"/>
             </svg>
           </div>
           <h1 style={styles.title}>TaxSky AI</h1>
@@ -240,12 +253,12 @@ export default function Login() {
 
       {/* Global Styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
           -webkit-font-smoothing: antialiased;
         }
         
@@ -268,7 +281,7 @@ export default function Login() {
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#0f172a',
+    background: '#0a0a0f',
     position: 'relative',
     overflow: 'hidden',
     display: 'flex',
@@ -283,7 +296,7 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 100% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%), radial-gradient(ellipse at 0% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
+    background: 'radial-gradient(ellipse at 30% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)',
   },
   
   bgOrbs: {
@@ -306,7 +319,7 @@ const styles = {
   orb1: {
     width: 400,
     height: 400,
-    background: 'rgba(59, 130, 246, 0.2)',
+    background: 'rgba(99, 102, 241, 0.15)',
     top: '-10%',
     right: '-5%',
   },
@@ -314,7 +327,7 @@ const styles = {
   orb2: {
     width: 300,
     height: 300,
-    background: 'rgba(139, 92, 246, 0.15)',
+    background: 'rgba(139, 92, 246, 0.12)',
     bottom: '10%',
     left: '-5%',
     animationDelay: '2s',
@@ -323,7 +336,7 @@ const styles = {
   orb3: {
     width: 200,
     height: 200,
-    background: 'rgba(16, 185, 129, 0.15)',
+    background: 'rgba(6, 182, 212, 0.1)',
     top: '50%',
     left: '50%',
     animationDelay: '4s',
@@ -343,14 +356,17 @@ const styles = {
   
   logoIcon: {
     marginBottom: 16,
+    display: 'flex',
+    justifyContent: 'center',
   },
   
   title: {
     fontSize: 36,
-    fontWeight: 800,
+    fontWeight: 700,
     color: '#fff',
     margin: 0,
     letterSpacing: '-0.5px',
+    fontFamily: "'Space Grotesk', sans-serif",
   },
   
   subtitle: {
@@ -360,8 +376,8 @@ const styles = {
   },
   
   card: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    background: 'linear-gradient(145deg, rgba(30, 30, 45, 0.8), rgba(20, 20, 30, 0.9))',
+    border: '1px solid rgba(99, 102, 241, 0.15)',
     borderRadius: 24,
     padding: 32,
     marginBottom: 24,
@@ -386,8 +402,8 @@ const styles = {
     justifyContent: 'center',
     gap: 8,
     padding: '12px 16px',
-    background: 'rgba(59, 130, 246, 0.1)',
-    border: '1px solid rgba(59, 130, 246, 0.2)',
+    background: 'rgba(99, 102, 241, 0.1)',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
     borderRadius: 12,
     marginBottom: 24,
   },
@@ -404,7 +420,7 @@ const styles = {
   changeBtn: {
     background: 'none',
     border: 'none',
-    color: '#60a5fa',
+    color: '#818cf8',
     fontSize: 14,
     fontWeight: 600,
     cursor: 'pointer',
@@ -450,7 +466,7 @@ const styles = {
     width: 20,
     height: 20,
     border: '2px solid rgba(255,255,255,0.1)',
-    borderTopColor: '#3b82f6',
+    borderTopColor: '#6366f1',
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
   },

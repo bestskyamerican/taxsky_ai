@@ -859,20 +859,26 @@ export default function SmartChatInterface() {
       {/* Header - Dark Theme */}
       <div className="bg-slate-800 border-b border-slate-700 text-white px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {/* Logo SVG */}
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <rect width="32" height="32" rx="8" fill="url(#logoGradChat)"/>
-            <path d="M8 12h16M8 16h12M8 20h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="24" cy="20" r="4" fill="#10b981"/>
-            <path d="M22 20l1.5 1.5L26 19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* TaxSky AI Logo */}
+          <svg width="170" height="48" viewBox="0 0 180 50" fill="none">
             <defs>
-              <linearGradient id="logoGradChat" x1="0" y1="0" x2="32" y2="32">
-                <stop stopColor="#3b82f6"/>
-                <stop offset="1" stopColor="#8b5cf6"/>
+              <linearGradient id="hexGradChat" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#6366f1"/>
+                <stop offset="100%" stopColor="#8b5cf6"/>
+              </linearGradient>
+              <linearGradient id="textGradChat" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3b82f6"/>
+                <stop offset="100%" stopColor="#06b6d4"/>
               </linearGradient>
             </defs>
+            <polygon points="22,7 34,1 46,7 46,20 34,26 22,20" fill="url(#hexGradChat)" opacity="0.25"/>
+            <polygon points="18,12 30,6 42,12 42,25 30,31 18,25" fill="url(#hexGradChat)" opacity="0.5"/>
+            <polygon points="20,17 32,11 44,17 44,29 32,35 20,29" fill="url(#hexGradChat)"/>
+            <path d="M32 20 L32 29 M28 22.5 Q32 20 36 22.5 Q32 25 28 27.5 Q32 30 36 27.5" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+            <text x="54" y="29" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="20" fontWeight="700" fill="white">Tax</text>
+            <text x="88" y="29" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="20" fontWeight="700" fill="url(#textGradChat)">Sky</text>
+            <text x="126" y="29" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="12" fontWeight="600" fill="#a78bfa">AI</text>
           </svg>
-          <span className="font-bold text-lg">TaxSky</span>
           
           <div className="flex items-center gap-1 ml-4">
             <button className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-sm font-medium">

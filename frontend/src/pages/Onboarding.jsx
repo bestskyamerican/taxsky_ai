@@ -1,8 +1,8 @@
 // ============================================================
-// TAXSKY ONBOARDING - PROFESSIONAL DARK EDITION
+// TAXSKY AI ONBOARDING - FRIENDLY & MODERN EDITION
 // ============================================================
-// Modern, Premium Tax Filing Landing Page
-// Design: Dark theme matching Dashboard
+// Updated: New TaxSky AI logo + Friendlier UX for chat & login
+// Design: Welcoming, approachable dark theme
 // Flow: Select Language + State → Navigate to /login
 // ============================================================
 
@@ -12,70 +12,147 @@ import { useNavigate } from "react-router-dom";
 const PYTHON_API = import.meta.env.VITE_PYTHON_API || "http://localhost:5002";
 
 // ============================================================
+// TAXSKY AI LOGO COMPONENT
+// ============================================================
+const TaxSkyLogo = ({ size = "default" }) => {
+  const sizes = {
+    small: { width: 170, height: 48, iconScale: 0.85 },
+    default: { width: 220, height: 62, iconScale: 1.1 },
+    large: { width: 300, height: 85, iconScale: 1.5 },
+  };
+  const s = sizes[size] || sizes.default;
+  
+  return (
+    <svg width={s.width} height={s.height} viewBox="0 0 200 56" fill="none">
+      <defs>
+        <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#6366f1"/>
+          <stop offset="100%" stopColor="#8b5cf6"/>
+        </linearGradient>
+        <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6"/>
+          <stop offset="100%" stopColor="#06b6d4"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Hexagon layers */}
+      <polygon points="28,8 42,2 56,8 56,24 42,30 28,24" fill="url(#hexGrad)" opacity="0.25"/>
+      <polygon points="23,14 37,8 51,14 51,30 37,36 23,30" fill="url(#hexGrad)" opacity="0.5"/>
+      <polygon points="26,20 39,14 52,20 52,34 39,42 26,34" fill="url(#hexGrad)" filter="url(#glow)"/>
+      {/* Dollar sign */}
+      <path d="M39 24 L39 34 M35 27 Q39 24 43 27 Q39 30 35 33 Q39 36 43 33" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      {/* Text */}
+      <text x="62" y="34" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="24" fontWeight="700" fill="white">Tax</text>
+      <text x="102" y="34" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="24" fontWeight="700" fill="url(#textGrad)">Sky</text>
+      <text x="148" y="34" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="14" fontWeight="600" fill="#a78bfa">AI</text>
+    </svg>
+  );
+};
+
+// ============================================================
+// TAXSKY AI ICON COMPONENT (for smaller uses)
+// ============================================================
+const TaxSkyIcon = ({ size = 48 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    <defs>
+      <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#6366f1"/>
+        <stop offset="100%" stopColor="#8b5cf6"/>
+      </linearGradient>
+      <linearGradient id="iconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#0f0f1a"/>
+        <stop offset="100%" stopColor="#1a1a2e"/>
+      </linearGradient>
+    </defs>
+    <rect width="48" height="48" rx="12" fill="url(#iconBg)"/>
+    <polygon points="20,10 28,6 36,10 36,22 28,26 20,22" fill="url(#iconGrad)" opacity="0.4"/>
+    <polygon points="17,15 25,11 33,15 33,27 25,31 17,27" fill="url(#iconGrad)" opacity="0.65"/>
+    <polygon points="19,19 26,15 33,19 33,29 26,33 19,29" fill="url(#iconGrad)"/>
+    <path d="M26 22 L26 29 M23 24 Q26 22 29 24 Q26 26 23 28 Q26 30 29 28" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+  </svg>
+);
+
+// ============================================================
 // TRANSLATIONS
 // ============================================================
 const translations = {
   en: {
     hero: {
+      greeting: "👋 Welcome to",
       badge: "Tax Season 2025",
-      title: "Smart Tax Filing",
-      titleHighlight: "Made Simple",
-      subtitle: "AI-powered tax preparation that finds every deduction. Maximum refund, guaranteed accuracy.",
+      title: "Your AI Tax",
+      titleHighlight: "Assistant",
+      subtitle: "File your taxes through a simple chat. I'll find every deduction and maximize your refund.",
+    },
+    chat: {
+      preview: "Hi! I'm your TaxSky AI assistant. Ready to help you file your taxes in minutes!",
+      placeholder: "Ask me anything about your taxes...",
     },
     form: {
       languageLabel: "Preferred Language",
       stateLabel: "Your State",
-      stateHint: "We'll optimize for your state's tax rules",
-      button: "Continue with Google",
-      buttonLoading: "Verifying...",
-      secureNote: "256-bit encrypted • IRS authorized",
+      stateHint: "I'll optimize for your state's tax rules",
+      button: "Start Chatting with AI",
+      buttonAlt: "or continue with Google",
+      buttonLoading: "Setting up...",
+      secureNote: "🔒 Bank-level encryption • IRS authorized",
     },
     stats: {
       users: "50K+",
-      usersLabel: "Tax Returns Filed",
+      usersLabel: "Happy Filers",
       refund: "$3,247",
-      refundLabel: "Average Refund",
+      refundLabel: "Avg. Refund",
       rating: "4.9",
-      ratingLabel: "User Rating",
+      ratingLabel: "Rating",
       time: "15 min",
-      timeLabel: "Average Time",
+      timeLabel: "Avg. Time",
     },
     features: {
-      title: "Why TaxSky?",
+      title: "Why people love TaxSky AI",
       items: [
-        { icon: "🤖", title: "AI Tax Assistant", desc: "Chat naturally about your taxes. Our AI understands complex situations." },
-        { icon: "📷", title: "Instant W-2 Scan", desc: "Snap a photo of your W-2 or 1099. We extract everything automatically." },
-        { icon: "💰", title: "Maximum Refund", desc: "We find deductions others miss. Guaranteed maximum refund." },
-        { icon: "🔒", title: "Bank-Grade Security", desc: "SOC 2 Type II certified. Your data is encrypted end-to-end." },
-        { icon: "🌐", title: "Multi-Language", desc: "File taxes in English, Vietnamese, Spanish, and more." },
-        { icon: "⚡", title: "Fast & Easy", desc: "Average filing time is just 15 minutes." },
+        { icon: "💬", title: "Chat to File", desc: "Just talk naturally. No confusing forms or jargon." },
+        { icon: "📷", title: "Snap & Done", desc: "Take a photo of your W-2. We handle the rest." },
+        { icon: "💰", title: "Max Refund", desc: "AI finds deductions humans miss. Guaranteed." },
+        { icon: "🌐", title: "Your Language", desc: "English, Vietnamese, Spanish, and more." },
       ]
     },
-    trust: ["IRS Authorized E-File Provider", "SOC 2 Type II Certified", "256-bit SSL Encryption", "Money-Back Guarantee"],
+    trust: ["IRS Authorized", "SOC 2 Certified", "256-bit Encryption"],
     support: { full: "Full Support", noTax: "No State Tax", flatTax: "Flat Tax", comingSoon: "Coming 2026" },
     footer: {
-      copyright: "© 2025 TaxSky Inc. All rights reserved.",
-      links: ["Privacy Policy", "Terms of Service", "Contact Us"],
+      copyright: "© 2025 TaxSky AI Inc.",
+      links: ["Privacy", "Terms", "Help"],
     }
   },
   vi: {
     hero: {
+      greeting: "👋 Chào mừng đến",
       badge: "Mùa Thuế 2025",
-      title: "Khai Thuế Thông Minh",
-      titleHighlight: "Đơn Giản Hơn",
-      subtitle: "Trợ lý AI giúp bạn tìm mọi khoản khấu trừ. Hoàn thuế tối đa, chính xác tuyệt đối.",
+      title: "Trợ Lý Thuế",
+      titleHighlight: "AI Của Bạn",
+      subtitle: "Khai thuế qua chat đơn giản. Tôi sẽ tìm mọi khoản khấu trừ và tối đa hóa hoàn thuế.",
+    },
+    chat: {
+      preview: "Xin chào! Tôi là trợ lý AI TaxSky. Sẵn sàng giúp bạn khai thuế trong vài phút!",
+      placeholder: "Hỏi tôi bất cứ điều gì về thuế...",
     },
     form: {
       languageLabel: "Ngôn Ngữ",
       stateLabel: "Tiểu Bang",
-      stateHint: "Tối ưu theo luật thuế tiểu bang của bạn",
-      button: "Tiếp Tục với Google",
-      buttonLoading: "Đang xác minh...",
-      secureNote: "Mã hóa 256-bit • IRS ủy quyền",
+      stateHint: "Tôi sẽ tối ưu theo luật thuế tiểu bang của bạn",
+      button: "Bắt Đầu Chat với AI",
+      buttonAlt: "hoặc tiếp tục với Google",
+      buttonLoading: "Đang thiết lập...",
+      secureNote: "🔒 Mã hóa cấp ngân hàng • IRS ủy quyền",
     },
     stats: {
       users: "50K+",
-      usersLabel: "Tờ Khai Thuế",
+      usersLabel: "Người Dùng",
       refund: "$3,247",
       refundLabel: "Hoàn Thuế TB",
       rating: "4.9",
@@ -84,41 +161,45 @@ const translations = {
       timeLabel: "Thời Gian TB",
     },
     features: {
-      title: "Tại Sao Chọn TaxSky?",
+      title: "Tại sao mọi người yêu thích TaxSky AI",
       items: [
-        { icon: "🤖", title: "Trợ Lý AI Thuế", desc: "Chat tự nhiên về thuế. AI hiểu các tình huống phức tạp." },
-        { icon: "📷", title: "Quét W-2 Tức Thì", desc: "Chụp ảnh W-2 hoặc 1099. Chúng tôi trích xuất mọi thứ tự động." },
-        { icon: "💰", title: "Hoàn Thuế Tối Đa", desc: "Tìm khấu trừ mà người khác bỏ lỡ. Đảm bảo hoàn thuế tối đa." },
-        { icon: "🔒", title: "Bảo Mật Cấp Ngân Hàng", desc: "Chứng nhận SOC 2 Type II. Dữ liệu được mã hóa đầu cuối." },
-        { icon: "🌐", title: "Đa Ngôn Ngữ", desc: "Khai thuế bằng tiếng Anh, Việt, Tây Ban Nha." },
-        { icon: "⚡", title: "Nhanh & Dễ Dàng", desc: "Thời gian khai thuế trung bình chỉ 15 phút." },
+        { icon: "💬", title: "Chat Để Khai", desc: "Chỉ cần nói chuyện tự nhiên. Không form phức tạp." },
+        { icon: "📷", title: "Chụp & Xong", desc: "Chụp ảnh W-2. Chúng tôi xử lý phần còn lại." },
+        { icon: "💰", title: "Hoàn Thuế Max", desc: "AI tìm khấu trừ mà người khác bỏ lỡ." },
+        { icon: "🌐", title: "Ngôn Ngữ Của Bạn", desc: "Tiếng Anh, Việt, Tây Ban Nha." },
       ]
     },
-    trust: ["IRS E-File Ủy Quyền", "Chứng Nhận SOC 2", "Mã Hóa SSL 256-bit", "Đảm Bảo Hoàn Tiền"],
+    trust: ["IRS Ủy Quyền", "SOC 2 Chứng Nhận", "Mã Hóa 256-bit"],
     support: { full: "Hỗ Trợ Đầy Đủ", noTax: "Không Thuế Bang", flatTax: "Thuế Cố Định", comingSoon: "Sắp Ra Mắt" },
     footer: {
-      copyright: "© 2025 TaxSky Inc. Bảo lưu mọi quyền.",
-      links: ["Chính Sách", "Điều Khoản", "Liên Hệ"],
+      copyright: "© 2025 TaxSky AI Inc.",
+      links: ["Bảo Mật", "Điều Khoản", "Hỗ Trợ"],
     }
   },
   es: {
     hero: {
+      greeting: "👋 Bienvenido a",
       badge: "Temporada 2025",
-      title: "Impuestos Inteligentes",
-      titleHighlight: "Simplificados",
-      subtitle: "IA que encuentra cada deducción. Máximo reembolso, precisión garantizada.",
+      title: "Tu Asistente",
+      titleHighlight: "de Impuestos AI",
+      subtitle: "Declara tus impuestos por chat. Encontraré cada deducción y maximizaré tu reembolso.",
+    },
+    chat: {
+      preview: "¡Hola! Soy tu asistente AI de TaxSky. ¡Listo para ayudarte a declarar en minutos!",
+      placeholder: "Pregúntame sobre tus impuestos...",
     },
     form: {
       languageLabel: "Idioma",
       stateLabel: "Tu Estado",
-      stateHint: "Optimizado para las reglas de tu estado",
-      button: "Continuar con Google",
-      buttonLoading: "Verificando...",
-      secureNote: "Cifrado 256-bit • Autorizado IRS",
+      stateHint: "Optimizaré para las reglas de tu estado",
+      button: "Empezar a Chatear con AI",
+      buttonAlt: "o continuar con Google",
+      buttonLoading: "Configurando...",
+      secureNote: "🔒 Cifrado bancario • Autorizado IRS",
     },
     stats: {
       users: "50K+",
-      usersLabel: "Declaraciones",
+      usersLabel: "Usuarios",
       refund: "$3,247",
       refundLabel: "Reembolso Prom.",
       rating: "4.9",
@@ -127,21 +208,19 @@ const translations = {
       timeLabel: "Tiempo Prom.",
     },
     features: {
-      title: "¿Por Qué TaxSky?",
+      title: "Por qué la gente ama TaxSky AI",
       items: [
-        { icon: "🤖", title: "Asistente AI", desc: "Chatea naturalmente sobre tus impuestos." },
-        { icon: "📷", title: "Escaneo Instantáneo", desc: "Toma una foto de tu W-2 o 1099." },
-        { icon: "💰", title: "Máximo Reembolso", desc: "Encontramos deducciones que otros pierden." },
-        { icon: "🔒", title: "Seguridad Bancaria", desc: "Certificado SOC 2 Tipo II." },
-        { icon: "🌐", title: "Multi-Idioma", desc: "Declara en tu idioma preferido." },
-        { icon: "⚡", title: "Rápido y Fácil", desc: "Tiempo promedio: solo 15 minutos." },
+        { icon: "💬", title: "Chatea para Declarar", desc: "Solo habla naturalmente. Sin formularios confusos." },
+        { icon: "📷", title: "Foto y Listo", desc: "Toma una foto de tu W-2. Nosotros hacemos el resto." },
+        { icon: "💰", title: "Máximo Reembolso", desc: "AI encuentra deducciones que otros pierden." },
+        { icon: "🌐", title: "Tu Idioma", desc: "Inglés, Vietnamita, Español y más." },
       ]
     },
-    trust: ["E-File Autorizado IRS", "Certificado SOC 2", "Cifrado SSL 256-bit", "Garantía de Reembolso"],
-    support: { full: "Soporte Completo", noTax: "Sin Impuesto Estatal", flatTax: "Tasa Fija", comingSoon: "Próximamente" },
+    trust: ["IRS Autorizado", "SOC 2 Certificado", "Cifrado 256-bit"],
+    support: { full: "Soporte Completo", noTax: "Sin Impuesto", flatTax: "Tasa Fija", comingSoon: "Próximamente" },
     footer: {
-      copyright: "© 2025 TaxSky Inc. Todos los derechos reservados.",
-      links: ["Privacidad", "Términos", "Contacto"],
+      copyright: "© 2025 TaxSky AI Inc.",
+      links: ["Privacidad", "Términos", "Ayuda"],
     }
   }
 };
@@ -193,6 +272,7 @@ export default function Onboarding() {
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [chatTyping, setChatTyping] = useState(false);
 
   const t = translations[language];
   const selectedState = ALL_STATES.find(s => s.code === state);
@@ -203,6 +283,9 @@ export default function Onboarding() {
     if (saved) setState(saved);
     const savedLang = localStorage.getItem("taxsky_language");
     if (savedLang) setLanguage(savedLang);
+    
+    // Simulate chat typing effect
+    setTimeout(() => setChatTyping(true), 500);
   }, []);
 
   // ============================================================
@@ -213,7 +296,6 @@ export default function Onboarding() {
     setIsValidating(true);
 
     try {
-      // Step 1: Validate state with Python API
       const response = await fetch(`${PYTHON_API}/states/validate/${state}`);
       const result = await response.json();
 
@@ -223,15 +305,11 @@ export default function Onboarding() {
         return;
       }
 
-      // Step 2: Save preferences to localStorage
       localStorage.setItem("taxsky_language", language);
       localStorage.setItem("taxsky_state", state);
       localStorage.setItem("taxsky_state_name", result.state_name || state);
       localStorage.setItem("taxsky_has_state_tax", result.has_income_tax ? "true" : "false");
 
-      console.log("✅ Preferences saved:", { language, state });
-
-      // Step 3: Navigate to login page
       navigate("/login");
 
     } catch (err) {
@@ -244,10 +322,10 @@ export default function Onboarding() {
 
   const getStateBadge = () => {
     const level = selectedState?.level;
-    if (level === "full") return { text: "✓ Full Support", color: "#10b981", bg: "rgba(16, 185, 129, 0.15)" };
-    if (level === "no_tax") return { text: "✓ No State Tax", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.15)" };
-    if (level === "flat") return { text: "✓ Flat Tax Rate", color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.15)" };
-    return { text: "Coming 2026", color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" };
+    if (level === "full") return { text: "✓ " + t.support.full, color: "#10b981", bg: "rgba(16, 185, 129, 0.15)" };
+    if (level === "no_tax") return { text: "✓ " + t.support.noTax, color: "#3b82f6", bg: "rgba(59, 130, 246, 0.15)" };
+    if (level === "flat") return { text: "✓ " + t.support.flatTax, color: "#8b5cf6", bg: "rgba(139, 92, 246, 0.15)" };
+    return { text: t.support.comingSoon, color: "#f59e0b", bg: "rgba(245, 158, 11, 0.15)" };
   };
 
   const stateBadge = getStateBadge();
@@ -266,23 +344,7 @@ export default function Onboarding() {
         
         {/* Header */}
         <header style={styles.header}>
-          <div style={styles.logoWrap}>
-            <div style={styles.logoIcon}>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="8" fill="url(#logoGrad)"/>
-                <path d="M8 12h16M8 16h12M8 20h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="24" cy="20" r="4" fill="#10b981"/>
-                <path d="M22 20l1.5 1.5L26 19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <defs>
-                  <linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32">
-                    <stop stopColor="#3b82f6"/>
-                    <stop offset="1" stopColor="#8b5cf6"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-            <span style={styles.logoText}>TaxSky</span>
-          </div>
+          <TaxSkyLogo size="default" />
           <div style={styles.langSwitch}>
             {LANGUAGES.map(l => (
               <button
@@ -292,6 +354,7 @@ export default function Onboarding() {
                   ...styles.langBtn,
                   ...(language === l.code ? styles.langBtnActive : {})
                 }}
+                title={l.name}
               >
                 {l.flag}
               </button>
@@ -299,54 +362,103 @@ export default function Onboarding() {
           </div>
         </header>
 
-        {/* Hero Section */}
-        <section style={styles.hero}>
-          <div style={styles.badge}>{t.hero.badge}</div>
-          <h1 style={styles.heroTitle}>
-            {t.hero.title}
-            <span style={styles.heroHighlight}> {t.hero.titleHighlight}</span>
-          </h1>
-          <p style={styles.heroSubtitle}>{t.hero.subtitle}</p>
-        </section>
+        {/* Main Content - Two Column Layout */}
+        <div style={styles.mainContent}>
+          
+          {/* Left Column - Hero & Chat Preview */}
+          <div style={styles.leftColumn}>
+            <div style={styles.greeting}>{t.hero.greeting}</div>
+            <h1 style={styles.heroTitle}>
+              {t.hero.title}
+              <span style={styles.heroHighlight}> {t.hero.titleHighlight}</span>
+            </h1>
+            <p style={styles.heroSubtitle}>{t.hero.subtitle}</p>
 
-        {/* Stats Bar */}
-        <div style={styles.statsBar}>
-          <div style={styles.stat}>
-            <div style={styles.statValue}>{t.stats.users}</div>
-            <div style={styles.statLabel}>{t.stats.usersLabel}</div>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.stat}>
-            <div style={styles.statValue}>{t.stats.refund}</div>
-            <div style={styles.statLabel}>{t.stats.refundLabel}</div>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.stat}>
-            <div style={styles.statValue}>
-              {t.stats.rating}
-              <svg style={{marginLeft: 4, verticalAlign: 'middle'}} width="16" height="16" viewBox="0 0 24 24" fill="#fbbf24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
+            {/* Chat Preview Card - CLICKABLE */}
+            <div 
+              style={styles.chatPreview}
+              onClick={handleContinue}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
+            >
+              <div style={styles.chatHeader}>
+                <TaxSkyIcon size={32} />
+                <div style={styles.chatHeaderText}>
+                  <span style={styles.chatName}>TaxSky AI</span>
+                  <span style={styles.chatStatus}>
+                    <span style={styles.onlineDot}></span>
+                    Online
+                  </span>
+                </div>
+              </div>
+              <div style={styles.chatBubble}>
+                {chatTyping ? t.chat.preview : (
+                  <span style={styles.typingIndicator}>
+                    <span></span><span></span><span></span>
+                  </span>
+                )}
+              </div>
+              <div 
+                style={styles.chatInputPreview}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleContinue();
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder={t.chat.placeholder}
+                  style={styles.chatInput}
+                  onFocus={handleContinue}
+                  readOnly
+                />
+                <button 
+                  style={styles.chatSendBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleContinue();
+                  }}
+                  aria-label="Start chatting"
+                >
+                  →
+                </button>
+              </div>
+              <div style={styles.chatClickHint}>
+                👆 Click anywhere to start chatting
+              </div>
             </div>
-            <div style={styles.statLabel}>{t.stats.ratingLabel}</div>
-          </div>
-          <div style={styles.statDivider} />
-          <div style={styles.stat}>
-            <div style={styles.statValue}>{t.stats.time}</div>
-            <div style={styles.statLabel}>{t.stats.timeLabel}</div>
-          </div>
-        </div>
 
-        {/* Main Card */}
-        <div style={styles.card}>
-          <div style={styles.cardInner}>
-            
-            {/* Form Fields */}
-            <div style={styles.formGrid}>
+            {/* Stats */}
+            <div style={styles.statsRow}>
+              <div style={styles.statItem}>
+                <span style={styles.statValue}>{t.stats.users}</span>
+                <span style={styles.statLabel}>{t.stats.usersLabel}</span>
+              </div>
+              <div style={styles.statItem}>
+                <span style={styles.statValue}>{t.stats.refund}</span>
+                <span style={styles.statLabel}>{t.stats.refundLabel}</span>
+              </div>
+              <div style={styles.statItem}>
+                <span style={styles.statValue}>{t.stats.rating} ⭐</span>
+                <span style={styles.statLabel}>{t.stats.ratingLabel}</span>
+              </div>
+              <div style={styles.statItem}>
+                <span style={styles.statValue}>{t.stats.time}</span>
+                <span style={styles.statLabel}>{t.stats.timeLabel}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Login Form */}
+          <div style={styles.rightColumn}>
+            <div style={styles.formCard}>
+              <h2 style={styles.formTitle}>Get Started Free</h2>
+              
+              {/* Language Select */}
               <div style={styles.formGroup}>
                 <label style={styles.label}>
-                  <span style={styles.labelIcon}>🌐</span>
-                  {t.form.languageLabel}
+                  🌐 {t.form.languageLabel}
                 </label>
                 <div style={styles.selectWrap}>
                   <select 
@@ -358,18 +470,14 @@ export default function Onboarding() {
                       <option key={l.code} value={l.code}>{l.flag} {l.name}</option>
                     ))}
                   </select>
-                  <div style={styles.selectArrow}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                      <path d="M2 4l4 4 4-4"/>
-                    </svg>
-                  </div>
+                  <div style={styles.selectArrow}>▼</div>
                 </div>
               </div>
 
+              {/* State Select */}
               <div style={styles.formGroup}>
                 <label style={styles.label}>
-                  <span style={styles.labelIcon}>📍</span>
-                  {t.form.stateLabel}
+                  📍 {t.form.stateLabel}
                 </label>
                 <div style={styles.selectWrap}>
                   <select 
@@ -398,72 +506,78 @@ export default function Onboarding() {
                       ))}
                     </optgroup>
                   </select>
-                  <div style={styles.selectArrow}>
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                      <path d="M2 4l4 4 4-4"/>
-                    </svg>
-                  </div>
+                  <div style={styles.selectArrow}>▼</div>
                 </div>
-                <div style={{...styles.stateBadgeInline, backgroundColor: stateBadge.bg, color: stateBadge.color, border: `1px solid ${stateBadge.color}30`}}>
+                <div style={{
+                  ...styles.stateBadge, 
+                  backgroundColor: stateBadge.bg, 
+                  color: stateBadge.color,
+                  borderColor: stateBadge.color + '40'
+                }}>
                   {stateBadge.text}
                 </div>
                 <p style={styles.hint}>{t.form.stateHint}</p>
               </div>
-            </div>
 
-            {/* Error */}
-            {error && (
-              <div style={styles.error}>
-                <span>⚠️</span>
-                <span>{error}</span>
-              </div>
-            )}
+              {/* Error */}
+              {error && (
+                <div style={styles.error}>
+                  <span>⚠️</span>
+                  <span>{error}</span>
+                </div>
+              )}
 
-            {/* CTA Button */}
-            <button 
-              onClick={handleContinue} 
-              disabled={isValidating}
-              style={{...styles.ctaButton, opacity: isValidating ? 0.7 : 1, cursor: isValidating ? 'wait' : 'pointer'}}
-            >
-              <div style={styles.buttonContent}>
+              {/* Primary CTA Button */}
+              <button 
+                onClick={handleContinue} 
+                disabled={isValidating}
+                style={{
+                  ...styles.ctaButton, 
+                  opacity: isValidating ? 0.7 : 1, 
+                  cursor: isValidating ? 'wait' : 'pointer'
+                }}
+              >
                 {isValidating ? (
-                  <>
-                    <div style={styles.spinner}></div>
+                  <span style={styles.buttonContent}>
+                    <span style={styles.spinner}></span>
                     {t.form.buttonLoading}
-                  </>
+                  </span>
                 ) : (
-                  <>
-                    <svg width="20" height="20" viewBox="0 0 24 24">
-                      <path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                      <path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    {t.form.button}
-                  </>
+                  <span style={styles.buttonContent}>
+                    💬 {t.form.button}
+                  </span>
                 )}
+              </button>
+
+              {/* Google Alternative */}
+              <div style={styles.dividerRow}>
+                <div style={styles.dividerLine}></div>
+                <span style={styles.dividerText}>{t.form.buttonAlt}</span>
+                <div style={styles.dividerLine}></div>
               </div>
-            </button>
 
-            {/* Secure Note */}
-            <div style={styles.secureNote}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-              </svg>
-              <span>{t.form.secureNote}</span>
-            </div>
-          </div>
-
-          {/* Trust Row */}
-          <div style={styles.trustRow}>
-            {t.trust.map((item, i) => (
-              <div key={i} style={styles.trustBadge}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#10b981">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              <button onClick={handleContinue} style={styles.googleButton}>
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
-                <span>{item}</span>
+                Continue with Google
+              </button>
+
+              {/* Security Note */}
+              <div style={styles.secureNote}>
+                {t.form.secureNote}
               </div>
-            ))}
+
+              {/* Trust Badges */}
+              <div style={styles.trustBadges}>
+                {t.trust.map((item, i) => (
+                  <span key={i} style={styles.trustBadge}>✓ {item}</span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -486,17 +600,17 @@ export default function Onboarding() {
           <div style={styles.footerGrid}>
             {/* Contact Column */}
             <div style={styles.footerColumn}>
-              <h4 style={styles.footerHeading}>Contact</h4>
+              <h4 style={styles.footerHeading}>CONTACT</h4>
               <div style={styles.footerItem}>
-                <span style={styles.footerIcon}>📍</span>
+                <span style={styles.footerIconEmoji}>📍</span>
                 <span>123 Tax Street, Suite 100<br/>San Jose, CA 95110</span>
               </div>
               <div style={styles.footerItem}>
-                <span style={styles.footerIcon}>📞</span>
-                <span>+1 (888) 829-7597</span>
+                <span style={styles.footerIconEmoji}>📞</span>
+                <span>+1-844-737-4799</span>
               </div>
               <div style={styles.footerItem}>
-                <span style={styles.footerIcon}>✉️</span>
+                <span style={styles.footerIconEmoji}>✉️</span>
                 <span>support@taxsky.com</span>
               </div>
               <div style={styles.socialLinks}>
@@ -509,7 +623,7 @@ export default function Onboarding() {
 
             {/* Services Column */}
             <div style={styles.footerColumn}>
-              <h4 style={styles.footerHeading}>Services</h4>
+              <h4 style={styles.footerHeading}>SERVICES</h4>
               <a href="#" style={styles.footerLink}>Federal Tax Filing</a>
               <a href="#" style={styles.footerLink}>State Tax Filing</a>
               <a href="#" style={styles.footerLink}>Self-Employment Taxes</a>
@@ -518,9 +632,9 @@ export default function Onboarding() {
               <a href="/cpa/login" style={styles.footerLink}>👨‍💼 CPA Portal</a>
             </div>
 
-            {/* About Column */}
+            {/* About Us Column */}
             <div style={styles.footerColumn}>
-              <h4 style={styles.footerHeading}>About Us</h4>
+              <h4 style={styles.footerHeading}>ABOUT US</h4>
               <p style={styles.footerAbout}>
                 TaxSky AI is dedicated to providing smart, AI-powered tax preparation solutions. Our mission is to maximize your refund while minimizing your stress. We combine cutting-edge technology with tax expertise to deliver an unparalleled filing experience.
               </p>
@@ -532,16 +646,15 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* Bottom Bar */}
+          {/* Footer Bottom */}
           <div style={styles.footerBottom}>
             <p style={styles.footerCopyright}>{t.footer.copyright}</p>
             <div style={styles.footerBottomLinks}>
-              {t.footer.links.map((link, i) => (
-                <span key={i}>
-                  <a href="#" style={styles.footerBottomLink}>{link}</a>
-                  {i < t.footer.links.length - 1 && <span style={styles.footerDivider}> • </span>}
-                </span>
-              ))}
+              <a href="#" style={styles.footerBottomLink}>Privacy Policy</a>
+              <span style={styles.footerDivider}>•</span>
+              <a href="#" style={styles.footerBottomLink}>Terms of Service</a>
+              <span style={styles.footerDivider}>•</span>
+              <a href="#" style={styles.footerBottomLink}>Contact Us</a>
             </div>
           </div>
         </footer>
@@ -549,18 +662,13 @@ export default function Onboarding() {
 
       {/* Global Styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
           -webkit-font-smoothing: antialiased;
-        }
-        
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
         }
         
         @keyframes pulse {
@@ -572,8 +680,23 @@ export default function Onboarding() {
           to { transform: rotate(360deg); }
         }
         
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-6px); }
+        }
+        
+        .chat-preview-hover:hover {
+          border-color: rgba(99, 102, 241, 0.5) !important;
+          box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2) !important;
+          transform: translateY(-2px);
+        }
+        
+        .chat-preview-hover:hover .chat-hint {
+          opacity: 1 !important;
+        }
+        
         ::selection {
-          background: #3b82f6;
+          background: #6366f1;
           color: white;
         }
       `}</style>
@@ -587,7 +710,7 @@ export default function Onboarding() {
 const styles = {
   page: {
     minHeight: '100vh',
-    background: '#0f172a',
+    background: '#0a0a0f',
     position: 'relative',
     overflow: 'hidden',
   },
@@ -598,7 +721,7 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    background: 'radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 100% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%), radial-gradient(ellipse at 0% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
+    background: 'radial-gradient(ellipse at 30% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%)',
   },
   
   bgOrbs: {
@@ -614,42 +737,41 @@ const styles = {
   orb: {
     position: 'absolute',
     borderRadius: '50%',
-    filter: 'blur(60px)',
-    animation: 'pulse 8s ease-in-out infinite',
+    filter: 'blur(80px)',
+    animation: 'pulse 10s ease-in-out infinite',
   },
   
   orb1: {
-    width: 400,
-    height: 400,
-    background: 'rgba(59, 130, 246, 0.2)',
-    top: '-10%',
-    right: '-5%',
-    animationDelay: '0s',
+    width: 500,
+    height: 500,
+    background: 'rgba(99, 102, 241, 0.15)',
+    top: '-15%',
+    left: '-10%',
   },
   
   orb2: {
-    width: 300,
-    height: 300,
-    background: 'rgba(139, 92, 246, 0.15)',
-    bottom: '10%',
-    left: '-5%',
-    animationDelay: '2s',
+    width: 400,
+    height: 400,
+    background: 'rgba(139, 92, 246, 0.12)',
+    bottom: '-10%',
+    right: '-5%',
+    animationDelay: '3s',
   },
   
   orb3: {
-    width: 200,
-    height: 200,
-    background: 'rgba(16, 185, 129, 0.15)',
+    width: 250,
+    height: 250,
+    background: 'rgba(6, 182, 212, 0.1)',
     top: '50%',
-    left: '50%',
-    animationDelay: '4s',
+    right: '20%',
+    animationDelay: '6s',
   },
   
   container: {
     position: 'relative',
-    maxWidth: 880,
+    maxWidth: 1200,
     margin: '0 auto',
-    padding: '40px 24px',
+    padding: '30px 24px',
     transition: 'all 0.6s ease-out',
   },
   
@@ -657,41 +779,25 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 48,
-  },
-  
-  logoWrap: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-  },
-  
-  logoIcon: {
-    display: 'flex',
-  },
-  
-  logoText: {
-    fontSize: 24,
-    fontWeight: 800,
-    color: '#fff',
-    letterSpacing: '-0.5px',
+    marginBottom: 40,
   },
   
   langSwitch: {
     display: 'flex',
-    gap: 8,
+    gap: 6,
     background: 'rgba(255,255,255,0.05)',
     padding: 4,
     borderRadius: 12,
+    border: '1px solid rgba(255,255,255,0.08)',
   },
   
   langBtn: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 18,
+    fontSize: 20,
     background: 'transparent',
     border: 'none',
     borderRadius: 8,
@@ -700,39 +806,39 @@ const styles = {
   },
   
   langBtnActive: {
-    background: 'rgba(255,255,255,0.1)',
+    background: 'rgba(99, 102, 241, 0.3)',
+    boxShadow: '0 0 12px rgba(99, 102, 241, 0.3)',
   },
   
-  hero: {
-    textAlign: 'center',
-    marginBottom: 40,
+  mainContent: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 420px',
+    gap: 60,
+    alignItems: 'start',
+    marginBottom: 60,
   },
   
-  badge: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '8px 16px',
-    background: 'rgba(59, 130, 246, 0.15)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
-    borderRadius: 100,
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#60a5fa',
-    marginBottom: 24,
+  leftColumn: {
+    paddingTop: 20,
+  },
+  
+  greeting: {
+    fontSize: 18,
+    color: '#a78bfa',
+    marginBottom: 12,
   },
   
   heroTitle: {
-    fontSize: 'clamp(32px, 6vw, 56px)',
-    fontWeight: 800,
+    fontSize: 'clamp(36px, 5vw, 52px)',
+    fontWeight: 700,
     color: '#fff',
-    lineHeight: 1.1,
+    lineHeight: 1.15,
     letterSpacing: '-1px',
     marginBottom: 16,
   },
   
   heroHighlight: {
-    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #10b981 100%)',
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
@@ -741,87 +847,176 @@ const styles = {
   heroSubtitle: {
     fontSize: 18,
     color: '#94a3b8',
-    maxWidth: 500,
-    margin: '0 auto',
+    maxWidth: 450,
     lineHeight: 1.6,
-  },
-  
-  statsBar: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 32,
-    padding: '24px 32px',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.06)',
-    borderRadius: 20,
     marginBottom: 32,
-    flexWrap: 'wrap',
   },
   
-  stat: {
-    textAlign: 'center',
+  chatPreview: {
+    background: 'linear-gradient(145deg, rgba(30, 30, 45, 0.8), rgba(20, 20, 30, 0.9))',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 32,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    position: 'relative',
   },
   
-  statValue: {
-    fontSize: 24,
-    fontWeight: 800,
-    color: '#fff',
+  chatHeader: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  statLabel: {
-    fontSize: 12,
-    color: '#64748b',
-    marginTop: 4,
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
-  },
-  
-  statDivider: {
-    width: 1,
-    height: 40,
-    background: 'rgba(255,255,255,0.1)',
-  },
-  
-  card: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 24,
-    overflow: 'hidden',
-    marginBottom: 48,
-  },
-  
-  cardInner: {
-    padding: '40px 40px 32px',
-  },
-  
-  formGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-    gap: 24,
+    gap: 12,
     marginBottom: 16,
+    paddingBottom: 16,
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
   },
   
-  formGroup: {
+  chatHeaderText: {
     display: 'flex',
     flexDirection: 'column',
   },
   
-  label: {
+  chatName: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: '#fff',
+  },
+  
+  chatStatus: {
+    fontSize: 12,
+    color: '#10b981',
     display: 'flex',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
+  },
+  
+  onlineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: '50%',
+    background: '#10b981',
+    boxShadow: '0 0 8px #10b981',
+  },
+  
+  chatBubble: {
+    background: 'rgba(99, 102, 241, 0.15)',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
+    borderRadius: 16,
+    borderTopLeftRadius: 4,
+    padding: '14px 18px',
+    fontSize: 15,
+    color: '#e2e8f0',
+    lineHeight: 1.5,
+    marginBottom: 16,
+  },
+  
+  typingIndicator: {
+    display: 'inline-flex',
+    gap: 4,
+  },
+  
+  chatInputPreview: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    padding: '12px 16px',
+  },
+  
+  chatPlaceholder: {
+    fontSize: 14,
+    color: '#64748b',
+  },
+  
+  chatSendBtn: {
+    width: 36,
+    height: 36,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    borderRadius: 10,
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    border: 'none',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    flexShrink: 0,
+  },
+  
+  chatInput: {
+    flex: 1,
+    background: 'transparent',
+    border: 'none',
+    outline: 'none',
+    fontSize: 14,
+    color: '#fff',
+    cursor: 'pointer',
+  },
+  
+  chatClickHint: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: '#8b5cf6',
+    marginTop: 12,
+    opacity: 0.8,
+  },
+  
+  statsRow: {
+    display: 'flex',
+    gap: 24,
+    flexWrap: 'wrap',
+  },
+  
+  statItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
+  
+  statValue: {
+    fontSize: 22,
+    fontWeight: 700,
+    color: '#fff',
+  },
+  
+  statLabel: {
+    fontSize: 13,
+    color: '#64748b',
+  },
+  
+  rightColumn: {},
+  
+  formCard: {
+    background: 'linear-gradient(145deg, rgba(30, 30, 45, 0.9), rgba(20, 20, 30, 0.95))',
+    border: '1px solid rgba(99, 102, 241, 0.15)',
+    borderRadius: 24,
+    padding: 32,
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+  },
+  
+  formTitle: {
+    fontSize: 24,
+    fontWeight: 700,
+    color: '#fff',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  
+  formGroup: {
+    marginBottom: 20,
+  },
+  
+  label: {
+    display: 'block',
     fontSize: 14,
     fontWeight: 600,
     color: '#e2e8f0',
-    marginBottom: 10,
-  },
-  
-  labelIcon: {
-    fontSize: 16,
+    marginBottom: 8,
   },
   
   selectWrap: {
@@ -832,13 +1027,12 @@ const styles = {
     width: '100%',
     padding: '14px 40px 14px 16px',
     fontSize: 15,
-    fontWeight: 500,
     color: '#fff',
     background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 12,
-    cursor: 'pointer',
     appearance: 'none',
+    cursor: 'pointer',
     transition: 'all 0.2s',
     outline: 'none',
   },
@@ -849,18 +1043,18 @@ const styles = {
     top: '50%',
     transform: 'translateY(-50%)',
     color: '#64748b',
+    fontSize: 12,
     pointerEvents: 'none',
   },
   
-  stateBadgeInline: {
-    display: 'inline-flex',
-    alignItems: 'center',
+  stateBadge: {
+    display: 'inline-block',
     padding: '6px 12px',
     borderRadius: 8,
     fontSize: 12,
     fontWeight: 600,
     marginTop: 10,
-    alignSelf: 'flex-start',
+    border: '1px solid',
   },
   
   hint: {
@@ -873,89 +1067,119 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: 10,
-    padding: '14px 16px',
+    padding: '12px 16px',
     background: 'rgba(239, 68, 68, 0.1)',
     border: '1px solid rgba(239, 68, 68, 0.2)',
     borderRadius: 12,
     color: '#f87171',
     fontSize: 14,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   
   ctaButton: {
     width: '100%',
-    padding: '18px 24px',
+    padding: '16px 24px',
     fontSize: 16,
     fontWeight: 700,
     color: '#fff',
-    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
     border: 'none',
     borderRadius: 14,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)',
+    boxShadow: '0 8px 32px rgba(99, 102, 241, 0.35)',
   },
   
   buttonContent: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: 10,
   },
   
   spinner: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
     border: '2px solid rgba(255,255,255,0.3)',
     borderTopColor: '#fff',
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
   },
   
-  secureNote: {
+  dividerRow: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 20,
+    gap: 16,
+    margin: '20px 0',
+  },
+  
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    background: 'rgba(255,255,255,0.1)',
+  },
+  
+  dividerText: {
     fontSize: 13,
     color: '#64748b',
   },
   
-  trustRow: {
+  googleButton: {
+    width: '100%',
+    padding: '14px 24px',
+    fontSize: 15,
+    fontWeight: 600,
+    color: '#fff',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: 14,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    transition: 'all 0.2s',
+  },
+  
+  secureNote: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: '#64748b',
+    marginTop: 20,
+  },
+  
+  trustBadges: {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 16,
-    padding: '20px 24px',
-    background: 'rgba(255,255,255,0.02)',
-    borderTop: '1px solid rgba(255,255,255,0.05)',
+    gap: 12,
+    marginTop: 16,
   },
   
   trustBadge: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    fontSize: 12,
-    color: '#94a3b8',
+    fontSize: 11,
+    color: '#10b981',
+    background: 'rgba(16, 185, 129, 0.1)',
+    padding: '4px 10px',
+    borderRadius: 6,
   },
   
   features: {
-    marginBottom: 48,
+    marginBottom: 60,
   },
   
   featuresTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 700,
     color: '#fff',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 36,
   },
   
   featuresGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: 16,
+    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+    gap: 20,
   },
   
   featureCard: {
@@ -964,71 +1188,66 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.06)',
     borderRadius: 16,
     transition: 'all 0.3s ease',
+    textAlign: 'center',
   },
   
   featureIcon: {
-    fontSize: 28,
-    marginBottom: 12,
-    display: 'inline-block',
+    fontSize: 36,
+    marginBottom: 16,
   },
   
   featureTitle: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: 700,
     color: '#fff',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   
   featureDesc: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#94a3b8',
     lineHeight: 1.5,
   },
   
-  footer: {
-    textAlign: 'center',
-    paddingTop: 32,
-    borderTop: '1px solid rgba(255,255,255,0.05)',
-  },
-  
+  // Professional Footer Styles
   footerSection: {
-    marginTop: 48,
+    marginTop: 60,
     paddingTop: 48,
     borderTop: '1px solid rgba(255,255,255,0.08)',
   },
   
   footerGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: 40,
-    marginBottom: 40,
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: 48,
+    marginBottom: 48,
   },
   
   footerColumn: {
-    textAlign: 'left',
+    display: 'flex',
+    flexDirection: 'column',
   },
   
   footerHeading: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 700,
     color: '#fff',
-    marginBottom: 20,
-    textTransform: 'uppercase',
+    marginBottom: 24,
     letterSpacing: '0.5px',
   },
   
   footerItem: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 12,
     fontSize: 14,
     color: '#94a3b8',
-    marginBottom: 12,
-    lineHeight: 1.5,
+    marginBottom: 16,
+    lineHeight: 1.6,
   },
   
-  footerIcon: {
-    fontSize: 14,
+  footerIconEmoji: {
+    fontSize: 16,
     marginTop: 2,
   },
   
@@ -1037,15 +1256,15 @@ const styles = {
     fontSize: 14,
     color: '#94a3b8',
     textDecoration: 'none',
-    marginBottom: 10,
+    marginBottom: 12,
     transition: 'color 0.2s',
   },
   
   footerAbout: {
     fontSize: 14,
     color: '#94a3b8',
-    lineHeight: 1.6,
-    marginBottom: 16,
+    lineHeight: 1.7,
+    marginBottom: 20,
   },
   
   footerBadges: {
@@ -1055,11 +1274,12 @@ const styles = {
   },
   
   trustBadgeSmall: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#64748b',
     background: 'rgba(255,255,255,0.05)',
-    padding: '4px 8px',
+    padding: '6px 12px',
     borderRadius: 6,
+    border: '1px solid rgba(255,255,255,0.08)',
   },
   
   socialLinks: {
@@ -1069,14 +1289,14 @@ const styles = {
   },
   
   socialIcon: {
-    width: 36,
-    height: 36,
+    width: 40,
+    height: 40,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 8,
+    borderRadius: 10,
     color: '#94a3b8',
     textDecoration: 'none',
     fontSize: 14,
@@ -1085,22 +1305,24 @@ const styles = {
   },
   
   footerBottom: {
-    paddingTop: 24,
+    paddingTop: 32,
     borderTop: '1px solid rgba(255,255,255,0.06)',
-    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 16,
   },
   
   footerCopyright: {
     fontSize: 13,
     color: '#475569',
-    marginBottom: 12,
   },
   
   footerBottomLinks: {
     display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
     flexWrap: 'wrap',
   },
   

@@ -309,17 +309,23 @@ function LoginPage() {
         {/* Header */}
         <div style={loginStyles.header}>
           <div style={loginStyles.logoIcon}>
-            <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="url(#logoGradLogin)"/>
-              <path d="M8 12h16M8 16h12M8 20h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="24" cy="20" r="4" fill="#10b981"/>
-              <path d="M22 20l1.5 1.5L26 19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* TaxSky AI Logo - Tech Hexagon */}
+            <svg width="96" height="96" viewBox="0 0 80 80" fill="none">
               <defs>
-                <linearGradient id="logoGradLogin" x1="0" y1="0" x2="32" y2="32">
-                  <stop stopColor="#3b82f6"/>
-                  <stop offset="1" stopColor="#8b5cf6"/>
+                <linearGradient id="hexGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6366f1"/>
+                  <stop offset="100%" stopColor="#8b5cf6"/>
+                </linearGradient>
+                <linearGradient id="bgGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#0f0f1a"/>
+                  <stop offset="100%" stopColor="#1a1a2e"/>
                 </linearGradient>
               </defs>
+              <rect width="80" height="80" rx="18" fill="url(#bgGradLogin)"/>
+              <polygon points="34,16 48,8 62,16 62,36 48,44 34,36" fill="url(#hexGradLogin)" opacity="0.3"/>
+              <polygon points="28,24 42,16 56,24 56,44 42,52 28,44" fill="url(#hexGradLogin)" opacity="0.55"/>
+              <polygon points="32,32 45,25 58,32 58,48 45,55 32,48" fill="url(#hexGradLogin)"/>
+              <path d="M45 36 L45 48 M40 40 Q45 36 50 40 Q45 44 40 48 Q45 52 50 48" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
             </svg>
           </div>
           <h1 style={loginStyles.title}>TaxSky AI</h1>

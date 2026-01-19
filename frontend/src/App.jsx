@@ -9,6 +9,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import Onboarding from "./pages/Onboarding";
 import TaxChatPage from "./pages/TaxChatPage";
 import UserDashboard from "./components/UserDashboard";
+import Login from "./pages/Login";  // ✅ Import Login page
 
 // CPA Imports
 import { CPAAuthProvider, CPAProtectedRoute } from './contexts/CPAAuthContext';
@@ -218,17 +219,27 @@ function LoginPage() {
         {/* Header with Logo */}
         <div style={loginStyles.header}>
           <div style={loginStyles.logoIcon}>
-            <svg width="64" height="64" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="url(#logoGradLogin)"/>
-              <path d="M8 12h16M8 16h12M8 20h8" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="24" cy="20" r="4" fill="#10b981"/>
-              <path d="M22 20l1.5 1.5L26 19" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            {/* TaxSky AI Logo - Tech Hexagon */}
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
               <defs>
-                <linearGradient id="logoGradLogin" x1="0" y1="0" x2="32" y2="32">
-                  <stop stopColor="#3b82f6"/>
-                  <stop offset="1" stopColor="#8b5cf6"/>
+                <linearGradient id="hexGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6366f1"/>
+                  <stop offset="100%" stopColor="#8b5cf6"/>
                 </linearGradient>
+                <filter id="glowLogin">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
               </defs>
+              {/* Hexagon layers */}
+              <polygon points="48,8 72,20 72,52 48,64 24,52 24,20" fill="url(#hexGradLogin)" opacity="0.2"/>
+              <polygon points="48,16 68,26 68,50 48,60 28,50 28,26" fill="url(#hexGradLogin)" opacity="0.4"/>
+              <polygon points="48,24 64,32 64,48 48,56 32,48 32,32" fill="url(#hexGradLogin)" filter="url(#glowLogin)"/>
+              {/* Dollar sign */}
+              <path d="M48 34 L48 50 M42 38 Q48 34 54 38 Q48 42 42 46 Q48 50 54 46" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none"/>
             </svg>
           </div>
           <h1 style={loginStyles.title}>TaxSky AI</h1>
@@ -687,7 +698,7 @@ function LoginRoute() {
     return <Navigate to="/" replace />;
   }
 
-  return <LoginPage />;
+  return <Login />;  // ✅ Use imported Login component
 }
 
 // ============================================================

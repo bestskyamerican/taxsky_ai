@@ -442,9 +442,28 @@ export default function UserDashboard() {
       {/* Header */}
       <div style={{ background: 'rgba(15, 23, 42, 0.95)', borderBottom: '1px solid rgba(255,255,255,0.1)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>🌤️ TaxSky</h1>
+          {/* TaxSky AI Logo */}
+          <svg width="170" height="48" viewBox="0 0 180 50" fill="none">
+            <defs>
+              <linearGradient id="hexGradDash" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#6366f1"/>
+                <stop offset="100%" stopColor="#8b5cf6"/>
+              </linearGradient>
+              <linearGradient id="textGradDash" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#3b82f6"/>
+                <stop offset="100%" stopColor="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <polygon points="22,7 34,1 46,7 46,20 34,26 22,20" fill="url(#hexGradDash)" opacity="0.25"/>
+            <polygon points="18,12 30,6 42,12 42,25 30,31 18,25" fill="url(#hexGradDash)" opacity="0.5"/>
+            <polygon points="20,17 32,11 44,17 44,29 32,35 20,29" fill="url(#hexGradDash)"/>
+            <path d="M32 20 L32 29 M28 22.5 Q32 20 36 22.5 Q32 25 28 27.5 Q32 30 36 27.5" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+            <text x="54" y="29" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="20" fontWeight="700" fill="white">Tax</text>
+            <text x="88" y="29" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="20" fontWeight="700" fill="url(#textGradDash)">Sky</text>
+            <text x="126" y="29" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="12" fontWeight="600" fill="#a78bfa">AI</text>
+          </svg>
           <button onClick={goToChat} style={{ padding: '8px 16px', background: 'rgba(59, 130, 246, 0.2)', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '8px', color: '#60a5fa', cursor: 'pointer' }}>{t.taxChat}</button>
-          <span style={{ padding: '8px 16px', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', borderRadius: '8px', color: '#fff', fontWeight: 600 }}>{t.dashboard}</span>
+          <span style={{ padding: '8px 16px', background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', borderRadius: '8px', color: '#fff', fontWeight: 600 }}>{t.dashboard}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '8px 12px', color: '#fff' }}><option value="2025">{t.taxYear} 2025</option><option value="2024">{t.taxYear} 2024</option></select>
