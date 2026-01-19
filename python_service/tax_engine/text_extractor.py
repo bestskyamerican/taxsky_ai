@@ -1030,12 +1030,15 @@ def build_form_1040(extracted: Dict, tax_result: Dict, tax_year: int = 2025) -> 
             "line_28_actc": tax_result.get("ctc_refundable", 0),
             "line_33_total_payments": tax_result.get("total_payments", 0),
         },
-        "refund": {
+        "refund_or_owe": {
+            "line_33_overpayment": tax_result.get("refund", 0),
             "line_34_overpaid": tax_result.get("refund", 0),
+            "line_34_apply_to_2025": 0,
+            "line_35_refund": tax_result.get("refund", 0),
             "line_35a_refund": tax_result.get("refund", 0),
-        },
-        "amount_owed": {
+            "line_37_amount_owe": tax_result.get("amount_owed", 0),
             "line_37_amount_owed": tax_result.get("amount_owed", 0),
+            "line_38_estimated_penalty": 0,
         },
         "_income_details": {
             "taxpayer_wages": extracted.get("taxpayer_wages", 0),
