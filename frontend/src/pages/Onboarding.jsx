@@ -93,6 +93,14 @@ const translations = {
     chat: {
       preview: "Hi! I'm your TaxSky AI assistant. Ready to help you file your taxes in minutes!",
       placeholder: "Ask me anything about your taxes...",
+      messages: [
+        { type: "ai", text: "Hi! 👋 I'm your TaxSky AI assistant. Let's get you the biggest refund possible!" },
+        { type: "user", text: "I made $72,000 and have 2 kids" },
+        { type: "ai", text: "Great! With 2 dependents, you qualify for up to $4,000 in Child Tax Credits! 🎉" },
+        { type: "user", text: "I also work from home sometimes" },
+        { type: "ai", text: "Home Office Deduction could add $1,500 more! Let me calculate..." },
+        { type: "result", text: "$4,847", label: "Your Estimated Refund" },
+      ],
     },
     form: {
       languageLabel: "Preferred Language",
@@ -140,6 +148,14 @@ const translations = {
     chat: {
       preview: "Xin chào! Tôi là trợ lý AI TaxSky. Sẵn sàng giúp bạn khai thuế trong vài phút!",
       placeholder: "Hỏi tôi bất cứ điều gì về thuế...",
+      messages: [
+        { type: "ai", text: "Xin chào! 👋 Tôi là trợ lý AI TaxSky. Hãy để tôi giúp bạn hoàn thuế nhiều nhất!" },
+        { type: "user", text: "Tôi kiếm $72,000 và có 2 con" },
+        { type: "ai", text: "Tuyệt vời! Với 2 người phụ thuộc, bạn có thể được $4,000 tín dụng thuế trẻ em! 🎉" },
+        { type: "user", text: "Tôi cũng làm việc ở nhà đôi khi" },
+        { type: "ai", text: "Khấu trừ văn phòng tại nhà có thể thêm $1,500! Để tôi tính..." },
+        { type: "result", text: "$4,847", label: "Hoàn Thuế Ước Tính" },
+      ],
     },
     form: {
       languageLabel: "Ngôn Ngữ",
@@ -187,6 +203,14 @@ const translations = {
     chat: {
       preview: "¡Hola! Soy tu asistente AI de TaxSky. ¡Listo para ayudarte a declarar en minutos!",
       placeholder: "Pregúntame sobre tus impuestos...",
+      messages: [
+        { type: "ai", text: "¡Hola! 👋 Soy tu asistente AI de TaxSky. ¡Te ayudaré a obtener el máximo reembolso!" },
+        { type: "user", text: "Gané $72,000 y tengo 2 hijos" },
+        { type: "ai", text: "¡Excelente! Con 2 dependientes, calificas para $4,000 en Créditos Tributarios! 🎉" },
+        { type: "user", text: "También trabajo desde casa a veces" },
+        { type: "ai", text: "¡Deducción de oficina en casa puede agregar $1,500 más! Calculando..." },
+        { type: "result", text: "$4,847", label: "Tu Reembolso Estimado" },
+      ],
     },
     form: {
       languageLabel: "Idioma",
@@ -374,13 +398,14 @@ export default function Onboarding() {
             </h1>
             <p style={styles.heroSubtitle}>{t.hero.subtitle}</p>
 
-            {/* Chat Preview Card - CLICKABLE */}
+            {/* Chat Preview Card - CLICKABLE with REAL CONVERSATION */}
             <div 
               style={styles.chatPreview}
               onClick={handleContinue}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
+              className="chat-preview-hover"
             >
               <div style={styles.chatHeader}>
                 <TaxSkyIcon size={32} />
@@ -392,13 +417,41 @@ export default function Onboarding() {
                   </span>
                 </div>
               </div>
-              <div style={styles.chatBubble}>
-                {chatTyping ? t.chat.preview : (
-                  <span style={styles.typingIndicator}>
-                    <span></span><span></span><span></span>
-                  </span>
-                )}
+              
+              {/* Multi-message conversation */}
+              <div style={styles.chatMessages}>
+                {t.chat.messages && t.chat.messages.map((msg, index) => (
+                  <div 
+                    key={index} 
+                    style={{
+                      ...styles.chatMessage,
+                      ...(msg.type === 'user' ? styles.chatMessageUser : {}),
+                      ...(msg.type === 'result' ? styles.chatMessageResult : {}),
+                      animationDelay: `${index * 0.15}s`,
+                    }}
+                  >
+                    {msg.type === 'ai' && (
+                      <div style={styles.chatMessageAI}>
+                        <span style={styles.chatAIAvatar}>🤖</span>
+                        <span style={styles.chatMessageText}>{msg.text}</span>
+                      </div>
+                    )}
+                    {msg.type === 'user' && (
+                      <div style={styles.chatMessageUserBubble}>
+                        <span style={styles.chatMessageText}>{msg.text}</span>
+                      </div>
+                    )}
+                    {msg.type === 'result' && (
+                      <div style={styles.chatResultCard}>
+                        <span style={styles.chatResultLabel}>{msg.label}</span>
+                        <span style={styles.chatResultAmount}>{msg.text}</span>
+                        <span style={styles.chatResultConfetti}>🎉</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
+
               <div 
                 style={styles.chatInputPreview}
                 onClick={(e) => {
@@ -685,6 +738,17 @@ export default function Onboarding() {
           40% { transform: translateY(-6px); }
         }
         
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
         .chat-preview-hover:hover {
           border-color: rgba(99, 102, 241, 0.5) !important;
           box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2) !important;
@@ -693,6 +757,18 @@ export default function Onboarding() {
         
         .chat-preview-hover:hover .chat-hint {
           opacity: 1 !important;
+        }
+        
+        /* Custom scrollbar for chat messages */
+        .chat-preview-hover::-webkit-scrollbar {
+          width: 4px;
+        }
+        .chat-preview-hover::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .chat-preview-hover::-webkit-scrollbar-thumb {
+          background: rgba(99, 102, 241, 0.3);
+          border-radius: 4px;
         }
         
         ::selection {
@@ -909,6 +985,102 @@ const styles = {
     color: '#e2e8f0',
     lineHeight: 1.5,
     marginBottom: 16,
+  },
+  
+  // Multi-message chat styles
+  chatMessages: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+    marginBottom: 16,
+    maxHeight: 280,
+    overflowY: 'auto',
+    paddingRight: 4,
+  },
+  
+  chatMessage: {
+    animation: 'fadeInUp 0.4s ease-out both',
+  },
+  
+  chatMessageAI: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 10,
+  },
+  
+  chatAIAvatar: {
+    fontSize: 18,
+    marginTop: 2,
+  },
+  
+  chatMessageText: {
+    background: 'rgba(99, 102, 241, 0.12)',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
+    borderRadius: 14,
+    borderTopLeftRadius: 4,
+    padding: '10px 14px',
+    fontSize: 13,
+    color: '#e2e8f0',
+    lineHeight: 1.5,
+    maxWidth: '85%',
+  },
+  
+  chatMessageUser: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
+  
+  chatMessageUserBubble: {
+    background: 'rgba(255, 255, 255, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    borderRadius: 14,
+    borderTopRightRadius: 4,
+    padding: '10px 14px',
+    fontSize: 13,
+    color: '#fff',
+    lineHeight: 1.5,
+    maxWidth: '75%',
+  },
+  
+  chatMessageResult: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  
+  chatResultCard: {
+    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
+    borderRadius: 16,
+    padding: '16px 24px',
+    textAlign: 'center',
+    position: 'relative',
+    boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)',
+  },
+  
+  chatResultLabel: {
+    display: 'block',
+    fontSize: 11,
+    color: '#94a3b8',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+  
+  chatResultAmount: {
+    display: 'block',
+    fontSize: 28,
+    fontWeight: 700,
+    color: '#10b981',
+    fontFamily: "'Space Grotesk', sans-serif",
+  },
+  
+  chatResultConfetti: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    fontSize: 20,
+    animation: 'bounce 1s ease infinite',
   },
   
   typingIndicator: {
