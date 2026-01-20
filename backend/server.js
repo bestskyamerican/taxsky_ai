@@ -148,7 +148,9 @@ try {
   app.use('/api/payments', paymentRoutes);
   
   // ✅ Protected AI routes (chat, welcome, etc need auth)
-  app.use("/api/ai", authenticateToken, smartAiRoutes);
+  app.use("/api/ai", smartAiRoutes);
+
+  //app.use("/api/ai", authenticateToken, smartAiRoutes);
 
   // Python Tax API Routes (Calculator + RAG + OCR)
   app.use("/api/tax", taxRoutes);
