@@ -1,18 +1,16 @@
 /**
  * ============================================================
  * TaxSky Smart AI Controller
- * Version: 13.2 - FIXED SUMMARY OVERWRITE BUG
+ * Version: 14.0 - COMPLETE FIX
  * ============================================================
  * 
- * CHANGES from v13.1:
- * - ✅ FIXED: Summary message no longer overwrites saved data!
- * - ✅ FIXED: Federal withheld $20K no longer becomes $0
- * - ✅ FIXED: Skip parsing when AI shows final summary
- * 
- * CHANGES from v13.0:
- * - ✅ FIXED: Spouse data detection for first name (e.g., "Ha's" not just "Ha Do's")
- * - ✅ FIXED: Spouse wages, withheld, IRA now properly saved
- * - ✅ FIXED: Taxpayer data no longer overwritten by spouse data
+ * FIXES from v13.2:
+ * - ✅ FIX #1: Track interview STATE (whose data we're collecting)
+ * - ✅ FIX #2: Better spouse detection using state + patterns
+ * - ✅ FIX #3: W-2 wages now detected with more patterns
+ * - ✅ FIX #4: Python API URL fixed for production
+ * - ✅ FIX #5: Add status: 'complete' to webhook call
+ * - ✅ FIX #6: Multiple W-2 support (accumulate wages)
  * 
  * ============================================================
  */
@@ -20,7 +18,7 @@
 import TaxSession from '../models/TaxSession.js';
 
 // ============================================================
-// CONFIG
+// CONFIG - ✅ FIX #4: Use environment variable or production URL
 // ============================================================
 const CONFIG = {
   model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
@@ -28,7 +26,8 @@ const CONFIG = {
   promptVersion: process.env.OPENAI_PROMPT_VERSION || '23',
   maxTokens: 1500,
   temperature: 0.7,
-  pythonApiUrl: process.env.PYTHON_API_URL || 'http://localhost:5002'
+  // ✅ FIX: Default to production URL
+  pythonApiUrl: process.env.PYTHON_API_URL || 'https://taxskyai.com/python'
 };
 
 // ============================================================
@@ -114,7 +113,7 @@ function isYes(text) {
 function isNo(text) {
   if (!text) return false;
   const lower = text.toLowerCase().trim();
-  const noWords = ['no', 'nope', 'nah', 'n', 'không', 'ko', 'k', 'chưa', 'sai'];
+  const noWords = ['no', 'nope', 'nah', 'n', 'không', 'ko', 'k', 'chưa', 'sai', '0', 'none'];
   return noWords.some(w => lower === w || lower.startsWith(w + ' ') || lower.startsWith(w + ','));
 }
 
@@ -267,7 +266,68 @@ function getPreviousDataMessage(session) {
 }
 
 // ============================================================
-// DETECT: Is this spouse data? - ✅ FIXED in v13.1
+// ✅ FIX #1: GET CURRENT DATA OWNER (Track interview state)
+// ============================================================
+function getCurrentDataOwner(session) {
+  const messages = session.messages || [];
+  const spouseName = getAnswer(session, 'spouse_name') || '';
+  const spouseNameLower = spouseName.toLowerCase();
+  const spouseFirstName = spouseName.split(/\s+/)[0]?.toLowerCase() || '';
+  
+  // Look at last 8 AI messages for context
+  for (let i = messages.length - 1; i >= Math.max(0, messages.length - 8); i--) {
+    const msg = messages[i];
+    if (msg.sender === 'assistant') {
+      const text = (msg.text || '').toLowerCase();
+      
+      // Check if we're collecting spouse's income
+      if (
+        text.includes("spouse's income") ||
+        text.includes("spouse's w-2") ||
+        text.includes("now let's collect") && (
+          text.includes("spouse") || 
+          (spouseNameLower && text.includes(spouseNameLower)) ||
+          (spouseFirstName && text.includes(spouseFirstName))
+        ) ||
+        text.includes("does your spouse have") ||
+        (spouseNameLower && text.includes(`${spouseNameLower}'s income`)) ||
+        (spouseNameLower && text.includes(`${spouseNameLower}'s w-2`)) ||
+        (spouseNameLower && text.includes(`what is ${spouseNameLower}'s`)) ||
+        (spouseNameLower && text.includes(`does ${spouseNameLower} have`)) ||
+        (spouseFirstName && text.includes(`${spouseFirstName}'s w-2`)) ||
+        (spouseFirstName && text.includes(`${spouseFirstName}'s income`))
+      ) {
+        console.log(`   📍 Interview STATE: SPOUSE (found spouse context in recent message)`);
+        return 'spouse';
+      }
+      
+      // Check if we finished spouse and moved to adjustments
+      if (text.includes("all w-2s collected") || 
+          text.includes("now let's move to adjustments") ||
+          text.includes("now let's talk about deductions") ||
+          text.includes("do you have any ira")) {
+        console.log(`   📍 Interview STATE: ADJUSTMENTS (both/taxpayer)`);
+        return 'taxpayer'; // IRA/HSA questions default to taxpayer first
+      }
+      
+      // Explicit taxpayer indicators  
+      if (
+        text.includes("your income") ||
+        text.includes("your w-2") ||
+        text.includes("do you have a w-2") ||
+        text.includes("what is your")
+      ) {
+        console.log(`   📍 Interview STATE: TAXPAYER`);
+        return 'taxpayer';
+      }
+    }
+  }
+  
+  return 'taxpayer'; // Default
+}
+
+// ============================================================
+// ✅ FIX #2: DETECT Is this spouse data? - IMPROVED
 // ============================================================
 function isSpouseData(session, savedPart) {
   const savedPartLower = savedPart.toLowerCase();
@@ -291,15 +351,15 @@ function isSpouseData(session, savedPart) {
     /their\s+(ira|traditional|w-2|wages|birthday|income)/i,
   ];
   
-  // ✅ FIXED: Add patterns for spouse name (both full name and first name)
+  // ✅ Add patterns for spouse name (both full name and first name)
   if (spouseName) {
     // Full name patterns: "Ha Do's", "Ha Do birthday"
     const fullNameEscaped = spouseName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     spousePatterns.push(new RegExp(`${fullNameEscaped}'s`, 'i'));
     spousePatterns.push(new RegExp(`${fullNameEscaped}\\s+(birthday|w-2|wages|federal|state|ira|withheld|income)`, 'i'));
     
-    // ✅ FIXED: First name patterns: "Ha's", "Ha birthday"
-    const firstName = spouseName.split(/\s+/)[0]; // Get first name only
+    // First name patterns: "Ha's", "Ha birthday"
+    const firstName = spouseName.split(/\s+/)[0];
     if (firstName && firstName.length >= 2) {
       const firstNameEscaped = firstName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       spousePatterns.push(new RegExp(`\\b${firstNameEscaped}'s\\s+(birthday|w-2|wages|federal|state|ira|withheld|income|saved)`, 'i'));
@@ -311,24 +371,30 @@ function isSpouseData(session, savedPart) {
   // Check all patterns
   for (const pattern of spousePatterns) {
     if (pattern.test(savedPart)) {
-      console.log(`   🔍 isSpouseData: TRUE (matched pattern: ${pattern})`);
+      console.log(`   🔍 isSpouseData: TRUE (pattern: ${pattern})`);
       return true;
     }
   }
   
-  console.log(`   🔍 isSpouseData: FALSE (no pattern matched)`);
+  // ✅ FIX #1: Check interview STATE as fallback
+  const currentOwner = getCurrentDataOwner(session);
+  if (currentOwner === 'spouse') {
+    console.log(`   🔍 isSpouseData: TRUE (interview state = spouse)`);
+    return true;
+  }
+  
+  console.log(`   🔍 isSpouseData: FALSE (no pattern, state=${currentOwner})`);
   return false;
 }
 
 // ============================================================
-// PARSE AND SAVE: Main parser function
+// PARSE AND SAVE: Main parser function - ✅ FIXED
 // ============================================================
 function parseAndSaveData(session, aiResponse, userMessage) {
   const aiLower = aiResponse.toLowerCase();
   
   // ─────────────────────────────────────────────────────────
   // ⚠️ CRITICAL: SKIP parsing if this is a SUMMARY message!
-  // Summary contains "$0" values that would OVERWRITE real data!
   // ─────────────────────────────────────────────────────────
   if (aiLower.includes("here's your complete summary") || 
       aiLower.includes("is everything correct") ||
@@ -393,7 +459,7 @@ function parseAndSaveData(session, aiResponse, userMessage) {
   }
   
   // ─────────────────────────────────────────────────────────
-  // BIRTHDAY - ✅ FIXED: Better spouse detection
+  // BIRTHDAY
   // ─────────────────────────────────────────────────────────
   if (savedPartLower.includes('birthday saved') || savedPartLower.includes('updated birthday saved')) {
     const dob = extractDate(dataMessage);
@@ -424,7 +490,7 @@ function parseAndSaveData(session, aiResponse, userMessage) {
   // DEPENDENTS
   // ─────────────────────────────────────────────────────────
   if (savedPartLower.includes('dependent') && (savedPartLower.includes('saved') || savedPartLower.includes('noted'))) {
-    if (savedPartLower.includes('none') || savedPartLower.includes('no dependent')) {
+    if (savedPartLower.includes('none') || savedPartLower.includes('no dependent') || isNo(dataMessage)) {
       setAnswer(session, 'has_dependents', false);
       setAnswer(session, 'dependent_count', 0);
       setAnswer(session, 'children_under_17', 0);
@@ -450,60 +516,68 @@ function parseAndSaveData(session, aiResponse, userMessage) {
     }
   }
   
-  // Child care expenses
-  if (savedPartLower.includes('child care') && savedPartLower.includes('saved')) {
-    const amount = extractAmount(dataMessage);
-    if (amount !== null) {
-      setAnswer(session, 'child_care_expenses', amount);
-    }
-  }
+  // ─────────────────────────────────────────────────────────
+  // ✅ FIX #3: W-2 WAGES - More patterns + accumulate multiple W-2s
+  // ─────────────────────────────────────────────────────────
+  const isW2Wages = savedPartLower.includes('w-2 wages saved') || 
+                    savedPartLower.includes('wages saved') || 
+                    savedPartLower.includes('w2 saved') ||
+                    savedPartLower.includes('w-2 #') ||
+                    (savedPartLower.includes('box 1') && savedPartLower.includes('saved'));
   
-  // ─────────────────────────────────────────────────────────
-  // W-2 WAGES - ✅ FIXED: Better spouse detection
-  // ─────────────────────────────────────────────────────────
-  if (savedPartLower.includes('w-2 wages saved') || savedPartLower.includes('wages saved') || 
-      savedPartLower.includes('w2 saved')) {
+  if (isW2Wages) {
     const amount = extractAmount(dataMessage);
     if (amount !== null && amount > 0) {
       if (isSpouse) {
-        setAnswer(session, 'spouse_wages', amount);
-        console.log(`👫 Saved SPOUSE wages: $${amount}`);
+        // ✅ FIX #6: Accumulate for multiple W-2s
+        const current = getAnswer(session, 'spouse_wages') || 0;
+        const w2Count = (getAnswer(session, 'spouse_w2_count') || 0) + 1;
+        setAnswer(session, 'spouse_wages', current + amount);
+        setAnswer(session, 'spouse_w2_count', w2Count);
+        console.log(`👫 Saved SPOUSE W-2 #${w2Count} wages: $${amount} (total: $${current + amount})`);
       } else {
-        setAnswer(session, 'taxpayer_wages', amount);
-        console.log(`👤 Saved TAXPAYER wages: $${amount}`);
+        const current = getAnswer(session, 'taxpayer_wages') || 0;
+        const w2Count = (getAnswer(session, 'taxpayer_w2_count') || 0) + 1;
+        setAnswer(session, 'taxpayer_wages', current + amount);
+        setAnswer(session, 'taxpayer_w2_count', w2Count);
+        console.log(`👤 Saved TAXPAYER W-2 #${w2Count} wages: $${amount} (total: $${current + amount})`);
       }
     }
   }
   
   // ─────────────────────────────────────────────────────────
-  // FEDERAL WITHHELD - ✅ FIXED: Better spouse detection
+  // FEDERAL WITHHELD - ✅ FIX: Accumulate for multiple W-2s
   // ─────────────────────────────────────────────────────────
   if (savedPartLower.includes('federal') && savedPartLower.includes('withheld') && 
       (savedPartLower.includes('saved') || savedPartLower.includes('confirmed'))) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
       if (isSpouse) {
-        setAnswer(session, 'spouse_federal_withheld', amount);
-        console.log(`👫 Saved SPOUSE federal withheld: $${amount}`);
+        const current = getAnswer(session, 'spouse_federal_withheld') || 0;
+        setAnswer(session, 'spouse_federal_withheld', current + amount);
+        console.log(`👫 Saved SPOUSE federal withheld: $${amount} (total: $${current + amount})`);
       } else {
-        setAnswer(session, 'taxpayer_federal_withheld', amount);
-        console.log(`👤 Saved TAXPAYER federal withheld: $${amount}`);
+        const current = getAnswer(session, 'taxpayer_federal_withheld') || 0;
+        setAnswer(session, 'taxpayer_federal_withheld', current + amount);
+        console.log(`👤 Saved TAXPAYER federal withheld: $${amount} (total: $${current + amount})`);
       }
     }
   }
   
   // ─────────────────────────────────────────────────────────
-  // STATE WITHHELD - ✅ FIXED: Better spouse detection
+  // STATE WITHHELD
   // ─────────────────────────────────────────────────────────
   if (savedPartLower.includes('state') && savedPartLower.includes('withheld') && 
       (savedPartLower.includes('saved') || savedPartLower.includes('confirmed'))) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
       if (isSpouse) {
-        setAnswer(session, 'spouse_state_withheld', amount);
+        const current = getAnswer(session, 'spouse_state_withheld') || 0;
+        setAnswer(session, 'spouse_state_withheld', current + amount);
         console.log(`👫 Saved SPOUSE state withheld: $${amount}`);
       } else {
-        setAnswer(session, 'taxpayer_state_withheld', amount);
+        const current = getAnswer(session, 'taxpayer_state_withheld') || 0;
+        setAnswer(session, 'taxpayer_state_withheld', current + amount);
         console.log(`👤 Saved TAXPAYER state withheld: $${amount}`);
       }
     }
@@ -512,12 +586,14 @@ function parseAndSaveData(session, aiResponse, userMessage) {
   // ─────────────────────────────────────────────────────────
   // 1099-NEC / SCHEDULE C (Self-Employment)
   // ─────────────────────────────────────────────────────────
-  if (savedPartLower.includes('1099-nec saved') || savedPartLower.includes('self-employment') && savedPartLower.includes('saved') ||
+  if (savedPartLower.includes('1099-nec') && savedPartLower.includes('saved') ||
+      savedPartLower.includes('self-employment') && savedPartLower.includes('saved') ||
       savedPartLower.includes('freelance') && savedPartLower.includes('saved')) {
     const amount = extractAmount(dataMessage);
     if (amount !== null && amount > 0) {
-      setAnswer(session, 'self_employment_income', amount);
-      console.log(`💼 Saved 1099-NEC: $${amount}`);
+      const current = getAnswer(session, 'self_employment_income') || 0;
+      setAnswer(session, 'self_employment_income', current + amount);
+      console.log(`💼 Saved 1099-NEC: $${amount} (total: $${current + amount})`);
     }
   }
   
@@ -541,14 +617,6 @@ function parseAndSaveData(session, aiResponse, userMessage) {
     }
   }
   
-  // Home Office
-  if (savedPartLower.includes('home office') && savedPartLower.includes('saved')) {
-    const amount = extractAmount(dataMessage);
-    if (amount !== null) {
-      setAnswer(session, 'home_office_expense', amount);
-    }
-  }
-  
   // ─────────────────────────────────────────────────────────
   // 1099-INT (Interest)
   // ─────────────────────────────────────────────────────────
@@ -556,7 +624,8 @@ function parseAndSaveData(session, aiResponse, userMessage) {
       savedPartLower.includes('1099-int saved')) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
-      setAnswer(session, 'interest_income', amount);
+      const current = getAnswer(session, 'interest_income') || 0;
+      setAnswer(session, 'interest_income', current + amount);
       console.log(`🏦 Saved Interest: $${amount}`);
     }
   }
@@ -569,10 +638,12 @@ function parseAndSaveData(session, aiResponse, userMessage) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
       if (savedPartLower.includes('qualified')) {
-        setAnswer(session, 'qualified_dividends', amount);
+        const current = getAnswer(session, 'qualified_dividends') || 0;
+        setAnswer(session, 'qualified_dividends', current + amount);
         console.log(`📈 Saved Qualified Dividends: $${amount}`);
       } else {
-        setAnswer(session, 'ordinary_dividends', amount);
+        const current = getAnswer(session, 'ordinary_dividends') || 0;
+        setAnswer(session, 'ordinary_dividends', current + amount);
         console.log(`📈 Saved Ordinary Dividends: $${amount}`);
       }
     }
@@ -586,7 +657,8 @@ function parseAndSaveData(session, aiResponse, userMessage) {
       savedPartLower.includes('distribution') && savedPartLower.includes('saved')) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
-      setAnswer(session, 'retirement_income', amount);
+      const current = getAnswer(session, 'retirement_income') || 0;
+      setAnswer(session, 'retirement_income', current + amount);
       console.log(`🏦 Saved Retirement: $${amount}`);
     }
   }
@@ -622,7 +694,8 @@ function parseAndSaveData(session, aiResponse, userMessage) {
   if (savedPartLower.includes('rental income') && savedPartLower.includes('saved')) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
-      setAnswer(session, 'rental_income', amount);
+      const current = getAnswer(session, 'rental_income') || 0;
+      setAnswer(session, 'rental_income', current + amount);
       console.log(`🏠 Saved Rental Income: $${amount}`);
     }
   }
@@ -670,9 +743,10 @@ function parseAndSaveData(session, aiResponse, userMessage) {
   }
   
   // ─────────────────────────────────────────────────────────
-  // IRA CONTRIBUTIONS - ✅ FIXED: Better spouse detection
+  // IRA CONTRIBUTIONS - ✅ FIXED
   // ─────────────────────────────────────────────────────────
-  if (savedPartLower.includes('ira saved') || savedPartLower.includes('ira contribution saved')) {
+  if (savedPartLower.includes('ira saved') || savedPartLower.includes('ira contribution saved') ||
+      (savedPartLower.includes('ira') && savedPartLower.includes('saved'))) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
       if (isSpouse) {
@@ -692,6 +766,7 @@ function parseAndSaveData(session, aiResponse, userMessage) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
       setAnswer(session, 'hsa', amount);
+      console.log(`🏥 Saved HSA: $${amount}`);
     }
   }
   
@@ -702,6 +777,7 @@ function parseAndSaveData(session, aiResponse, userMessage) {
     const amount = extractAmount(dataMessage);
     if (amount !== null) {
       setAnswer(session, 'student_loan_interest', amount);
+      console.log(`📚 Saved Student Loan Interest: $${amount}`);
     }
   }
   
@@ -709,9 +785,9 @@ function parseAndSaveData(session, aiResponse, userMessage) {
   // DEDUCTION TYPE
   // ─────────────────────────────────────────────────────────
   if (savedPartLower.includes('deduction') && savedPartLower.includes('saved')) {
-    if (savedPartLower.includes('standard')) {
+    if (savedPartLower.includes('standard') || (dataMessage && dataMessage.toLowerCase().includes('standard'))) {
       setAnswer(session, 'deduction_type', 'standard');
-    } else if (savedPartLower.includes('itemize')) {
+    } else if (savedPartLower.includes('itemize') || (dataMessage && dataMessage.toLowerCase().includes('itemize'))) {
       setAnswer(session, 'deduction_type', 'itemized');
     }
   }
@@ -795,17 +871,17 @@ function generateSimpleForm1040(session) {
   const adjustments = totalIra + hsa + studentLoan;
   const agi = totalIncome - adjustments;
   
-  // Standard deduction lookup (2025 OBBB)
+  // Standard deduction lookup (2025)
   const filingStatus = answers.filing_status || 'single';
   const deductionMap = {
-    'single': 15750,
-    'married_filing_jointly': 31500,
-    'married_filing_separately': 15750,
-    'head_of_household': 23625,
-    'qualifying_surviving_spouse': 31500
+    'single': 15000,
+    'married_filing_jointly': 30000,
+    'married_filing_separately': 15000,
+    'head_of_household': 22500,
+    'qualifying_surviving_spouse': 30000
   };
   
-  const standardDeduction = deductionMap[filingStatus] || 15750;
+  const standardDeduction = deductionMap[filingStatus] || 15000;
   const taxableIncome = Math.max(0, agi - standardDeduction);
   
   return {
@@ -813,35 +889,16 @@ function generateSimpleForm1040(session) {
       tax_year: 2025,
       state: answers.state || '',
       filing_status: filingStatus,
-      presidential_campaign: false,
-      presidential_campaign_spouse: false,
-      digital_assets: false
     },
     income: {
       line_1a_w2_wages: totalWages,
       line_1_wages: totalWages,
-      line_2a_tax_exempt_interest: 0,
       line_2b_taxable_interest: answers.interest_income || 0,
       line_3a_qualified_dividends: answers.qualified_dividends || 0,
       line_3b_ordinary_dividends: answers.ordinary_dividends || 0,
-      line_4a_ira_distributions: 0,
-      line_4b_taxable_ira: 0,
-      line_5a_pensions: 0,
-      line_5b_taxable_pensions: 0,
       line_6a_social_security: answers.social_security || 0,
-      line_6b_taxable_social_security: 0,
       line_7_capital_gain: answers.capital_gains || 0,
-      line_8_schedule_1_income: 0,
       line_9_total_income: totalIncome,
-      line_1b_household_employee: 0,
-      line_1c_tip_income: 0,
-      line_1d_medicaid_waiver: 0,
-      line_1e_dependent_care: 0,
-      line_1f_adoption_benefits: 0,
-      line_1g_form_8919: 0,
-      line_1h_other_earned: 0,
-      line_1i_nontaxable_combat: 0,
-      line_1z_total_wages: 0
     },
     adjustments: {
       line_10_schedule_1_adjustments: adjustments,
@@ -849,60 +906,22 @@ function generateSimpleForm1040(session) {
     },
     deductions: {
       line_12_deduction: standardDeduction,
-      line_13a_qbi: 0,
-      line_13b_additional_deductions: 0,
-      line_13_qbi: 0,
       line_14_total_deductions: standardDeduction,
       line_15_taxable_income: taxableIncome
     },
-    tax_and_credits: {
-      line_16_tax: 0, // Will be calculated by Python
-      line_16_form_8814: false,
-      line_16_form_4972: false,
-      line_17_schedule_2_line_3: 0,
-      line_17_schedule_2_taxes: 0,
-      line_18_total: 0,
-      line_18_total_tax: 0,
-      line_19_child_credit: 0,
-      line_20_schedule_3_line_8: 0,
-      line_20_schedule_3_credits: 0,
-      line_21_total_credits: 0,
-      line_22_tax_after_credits: 0,
-      line_23_schedule_2_line_21: 0,
-      line_23_schedule_2_other_taxes: 0,
-      line_24_total_tax: 0
-    },
     payments: {
       line_25a_w2_withholding: totalWithholding,
-      line_25b_1099_withholding: 0,
-      line_25c_other_withholding: 0,
       line_25d_total_withholding: totalWithholding,
       line_26_estimated_payments: answers.estimated_payments || 0,
-      line_27_eic: 0,
-      line_28_actc: 0,
-      line_28_schedule_3_credits: 0,
-      line_29_american_opportunity: 0,
-      line_30_adoption_credit: 0,
-      line_31_schedule_3_line_15: 0,
-      line_32_total_other_payments: 0,
-      line_33_total_payments: totalWithholding,
-      line_29_total_payments: totalWithholding
+      line_33_total_payments: totalWithholding + (answers.estimated_payments || 0),
     },
-    refund: {
-      line_34_overpaid: 0,
-      line_35a_refund: 0,
-      line_36_apply_to_next_year: 0
-    },
-    amount_owed: {
-      line_37_amount_owed: 0,
-      line_38_estimated_penalty: 0
-    },
-    refund_or_owe: {
-      line_33_overpayment: 0,
-      line_34_apply_to_2025: 0,
-      line_35_refund: 0,
-      line_37_amount_owe: 0,
-      line_38_estimated_penalty: 0
+    _income_details: {
+      taxpayer_wages: taxpayerWages,
+      spouse_wages: spouseWages,
+      taxpayer_federal_withheld: taxpayerFed,
+      spouse_federal_withheld: spouseFed,
+      taxpayer_ira: taxpayerIra,
+      spouse_ira: spouseIra,
     }
   };
 }
@@ -925,20 +944,33 @@ function getSessionStatusInternal(session) {
 }
 
 // ============================================================
-// CALL PYTHON EXTRACTOR
+// ✅ FIX #4 & #5: CALL PYTHON EXTRACTOR - Fixed URL + status
 // ============================================================
 async function callPythonExtractor(userId, taxYear) {
   try {
     console.log(`📤 Calling Python extractor for ${userId}...`);
+    console.log(`   URL: ${CONFIG.pythonApiUrl}/api/extract/webhook/interview-complete`);
     
     const response = await fetch(`${CONFIG.pythonApiUrl}/api/extract/webhook/interview-complete`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, tax_year: taxYear })
+      body: JSON.stringify({ 
+        user_id: userId, 
+        tax_year: taxYear,
+        status: 'complete'  // ✅ FIX #5: Add status
+      })
     });
     
     const result = await response.json();
-    console.log(`📥 Python extractor response:`, result.success ? 'SUCCESS' : 'FAILED');
+    
+    if (result.success) {
+      console.log(`✅ Python extraction SUCCESS!`);
+      console.log(`   Taxpayer wages: $${result.extracted?.taxpayer_wages || 0}`);
+      console.log(`   Spouse wages: $${result.extracted?.spouse_wages || 0}`);
+      console.log(`   Amount owed: $${result.tax_result?.amount_owed || 0}`);
+    } else {
+      console.log(`❌ Python extraction FAILED: ${result.error}`);
+    }
     
     return result;
   } catch (error) {
@@ -1054,8 +1086,8 @@ export async function handleSmartChat(req, res) {
 // ============================================================
 export async function getSmartWelcome(req, res) {
   try {
-    const { userId } = req.params;
-    const taxYear = parseInt(req.query.taxYear) || 2025;
+    const { userId } = req.body;
+    const taxYear = req.body.taxYear || 2025;
     
     if (!userId || userId === 'undefined') {
       return res.status(400).json({ success: false, error: 'userId required' });
@@ -1063,21 +1095,20 @@ export async function getSmartWelcome(req, res) {
     
     const session = await getOrCreateSession(userId, taxYear);
     
-    // If session has messages, return last AI message
+    // Check if session has messages
     if (session.messages && session.messages.length > 0) {
-      const lastAiMsg = [...session.messages].reverse().find(m => m.sender === 'assistant');
-      if (lastAiMsg) {
-        return res.json({
-          success: true,
-          message: lastAiMsg.text,
-          sessionId: session._id,
-          hasHistory: true,
-          messageCount: session.messages.length
-        });
-      }
+      const lastMessage = session.messages[session.messages.length - 1];
+      return res.json({
+        success: true,
+        message: lastMessage.text,
+        sessionId: session._id,
+        status: session.status,
+        hasExistingSession: true,
+        messageCount: session.messages.length
+      });
     }
     
-    // Generate new welcome
+    // New session - get welcome message
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
@@ -1094,7 +1125,6 @@ export async function getSmartWelcome(req, res) {
     });
     
     const data = await response.json();
-    
     let welcomeMessage = data.output_text || '';
     if (!welcomeMessage && data.output) {
       welcomeMessage = data.output
@@ -1116,7 +1146,8 @@ export async function getSmartWelcome(req, res) {
       success: true,
       message: welcomeMessage,
       sessionId: session._id,
-      hasHistory: false
+      status: session.status,
+      hasExistingSession: false
     });
     
   } catch (error) {
@@ -1126,7 +1157,7 @@ export async function getSmartWelcome(req, res) {
 }
 
 // ============================================================
-// GET ALL DATA
+// GET ALL DATA (for Dashboard)
 // ============================================================
 export async function getAllData(req, res) {
   try {
@@ -1147,9 +1178,12 @@ export async function getAllData(req, res) {
       success: true,
       userId,
       taxYear,
+      sessionId: session._id,
       status: session.status,
       answers,
       form1040: session.form1040,
+      taxCalculation: session.taxCalculation,
+      ragVerified: session.ragVerified,
       messages: session.messages,
       messageCount: (session.messages || []).length
     });
@@ -1165,14 +1199,17 @@ export async function getAllData(req, res) {
 // ============================================================
 export async function resetSession(req, res) {
   try {
-    const { userId } = req.params;
-    const taxYear = parseInt(req.query.taxYear) || 2025;
+    const { userId } = req.body;
+    const taxYear = req.body.taxYear || 2025;
+    
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'userId required' });
+    }
     
     await TaxSession.deleteOne({ userId, taxYear });
+    console.log(`🗑️ Deleted session for ${userId}`);
     
-    console.log(`🗑️ Reset session for ${userId}`);
-    
-    return res.json({ success: true, message: 'Session reset', userId, taxYear });
+    return res.json({ success: true, message: 'Session reset' });
     
   } catch (error) {
     console.error('❌ resetSession error:', error);
@@ -1181,32 +1218,23 @@ export async function resetSession(req, res) {
 }
 
 // ============================================================
-// SAVE SECURE DATA (SSN, Bank info)
+// SAVE SECURE DATA (from OCR)
 // ============================================================
 export async function saveSecureData(req, res) {
   try {
-    const { userId } = req.params;
-    const { data, taxYear = 2025 } = req.body;
+    const { userId, field, value, taxYear = 2025 } = req.body;
     
-    const session = await TaxSession.findOne({ userId, taxYear });
-    
-    if (!session) {
-      return res.status(404).json({ success: false, error: 'Session not found' });
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'userId required' });
     }
     
-    // Save secure fields
-    const secureFields = ['ssn', 'spouse_ssn', 'bank_routing', 'bank_account', 'bank_type'];
-    secureFields.forEach(field => {
-      if (data[field]) {
-        setAnswer(session, field, data[field]);
-      }
-    });
-    
+    const session = await getOrCreateSession(userId, taxYear);
+    setAnswer(session, field, value);
     session.updatedAt = new Date();
     session.markModified('answers');
     await session.save();
     
-    return res.json({ success: true, message: 'Secure data saved', userId, taxYear });
+    return res.json({ success: true, field, saved: true });
     
   } catch (error) {
     console.error('❌ saveSecureData error:', error);
@@ -1331,7 +1359,8 @@ export async function triggerExtraction(req, res) {
       taxYear,
       ragVerified: result.rag_verified,
       errors: result.errors,
-      filepath: result.filepath
+      extracted: result.extracted,
+      tax_result: result.tax_result
     });
     
   } catch (error) {
