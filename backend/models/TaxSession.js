@@ -637,6 +637,7 @@ const TaxSessionSchema = new mongoose.Schema({
       'in_progress',
       'ready_for_extraction',
       'extracting',                // ✅ NEW
+      'extracted',                 // ✅ NEW
       'ready_for_review',
       'cpa_review',                // ✅ NEW
       'cpa_approved',              // ✅ NEW
