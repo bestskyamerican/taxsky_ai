@@ -599,6 +599,28 @@ def handle_extract_request(user_id: str, tax_year: int = 2025, messages: List = 
 
 
 # ============================================================
+# FILE I/O (Required by other modules)
+# ============================================================
+
+def load_form1040_json(user_id: str, tax_year: int = 2025) -> Optional[Dict]:
+    """Load Form 1040 JSON from file."""
+    filepath = DATA_DIR / f"{user_id}_1040_{tax_year}.json"
+    if filepath.exists():
+        import json
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    return None
+
+def save_form1040_json(user_id: str, form1040: Dict, tax_year: int = 2025) -> str:
+    """Save Form 1040 JSON to file."""
+    filepath = DATA_DIR / f"{user_id}_1040_{tax_year}.json"
+    import json
+    with open(filepath, 'w') as f:
+        json.dump(form1040, f, indent=2, default=str)
+    return str(filepath)
+
+
+# ============================================================
 # CLI
 # ============================================================
 
