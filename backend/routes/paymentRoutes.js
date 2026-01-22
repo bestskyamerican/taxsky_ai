@@ -1,5 +1,5 @@
 // ============================================================
-// PAYMENT ROUTES - Fixed
+// PAYMENT ROUTES - Updated to Match Frontend
 // ============================================================
 // Location: backend/routes/paymentRoutes.js
 // ============================================================
@@ -13,6 +13,8 @@ import {
   handleWebhook,
   getUserPayments,
   checkPaymentStatus,
+  checkAccess,
+  requestRefund,
   getAllPayments
 } from '../controllers/paymentController.js';
 
@@ -22,20 +24,20 @@ const router = express.Router();
 // PUBLIC ROUTES
 // ============================================================
 
-// Get all pricing plans
+// Get all pricing plans and addons
 router.get('/pricing', getPricing);
 
-// Stripe webhook - Note: webhook needs raw body, handled in server.js
+// Stripe webhook (must use raw body - handled in server.js)
 router.post('/webhook', handleWebhook);
 
 // ============================================================
-// PROTECTED ROUTES
+// PROTECTED ROUTES (require auth)
 // ============================================================
 
 // Get recommended plan based on user's tax situation
 router.get('/recommend/:userId', getRecommendedPlan);
 
-// Create payment intent
+// Create payment intent (start checkout)
 router.post('/create-intent', createPaymentIntent);
 
 // Confirm payment after Stripe success
@@ -44,8 +46,14 @@ router.post('/confirm', confirmPayment);
 // Get user's payment history
 router.get('/user/:userId', getUserPayments);
 
-// Check if user has paid for tax year
+// Check if user has paid for current tax year
 router.get('/status/:userId/:taxYear?', checkPaymentStatus);
+
+// Check user's feature access level
+router.get('/access/:userId/:taxYear?', checkAccess);
+
+// Request refund
+router.post('/refund', requestRefund);
 
 // ============================================================
 // ADMIN ROUTES

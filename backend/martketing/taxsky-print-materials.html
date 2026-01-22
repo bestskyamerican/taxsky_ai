@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxSky AI - Print Flyer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #1a1a2e;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      align-items: center;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .label {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    /* Flyer - 8.5x11 inches scaled */
+    .flyer {
+      width: 612px; /* 8.5 inches at 72dpi */
+      height: 792px; /* 11 inches at 72dpi */
+      background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+      border-radius: 8px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .flyer::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .flyer::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .flyer-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .flyer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .flyer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .flyer-logo-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .flyer-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .flyer-badge {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    /* Hero */
+    .flyer-hero {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .flyer-headline {
+      font-size: 42px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .flyer-headline .highlight {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .flyer-subhead {
+      font-size: 18px;
+      color: #94a3b8;
+      max-width: 400px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* Stats */
+    .flyer-stats {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 30px;
+      padding: 24px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .flyer-stat {
+      text-align: center;
+    }
+
+    .flyer-stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .flyer-stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Features */
+    .flyer-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .flyer-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(99, 102, 241, 0.08);
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+
+    .flyer-feature-icon {
+      font-size: 24px;
+    }
+
+    .flyer-feature-text h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .flyer-feature-text p {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    /* QR Code Section */
+    .flyer-qr-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+      border-radius: 16px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      margin-bottom: 24px;
+    }
+
+    .flyer-qr {
+      width: 100px;
+      height: 100px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #333;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .flyer-qr-text {
+      flex: 1;
+    }
+
+    .flyer-qr-text h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .flyer-qr-text p {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .flyer-url {
+      font-size: 18px;
+      font-weight: 700;
+      color: #6366f1;
+      margin-top: 8px;
+    }
+
+    /* Footer */
+    .flyer-footer {
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .flyer-contact {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .flyer-contact strong {
+      color: white;
+      font-size: 18px;
+    }
+
+    .flyer-trust {
+      display: flex;
+      gap: 12px;
+    }
+
+    .flyer-trust-badge {
+      font-size: 11px;
+      color: #64748b;
+      background: rgba(255,255,255,0.05);
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+
+    /* Business Card */
+    .business-card-container {
+      display: flex;
+      gap: 30px;
+    }
+
+    .business-card {
+      width: 336px; /* 3.5 inches */
+      height: 192px; /* 2 inches */
+      border-radius: 12px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .business-card-front {
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+
+    .business-card-front::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .business-card-back {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    }
+
+    .bc-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .bc-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bc-logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .bc-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .bc-tagline {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .bc-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .bc-contact {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .bc-contact strong {
+      color: white;
+      font-size: 12px;
+    }
+
+    .bc-website {
+      font-size: 14px;
+      font-weight: 700;
+      color: #6366f1;
+    }
+
+    .bc-back-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .bc-back-logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .bc-back-tagline {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Door Hanger */
+    .door-hanger {
+      width: 300px;
+      height: 500px;
+      background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 16px 16px 100px 100px;
+      position: relative;
+      overflow: hidden;
+      padding: 30px 24px;
+    }
+
+    .door-hanger::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
+      background: #1a1a2e;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .door-hanger::after {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .dh-content {
+      position: relative;
+      z-index: 1;
+      margin-top: 50px;
+      text-align: center;
+    }
+
+    .dh-logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .dh-logo span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .dh-headline {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .dh-headline .highlight {
+      color: #10b981;
+    }
+
+    .dh-subhead {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    .dh-refund {
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .dh-refund-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .dh-refund-amount {
+      font-size: 36px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .dh-cta {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .dh-phone {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .dh-website {
+      font-size: 12px;
+      color: #6366f1;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TaxSky AI - Print Marketing Materials</h1>
+
+  <!-- 8.5x11 Flyer -->
+  <div>
+    <div class="label">Print Flyer (8.5" x 11")</div>
+    <div class="flyer">
+      <div class="flyer-content">
+        <div class="flyer-header">
+          <div class="flyer-logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <defs>
+                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+              <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#g1)" opacity="0.3"/>
+              <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#g1)" opacity="0.6"/>
+              <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#g1)"/>
+              <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            </svg>
+            <span class="flyer-logo-text">Tax<span>Sky</span> AI</span>
+          </div>
+          <div class="flyer-badge">🎉 Tax Season 2025</div>
+        </div>
+
+        <div class="flyer-hero">
+          <h1 class="flyer-headline">
+            File Your Taxes in<br>
+            <span class="highlight">15 Minutes</span><br>
+            with AI
+          </h1>
+          <p class="flyer-subhead">
+            Just chat naturally with our AI assistant. No confusing forms. Maximum refund guaranteed.
+          </p>
+        </div>
+
+        <div class="flyer-stats">
+          <div class="flyer-stat">
+            <div class="flyer-stat-value">$3,247</div>
+            <div class="flyer-stat-label">Average Refund</div>
+          </div>
+          <div class="flyer-stat">
+            <div class="flyer-stat-value">15 min</div>
+            <div class="flyer-stat-label">Average Time</div>
+          </div>
+          <div class="flyer-stat">
+            <div class="flyer-stat-value">50K+</div>
+            <div class="flyer-stat-label">Happy Filers</div>
+          </div>
+          <div class="flyer-stat">
+            <div class="flyer-stat-value">4.9⭐</div>
+            <div class="flyer-stat-label">Rating</div>
+          </div>
+        </div>
+
+        <div class="flyer-features">
+          <div class="flyer-feature">
+            <span class="flyer-feature-icon">💬</span>
+            <div class="flyer-feature-text">
+              <h4>Chat to File</h4>
+              <p>Just talk naturally about your taxes. No confusing forms.</p>
+            </div>
+          </div>
+          <div class="flyer-feature">
+            <span class="flyer-feature-icon">📷</span>
+            <div class="flyer-feature-text">
+              <h4>Snap Your W-2</h4>
+              <p>Take a photo and we extract all the data automatically.</p>
+            </div>
+          </div>
+          <div class="flyer-feature">
+            <span class="flyer-feature-icon">💰</span>
+            <div class="flyer-feature-text">
+              <h4>Maximum Refund</h4>
+              <p>AI finds deductions that humans miss. Guaranteed.</p>
+            </div>
+          </div>
+          <div class="flyer-feature">
+            <span class="flyer-feature-icon">🌐</span>
+            <div class="flyer-feature-text">
+              <h4>Your Language</h4>
+              <p>English, Vietnamese, Spanish and more.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flyer-qr-section">
+          <div class="flyer-qr">
+            [QR CODE]<br>
+            Scan to Start
+          </div>
+          <div class="flyer-qr-text">
+            <h3>Start Filing FREE Today!</h3>
+            <p>Scan the QR code or visit:</p>
+            <div class="flyer-url">taxskyai.com</div>
+          </div>
+        </div>
+
+        <div class="flyer-footer">
+          <div class="flyer-contact">
+            Call us: <strong>+1-844-737-4799</strong><br>
+            <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="02717772726d70764276637a71697b2c616d6f">[email&#160;protected]</a>
+          </div>
+          <div class="flyer-trust">
+            <span class="flyer-trust-badge">✓ IRS Authorized</span>
+            <span class="flyer-trust-badge">✓ SOC 2 Certified</span>
+            <span class="flyer-trust-badge">✓ 256-bit SSL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business Cards -->
+  <div>
+    <div class="label">Business Cards (3.5" x 2")</div>
+    <div class="business-card-container">
+      <div class="business-card business-card-front">
+        <div class="bc-content">
+          <div>
+            <div class="bc-logo">
+              <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#g2)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#g2)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#g2)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="bc-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <div class="bc-tagline">Smart Tax Filing Made Simple</div>
+          </div>
+          <div class="bc-info">
+            <div class="bc-contact">
+              <strong>+1-844-737-4799</strong><br>
+              <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="31424441415e434571455049425a481f525e5c">[email&#160;protected]</a><br>
+              San Jose, CA
+            </div>
+            <div class="bc-website">taxskyai.com</div>
+          </div>
+        </div>
+      </div>
+      <div class="business-card business-card-back">
+        <div class="bc-back-content">
+          <div class="bc-back-logo">TaxSky AI</div>
+          <div class="bc-back-tagline">File Taxes in 15 Minutes with AI 💬</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Door Hanger -->
+  <div>
+    <div class="label">Door Hanger</div>
+    <div class="door-hanger">
+      <div class="dh-content">
+        <div class="dh-logo">Tax<span>Sky</span> AI</div>
+        <h2 class="dh-headline">
+          Get Your<br>
+          <span class="highlight">Maximum</span><br>
+          Refund!
+        </h2>
+        <p class="dh-subhead">
+          File your taxes by chatting with AI. Fast, easy, and secure.
+        </p>
+        <div class="dh-refund">
+          <div class="dh-refund-label">Average Refund</div>
+          <div class="dh-refund-amoun

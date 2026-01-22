@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxSky AI - Social Media Graphics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #1a1a2e;
+      padding: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+    }
+
+    h1 {
+      width: 100%;
+      text-align: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .graphic-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .label {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    /* Instagram Square Post - 1080x1080 scaled to 400x400 */
+    .ig-post {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .ig-post::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .ig-post::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .ig-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ig-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .ig-logo svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .ig-logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .ig-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ig-headline {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .ig-headline .highlight {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ig-stats {
+      display: flex;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .ig-stat {
+      text-align: left;
+    }
+
+    .ig-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .ig-stat-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .ig-cta {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 16px 24px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 700;
+      color: white;
+      font-size: 16px;
+    }
+
+    /* Instagram Story - 1080x1920 scaled to 225x400 */
+    .ig-story {
+      width: 225px;
+      height: 400px;
+      background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+      border-radius: 20px;
+      padding: 30px 20px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+
+    .ig-story::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .story-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .story-logo {
+      margin-bottom: 20px;
+    }
+
+    .story-headline {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.3;
+      margin-bottom: 15px;
+    }
+
+    .story-subhead {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .story-refund {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .story-refund-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .story-refund-amount {
+      font-size: 36px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .story-cta {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    .story-cta-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .story-swipe {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Facebook Ad - 1200x628 scaled to 400x209 */
+    .fb-ad {
+      width: 400px;
+      height: 209px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 25px 30px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fb-ad::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .fb-left {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    .fb-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .fb-logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .fb-logo-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .fb-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-headline {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .fb-subhead {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 15px;
+    }
+
+    .fb-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      color: white;
+      font-size: 13px;
+    }
+
+    .fb-right {
+      position: relative;
+      z-index: 1;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 15px 20px;
+      text-align: center;
+    }
+
+    .fb-refund-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 3px;
+    }
+
+    .fb-refund-amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    /* Twitter/X Header - 1500x500 scaled to 450x150 */
+    .twitter-header {
+      width: 450px;
+      height: 150px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 20px 30px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .twitter-header::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      right: 0;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .twitter-left {
+      position: relative;
+      z-index: 1;
+    }
+
+    .twitter-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .twitter-logo svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .twitter-logo-text {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .twitter-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .twitter-tagline {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .twitter-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 25px;
+    }
+
+    .twitter-stat {
+      text-align: center;
+    }
+
+    .twitter-stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .twitter-stat-value.green {
+      color: #10b981;
+    }
+
+    .twitter-stat-label {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* Logo SVG */
+    .logo-svg {
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>TaxSky AI - Social Media Graphics</h1>
+  
+  <!-- Instagram Post -->
+  <div class="graphic-container">
+    <div class="label">Instagram Post (1080×1080)</div>
+    <div class="ig-post">
+      <div class="ig-content">
+        <div class="ig-logo">
+          <svg viewBox="0 0 40 40" fill="none">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#g1)" opacity="0.3"/>
+            <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#g1)" opacity="0.6"/>
+            <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#g1)"/>
+            <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="ig-logo-text">Tax<span>Sky</span> AI</span>
+        </div>
+        <h2 class="ig-headline">
+          File Taxes in<br>
+          <span class="highlight">15 Minutes</span><br>
+          with AI 💬
+        </h2>
+        <div class="ig-stats">
+          <div class="ig-stat">
+            <div class="ig-stat-value">$3,247</div>
+            <div class="ig-stat-label">Avg. Refund</div>
+          </div>
+          <div class="ig-stat">
+            <div class="ig-stat-value">50K+</div>
+            <div class="ig-stat-label">Happy Filers</div>
+          </div>
+        </div>
+      </div>
+      <div class="ig-cta">Start FREE → taxskyai.com</div>
+    </div>
+  </div>
+
+  <!-- Instagram Story -->
+  <div class="graphic-container">
+    <div class="label">Instagram Story (1080×1920)</div>
+    <div class="ig-story">
+      <div class="story-content">
+        <div class="story-logo">
+          <svg width="50" height="50" viewBox="0 0 40 40" fill="none">
+            <defs>
+              <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#g2)" opacity="0.3"/>
+            <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#g2)" opacity="0.6"/>
+            <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#g2)"/>
+            <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <h2 class="story-headline">Just Chat<br>to File Taxes 💬</h2>
+        <p class="story-subhead">No forms. No confusion.<br>AI handles everything.</p>
+        <div class="story-refund">
+          <div class="story-refund-label">Average Refund</div>
+          <div class="story-refund-amount">$3,247</div>
+        </div>
+      </div>
+      <div class="story-cta">
+        <div class="story-cta-btn">Start FREE Now</div>
+        <div class="story-swipe">↑ Swipe Up</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Facebook Ad -->
+  <div class="graphic-container">
+    <div class="label">Facebook Ad (1200×628)</div>
+    <div class="fb-ad">
+      <div class="fb-left">
+        <div class="fb-logo">
+          <svg viewBox="0 0 40 40" fill="none">
+            <defs>
+              <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#g3)" opacity="0.3"/>
+            <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#g3)" opacity="0.6"/>
+            <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#g3)"/>
+            <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="fb-logo-text">Tax<span>Sky</span> AI</span>
+        </div>
+        <h2 class="fb-headline">File Taxes in 15 Min<br>with AI Chat 💬</h2>
+        <p class="fb-subhead">No forms needed. Just talk to our AI.</p>
+        <div class="fb-cta">Start FREE →</div>
+      </div>
+      <div class="fb-right">
+        <div class="fb-refund-label">Avg. Refund</div>
+        <div class="fb-refund-amount">$3,247</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Twitter Header -->
+  <div class="graphic-container">
+    <div class="label">Twitter/X Header (1500×500)</div>
+    <div class="twitter-header">
+      <div class="twitter-left">
+        <div class="twitter-logo">
+          <svg viewBox="0 0 40 40" fill="none">
+            <defs>
+              <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#8b5cf6"/>
+              </linearGradient>
+            </defs>
+            <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#g4)" opacity="0.3"/>
+            <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#g4)" opacity="0.6"/>
+            <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#g4)"/>
+            <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="twitter-logo-text">Tax<span>Sky</span> AI</span>
+        </div>
+        <p class="twitter-tagline">Smart Tax Filing Made Simple | 📞 +1-844-737-4799</p>
+      </div>
+      <div class="twitter-right">
+        <div class="twitter-stat">
+          <div class="twitter-stat-value green">$3,247</div>
+          <div class="twitter-stat-label">Avg. Refund</div>
+        </div>
+        <div class="twitter-stat">
+          <div class="twitter-stat-value">15 min</div>
+          <div class="twitter-stat-label">Avg. Time</div>
+        </div>
+        <div class="twitter-stat">
+          <div class="twitter-stat-value">50K+</div>
+          <div class="twitter-stat-label">Filers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

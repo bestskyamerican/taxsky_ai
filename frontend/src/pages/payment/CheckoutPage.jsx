@@ -1,11 +1,11 @@
 // ============================================================
-// CHECKOUT PAGE - With Multi-Language Support
+// CHECKOUT PAGE - Stripe Payment Form
 // ============================================================
 // Location: frontend/src/pages/Payment/CheckoutPage.jsx
 // ============================================================
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useLanguage } from '../../contexts/LanguageContext';
@@ -16,13 +16,14 @@ const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 
 // ============================================================
-// TRANSLATIONS (Checkout-specific)
+// TRANSLATIONS
 // ============================================================
 const checkoutTranslations = {
   en: {
     youArePurchasing: "You're purchasing",
     taxYear: "Tax Year",
     subtotal: "Subtotal",
+    stateReturn: "State Return",
     tax: "Tax",
     total: "Total",
     moneyBack: "30-day money-back guarantee",
@@ -43,12 +44,15 @@ const checkoutTranslations = {
     backToPricing: "Back to Pricing",
     preparingCheckout: "Preparing checkout...",
     unableToInit: "Unable to initialize payment. Please try again.",
-    alreadyPurchased: "You have already purchased this plan!"
+    alreadyPurchased: "You have already purchased this plan!",
+    federalFiling: "Federal Filing",
+    federalPlusState: "Federal + State Filing"
   },
   vi: {
     youArePurchasing: "Bạn đang mua",
     taxYear: "Năm Thuế",
     subtotal: "Tạm tính",
+    stateReturn: "Khai Thuế Tiểu Bang",
     tax: "Thuế",
     total: "Tổng cộng",
     moneyBack: "Hoàn tiền trong 30 ngày",
@@ -69,12 +73,15 @@ const checkoutTranslations = {
     backToPricing: "Quay Lại Bảng Giá",
     preparingCheckout: "Đang chuẩn bị thanh toán...",
     unableToInit: "Không thể khởi tạo thanh toán. Vui lòng thử lại.",
-    alreadyPurchased: "Bạn đã mua gói này rồi!"
+    alreadyPurchased: "Bạn đã mua gói này rồi!",
+    federalFiling: "Khai Thuế Liên Bang",
+    federalPlusState: "Liên Bang + Tiểu Bang"
   },
   es: {
     youArePurchasing: "Estás comprando",
     taxYear: "Año Fiscal",
     subtotal: "Subtotal",
+    stateReturn: "Declaración Estatal",
     tax: "Impuesto",
     total: "Total",
     moneyBack: "Garantía de devolución de 30 días",
@@ -95,60 +102,16 @@ const checkoutTranslations = {
     backToPricing: "Volver a Precios",
     preparingCheckout: "Preparando pago...",
     unableToInit: "No se pudo iniciar el pago. Por favor intenta de nuevo.",
-    alreadyPurchased: "¡Ya has comprado este plan!"
+    alreadyPurchased: "¡Ya has comprado este plan!",
+    federalFiling: "Declaración Federal",
+    federalPlusState: "Federal + Estatal"
   }
 };
 
-// Plan names translations
-const planNames = {
-  en: {
-    single_simple: 'Single Filing',
-    single_plus: 'Single Plus',
-    married_simple: 'Married Filing',
-    family: 'Family Filing',
-    head_of_household: 'Head of Household',
-    self_employed: 'Self-Employed',
-    self_employed_family: 'Self-Employed Family',
-    premium: 'Premium + CPA'
-  },
-  vi: {
-    single_simple: 'Khai Thuế Độc Thân',
-    single_plus: 'Độc Thân Plus',
-    married_simple: 'Khai Thuế Vợ Chồng',
-    family: 'Khai Thuế Gia Đình',
-    head_of_household: 'Chủ Hộ',
-    self_employed: 'Tự Kinh Doanh',
-    self_employed_family: 'Tự KD + Gia Đình',
-    premium: 'Premium + CPA'
-  },
-  es: {
-    single_simple: 'Declaración Soltero',
-    single_plus: 'Soltero Plus',
-    married_simple: 'Declaración Casados',
-    family: 'Declaración Familiar',
-    head_of_household: 'Jefe de Familia',
-    self_employed: 'Autónomo',
-    self_employed_family: 'Autónomo + Familia',
-    premium: 'Premium + CPA'
-  }
-};
-
-// Plans data
-const PLANS = {
-  single_simple: { id: 'single_simple', price: 1999, icon: '👤' },
-  single_plus: { id: 'single_plus', price: 2999, icon: '👤➕' },
-  married_simple: { id: 'married_simple', price: 2999, icon: '👫' },
-  family: { id: 'family', price: 3999, icon: '👨‍👩‍👧‍👦' },
-  head_of_household: { id: 'head_of_household', price: 3499, icon: '👨‍👧' },
-  self_employed: { id: 'self_employed', price: 4999, icon: '💼' },
-  self_employed_family: { id: 'self_employed_family', price: 5999, icon: '💼👨‍👩‍👧' },
-  premium: { id: 'premium', price: 7999, icon: '⭐' }
-};
-
 // ============================================================
-// PAYMENT FORM
+// PAYMENT FORM COMPONENT
 // ============================================================
-function PaymentForm({ plan, planName, clientSecret, onSuccess, t }) {
+function PaymentForm({ plan, clientSecret, onSuccess, t }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -193,6 +156,8 @@ function PaymentForm({ plan, planName, clientSecret, onSuccess, t }) {
       setLoading(false);
     }
   };
+
+  const totalAmount = (plan.totalPrice / 100).toFixed(2);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -265,47 +230,48 @@ function PaymentForm({ plan, planName, clientSecret, onSuccess, t }) {
             <span style={{
               width: '20px',
               height: '20px',
-              border: '3px solid white',
+              border: '2px solid #fff',
               borderTopColor: 'transparent',
               borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
+              animation: 'spin 1s linear infinite',
+              display: 'inline-block'
             }}></span>
             {t.processing}
           </>
         ) : (
-          <>🔒 {t.pay} ${(plan.price / 100).toFixed(2)}</>
+          <>
+            🔒 {t.pay} ${totalAmount}
+          </>
         )}
       </button>
 
-      <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#64748b' }}>
-        {t.secureEncrypted}
+      <p style={{ 
+        textAlign: 'center', 
+        marginTop: '16px', 
+        fontSize: '13px',
+        color: '#64748b'
+      }}>
+        🔐 {t.secureEncrypted}
       </p>
-      
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </form>
   );
 }
 
 // ============================================================
-// CHECKOUT PAGE
+// CHECKOUT PAGE COMPONENT
 // ============================================================
 export default function CheckoutPage() {
   const { planId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { lang } = useLanguage();
+  const { lang } = useLanguage ? useLanguage() : { lang: 'en' };
   
   const [plan, setPlan] = useState(null);
   const [clientSecret, setClientSecret] = useState(null);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   
-  // Get translations
   const t = checkoutTranslations[lang] || checkoutTranslations.en;
-  const pNames = planNames[lang] || planNames.en;
   
   const user = JSON.parse(localStorage.getItem('taxsky_user') || localStorage.getItem('user') || '{}');
   const token = localStorage.getItem('taxsky_token') || localStorage.getItem('token');
@@ -317,17 +283,49 @@ export default function CheckoutPage() {
       return;
     }
     
-    if (PLANS[planId]) {
-      setPlan({ ...PLANS[planId], name: pNames[planId] });
-      createPaymentIntent();
-    } else {
-      console.error('Unknown plan:', planId);
-      navigate('/payment/pricing');
-    }
-  }, [planId, userId, lang]);
+    loadPlanAndCreateIntent();
+  }, [planId]);
 
-  async function createPaymentIntent() {
+  async function loadPlanAndCreateIntent() {
     try {
+      // Try to get plan data from localStorage (set by PaymentFlow)
+      const savedPayment = localStorage.getItem('taxsky_payment');
+      let planData = null;
+      
+      if (savedPayment) {
+        const parsed = JSON.parse(savedPayment);
+        if (parsed.planId === planId) {
+          planData = {
+            id: parsed.planId,
+            name: parsed.planName,
+            icon: parsed.planIcon,
+            price: parsed.price,
+            statePrice: parsed.statePrice || 0,
+            totalPrice: parsed.totalPrice,
+            hasState: parsed.hasState,
+            taxYear: parsed.taxYear || 2024
+          };
+        }
+      }
+      
+      // Fallback: get amount from URL query params
+      if (!planData) {
+        const amountFromUrl = searchParams.get('amount');
+        const hasState = searchParams.get('state') === 'true';
+        
+        planData = {
+          id: planId,
+          name: formatPlanName(planId),
+          icon: getPlanIcon(planId),
+          totalPrice: amountFromUrl ? parseInt(amountFromUrl) : 2999,
+          hasState: hasState,
+          taxYear: 2024
+        };
+      }
+      
+      setPlan(planData);
+      
+      // Create payment intent with Stripe
       const res = await fetch(`${API_URL}/api/payments/create-intent`, {
         method: 'POST',
         headers: { 
@@ -335,10 +333,14 @@ export default function CheckoutPage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          userId,
+          userId: userId,
           email: user.email,
-          name: user.name,
-          planId
+          name: user.name || user.firstName,
+          productType: planId,
+          planName: planData.name,
+          amount: planData.totalPrice,
+          hasState: planData.hasState,
+          taxYear: planData.taxYear
         })
       });
       
@@ -360,7 +362,33 @@ export default function CheckoutPage() {
     }
   }
 
+  function formatPlanName(id) {
+    const names = {
+      free: 'Free Estimate',
+      basic: 'Basic',
+      standard: 'Standard',
+      plus: 'Plus',
+      selfEmployed: 'Self-Employed',
+      premium: 'Premium'
+    };
+    return names[id] || id.charAt(0).toUpperCase() + id.slice(1).replace(/_/g, ' ');
+  }
+
+  function getPlanIcon(id) {
+    const icons = {
+      free: '🆓',
+      basic: '📄',
+      standard: '⭐',
+      plus: '💎',
+      selfEmployed: '💼',
+      premium: '👑'
+    };
+    return icons[id] || '📄';
+  }
+
   function handleSuccess() {
+    // Clear saved payment data
+    localStorage.removeItem('taxsky_payment');
     setSuccess(true);
   }
 
@@ -400,7 +428,7 @@ export default function CheckoutPage() {
               <strong>{t.plan}:</strong> {plan?.name}
             </p>
             <p style={{ margin: '8px 0', color: '#475569' }}>
-              <strong>{t.amount}:</strong> ${(plan?.price / 100).toFixed(2)}
+              <strong>{t.amount}:</strong> ${(plan?.totalPrice / 100).toFixed(2)}
             </p>
             <p style={{ margin: '8px 0', color: '#475569' }}>
               <strong>{t.email}:</strong> {user.email}
@@ -443,7 +471,8 @@ export default function CheckoutPage() {
         overflow: 'hidden',
         display: 'flex',
         maxWidth: '900px',
-        width: '100%'
+        width: '100%',
+        flexWrap: 'wrap'
       }}>
         {/* Left: Order Summary */}
         <div style={{
@@ -451,7 +480,8 @@ export default function CheckoutPage() {
           color: 'white',
           padding: '40px',
           width: '40%',
-          minWidth: '280px'
+          minWidth: '280px',
+          flex: '1 1 280px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
             <span style={{ fontSize: '32px' }}>🌤️</span>
@@ -466,16 +496,26 @@ export default function CheckoutPage() {
               <span style={{ fontSize: '32px' }}>{plan?.icon}</span>
               <div>
                 <h3 style={{ margin: '0 0 4px', fontSize: '22px' }}>{plan?.name}</h3>
-                <p style={{ color: '#94a3b8', fontSize: '14px', margin: 0 }}>{t.taxYear} 2024</p>
+                <p style={{ color: '#94a3b8', fontSize: '14px', margin: 0 }}>
+                  {plan?.hasState ? t.federalPlusState : t.federalFiling}
+                </p>
               </div>
             </div>
           </div>
           
           <div style={{ borderTop: '1px solid #334155', paddingTop: '24px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <span style={{ color: '#94a3b8' }}>{t.subtotal}</span>
-              <span>${plan ? (plan.price / 100).toFixed(2) : '0.00'}</span>
-            </div>
+            {plan?.price && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <span style={{ color: '#94a3b8' }}>{t.subtotal}</span>
+                <span>${(plan.price / 100).toFixed(2)}</span>
+              </div>
+            )}
+            {plan?.hasState && plan?.statePrice > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <span style={{ color: '#94a3b8' }}>{t.stateReturn}</span>
+                <span>${(plan.statePrice / 100).toFixed(2)}</span>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: '#94a3b8' }}>{t.tax}</span>
               <span>$0.00</span>
@@ -485,7 +525,9 @@ export default function CheckoutPage() {
           <div style={{ borderTop: '1px solid #334155', paddingTop: '24px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '24px', fontWeight: '700' }}>
               <span>{t.total}</span>
-              <span>${plan ? (plan.price / 100).toFixed(2) : '0.00'}</span>
+              <span style={{ color: '#22c55e' }}>
+                ${plan ? (plan.totalPrice / 100).toFixed(2) : '0.00'}
+              </span>
             </div>
           </div>
           
@@ -497,7 +539,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right: Payment Form */}
-        <div style={{ padding: '40px', flex: 1 }}>
+        <div style={{ padding: '40px', flex: '1 1 320px', minWidth: '320px' }}>
           <h2 style={{ marginTop: 0, marginBottom: '8px', color: '#1e293b' }}>
             {t.paymentDetails}
           </h2>
@@ -527,7 +569,7 @@ export default function CheckoutPage() {
                 {user.name?.charAt(0) || user.firstName?.charAt(0) || 'U'}
               </div>
               <div>
-                <div style={{ fontWeight: '600' }}>{user.name || user.firstName}</div>
+                <div style={{ fontWeight: '600' }}>{user.name || user.firstName || 'User'}</div>
                 <div style={{ fontSize: '13px', color: '#64748b' }}>{user.email}</div>
               </div>
             </div>
@@ -550,7 +592,6 @@ export default function CheckoutPage() {
             <Elements stripe={stripePromise} options={{ clientSecret }}>
               <PaymentForm 
                 plan={plan}
-                planName={plan?.name}
                 clientSecret={clientSecret}
                 onSuccess={handleSuccess}
                 t={t}

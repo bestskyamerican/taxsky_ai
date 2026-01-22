@@ -18,6 +18,11 @@ import CPARegister from './pages/CPARegister';
 import CPADashboard from './pages/CPADashboard';
 import CPAAdmin from './pages/CPAAdmin';
 
+import FAQPage from './pages/FAQPage';
+import InvestorPage from './pages/InvestorPage';
+import CareerPage from './pages/CareerPage';
+import NewsPage from './pages/NewsPage';
+
 // Payment Imports
 import { 
   PricingPage, 
@@ -211,354 +216,278 @@ function LoginPage() {
         <div style={{...loginStyles.orb, ...loginStyles.orb3}} />
       </div>
 
-      <div style={{
-        ...loginStyles.container,
-        opacity: mounted ? 1 : 0,
-        transform: mounted ? 'translateY(0)' : 'translateY(20px)'
-      }}>
-        {/* Header with Logo */}
-        <div style={loginStyles.header}>
-          <div style={loginStyles.logoIcon}>
-            {/* TaxSky AI Logo - Tech Hexagon */}
-            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
-              <defs>
-                <linearGradient id="hexGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#6366f1"/>
-                  <stop offset="100%" stopColor="#8b5cf6"/>
-                </linearGradient>
-                <filter id="glowLogin">
-                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              {/* Hexagon layers */}
-              <polygon points="48,8 72,20 72,52 48,64 24,52 24,20" fill="url(#hexGradLogin)" opacity="0.2"/>
-              <polygon points="48,16 68,26 68,50 48,60 28,50 28,26" fill="url(#hexGradLogin)" opacity="0.4"/>
-              <polygon points="48,24 64,32 64,48 48,56 32,48 32,32" fill="url(#hexGradLogin)" filter="url(#glowLogin)"/>
-              {/* Dollar sign */}
-              <path d="M48 34 L48 50 M42 38 Q48 34 54 38 Q48 42 42 46 Q48 50 54 46" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none"/>
-            </svg>
-          </div>
-          <h1 style={loginStyles.title}>TaxSky AI</h1>
-          <p style={loginStyles.subtitle}>Smart Tax Filing Made Easy</p>
+      {/* Main Content */}
+      <div style={loginStyles.container}>
+        {/* Logo */}
+        <div style={loginStyles.logoSection}>
+          <div style={loginStyles.logoIcon}>🌤️</div>
+          <h1 style={loginStyles.logoText}>TaxSky</h1>
         </div>
 
         {/* Login Card */}
         <div style={loginStyles.card}>
-          <h2 style={loginStyles.cardTitle}>Almost There!</h2>
-          <p style={loginStyles.cardText}>Sign in with Google to start filing your taxes</p>
+          <h2 style={loginStyles.title}>Welcome Back</h2>
+          <p style={loginStyles.subtitle}>
+            Sign in to continue filing your {savedStateName} taxes
+          </p>
 
           {/* State Badge */}
-          {hasPreferences() && (
-            <div style={loginStyles.stateBadge}>
-              <span style={loginStyles.stateIcon}>📍</span>
-              <span style={loginStyles.stateText}>Filing for: <strong>{savedStateName}</strong></span>
-              <button onClick={() => navigate("/")} style={loginStyles.changeBtn}>Change</button>
-            </div>
-          )}
+          <div style={loginStyles.stateBadge}>
+            <span style={loginStyles.stateIcon}>📍</span>
+            <span>{savedStateName}</span>
+          </div>
 
-          {/* Error Message */}
-          {error && <div style={loginStyles.errorBox}>⚠️ {error}</div>}
-
-          {/* Google Sign In Button */}
-          <div style={loginStyles.buttonContainer}>
+          {/* Google Button Container */}
+          <div style={loginStyles.googleButtonContainer}>
             {isLoading ? (
-              <div style={loginStyles.loadingBox}>
-                <div style={loginStyles.spinnerSmall}></div>
+              <div style={loginStyles.loadingSpinner}>
+                <div style={loginStyles.spinner}></div>
                 <span>Signing in...</span>
               </div>
             ) : (
-              <div id="google-signin-button" style={loginStyles.googleBtn}></div>
+              <div id="google-signin-button" style={loginStyles.googleButton}></div>
             )}
           </div>
 
-          {!GOOGLE_CLIENT_ID && (
-            <div style={loginStyles.warningBox}>⚠️ Google Client ID not configured.</div>
+          {/* Error Message */}
+          {error && (
+            <div style={loginStyles.errorBox}>
+              <span>⚠️</span>
+              <span>{error}</span>
+            </div>
           )}
+
+          {/* Divider */}
+          <div style={loginStyles.divider}>
+            <span style={loginStyles.dividerLine}></span>
+            <span style={loginStyles.dividerText}>Secure Login</span>
+            <span style={loginStyles.dividerLine}></span>
+          </div>
 
           {/* Benefits */}
           <div style={loginStyles.benefits}>
-            <p style={loginStyles.benefitsTitle}>Why sign in?</p>
-            <div style={loginStyles.benefitItem}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              <span>Save your tax return progress</span>
+            <div style={loginStyles.benefit}>
+              <span style={loginStyles.benefitIcon}>🔒</span>
+              <span>Bank-level encryption</span>
             </div>
-            <div style={loginStyles.benefitItem}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              <span>Secure your personal data</span>
+            <div style={loginStyles.benefit}>
+              <span style={loginStyles.benefitIcon}>✅</span>
+              <span>IRS e-file authorized</span>
             </div>
-            <div style={loginStyles.benefitItem}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              <span>Access from any device</span>
-            </div>
-            <div style={loginStyles.benefitItem}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#10b981"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              <span>File multiple returns</span>
+            <div style={loginStyles.benefit}>
+              <span style={loginStyles.benefitIcon}>💬</span>
+              <span>AI-powered assistance</span>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <p style={loginStyles.footer}>
-          By signing in, you agree to our Terms of Service and Privacy Policy
-        </p>
-        <a href="/cpa/login" style={loginStyles.cpaLink}>👨‍💼 CPA Portal</a>
+        {/* Footer Links */}
+        <div style={loginStyles.footer}>
+          <a href="/" style={loginStyles.footerLink}>← Change State</a>
+          <span style={loginStyles.footerDot}>•</span>
+          <a href="/cpa/login" style={loginStyles.footerLink}>CPA Portal</a>
+        </div>
       </div>
-
-      {/* Global Styles for animations */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
-        @keyframes pulse {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.05); }
-        }
-        
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        
-        #google-signin-button {
-          display: flex;
-          justify-content: center;
-        }
-      `}</style>
     </div>
   );
 }
 
 // ============================================================
-// LOGIN PAGE STYLES - DARK THEME
+// LOGIN PAGE STYLES
 // ============================================================
 const loginStyles = {
   page: {
     minHeight: '100vh',
-    background: '#0f172a',
-    position: 'relative',
-    overflow: 'hidden',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '20px',
-    fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+    position: 'relative',
+    overflow: 'hidden',
   },
-  
   bgGradient: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 100% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%), radial-gradient(ellipse at 0% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 50%)',
+    inset: 0,
+    background: 'radial-gradient(ellipse at top, rgba(99,102,241,0.15) 0%, transparent 50%)',
   },
-  
   bgOrbs: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    inset: 0,
     overflow: 'hidden',
-    pointerEvents: 'none',
   },
-  
   orb: {
     position: 'absolute',
     borderRadius: '50%',
-    filter: 'blur(60px)',
-    animation: 'pulse 8s ease-in-out infinite',
+    filter: 'blur(80px)',
+    opacity: 0.4,
   },
-  
   orb1: {
-    width: 400,
-    height: 400,
-    background: 'rgba(59, 130, 246, 0.2)',
-    top: '-10%',
-    right: '-5%',
+    width: '400px',
+    height: '400px',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    top: '-100px',
+    right: '-100px',
   },
-  
   orb2: {
-    width: 300,
-    height: 300,
-    background: 'rgba(139, 92, 246, 0.15)',
-    bottom: '10%',
-    left: '-5%',
-    animationDelay: '2s',
+    width: '300px',
+    height: '300px',
+    background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+    bottom: '-50px',
+    left: '-50px',
   },
-  
   orb3: {
-    width: 200,
-    height: 200,
-    background: 'rgba(16, 185, 129, 0.15)',
+    width: '200px',
+    height: '200px',
+    background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
     top: '50%',
     left: '50%',
-    animationDelay: '4s',
+    transform: 'translate(-50%, -50%)',
+    opacity: 0.2,
   },
-  
   container: {
     position: 'relative',
+    zIndex: 10,
+    padding: '20px',
     width: '100%',
-    maxWidth: 420,
+    maxWidth: '420px',
+  },
+  logoSection: {
     textAlign: 'center',
-    transition: 'all 0.6s ease-out',
+    marginBottom: '32px',
   },
-  
-  header: {
-    marginBottom: 32,
-  },
-  
   logoIcon: {
-    marginBottom: 16,
+    fontSize: '48px',
+    marginBottom: '8px',
   },
-  
-  title: {
-    fontSize: 36,
-    fontWeight: 800,
+  logoText: {
+    fontSize: '32px',
+    fontWeight: '800',
     color: '#fff',
     margin: 0,
-    letterSpacing: '-0.5px',
+    letterSpacing: '-1px',
   },
-  
-  subtitle: {
-    fontSize: 16,
-    color: '#94a3b8',
-    marginTop: 8,
-  },
-  
   card: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 24,
-    padding: 32,
-    marginBottom: 24,
-    textAlign: 'left',
+    background: 'rgba(30, 41, 59, 0.8)',
+    backdropFilter: 'blur(20px)',
+    borderRadius: '24px',
+    padding: '40px 32px',
+    border: '1px solid rgba(255,255,255,0.1)',
+    boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
   },
-  
-  cardTitle: {
-    fontSize: 24,
-    fontWeight: 700,
+  title: {
+    fontSize: '24px',
+    fontWeight: '700',
     color: '#fff',
     margin: '0 0 8px',
+    textAlign: 'center',
   },
-  
-  cardText: {
-    fontSize: 15,
+  subtitle: {
+    fontSize: '15px',
     color: '#94a3b8',
-    marginBottom: 24,
+    margin: '0 0 24px',
+    textAlign: 'center',
   },
-  
   stateBadge: {
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
-    gap: 8,
-    padding: '12px 16px',
-    background: 'rgba(59, 130, 246, 0.1)',
-    border: '1px solid rgba(59, 130, 246, 0.2)',
-    borderRadius: 12,
-    marginBottom: 24,
+    gap: '8px',
+    background: 'rgba(99,102,241,0.15)',
+    border: '1px solid rgba(99,102,241,0.3)',
+    borderRadius: '20px',
+    padding: '8px 16px',
+    fontSize: '14px',
+    color: '#a5b4fc',
+    margin: '0 auto 24px',
+    width: 'fit-content',
+    display: 'flex',
+    justifyContent: 'center',
   },
-  
   stateIcon: {
-    fontSize: 16,
+    fontSize: '14px',
   },
-  
-  stateText: {
-    fontSize: 14,
-    color: '#e2e8f0',
-    flex: 1,
-  },
-  
-  changeBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#60a5fa',
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: 'pointer',
-    textDecoration: 'underline',
-  },
-  
-  errorBox: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '12px 16px',
-    background: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid rgba(239, 68, 68, 0.2)',
-    borderRadius: 12,
-    color: '#f87171',
-    fontSize: 14,
-    marginBottom: 20,
-  },
-  
-  warningBox: {
-    padding: '12px 16px',
-    background: 'rgba(245, 158, 11, 0.1)',
-    border: '1px solid rgba(245, 158, 11, 0.2)',
-    borderRadius: 12,
-    color: '#fbbf24',
-    fontSize: 14,
-    marginTop: 16,
-  },
-  
-  buttonContainer: {
+  googleButtonContainer: {
     display: 'flex',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: '24px',
+    minHeight: '44px',
   },
-  
-  googleBtn: {
+  googleButton: {
     display: 'flex',
     justifyContent: 'center',
   },
-  
-  loadingBox: {
+  loadingSpinner: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
-    padding: '12px 24px',
+    gap: '12px',
     color: '#94a3b8',
-    fontSize: 15,
+    fontSize: '14px',
   },
-  
-  spinnerSmall: {
-    width: 20,
-    height: 20,
+  spinner: {
+    width: '20px',
+    height: '20px',
     border: '2px solid rgba(255,255,255,0.1)',
-    borderTopColor: '#3b82f6',
+    borderTopColor: '#6366f1',
     borderRadius: '50%',
     animation: 'spin 0.8s linear infinite',
   },
-  
-  benefits: {
-    paddingTop: 20,
-    borderTop: '1px solid rgba(255,255,255,0.06)',
-  },
-  
-  benefitsTitle: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#94a3b8',
-    marginBottom: 12,
-  },
-  
-  benefitItem: {
+  errorBox: {
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
-    fontSize: 14,
-    color: '#e2e8f0',
-    marginBottom: 8,
+    gap: '8px',
+    background: 'rgba(239, 68, 68, 0.15)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
+    borderRadius: '12px',
+    padding: '12px 16px',
+    color: '#fca5a5',
+    fontSize: '14px',
+    marginBottom: '16px',
   },
-  
+  divider: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    margin: '24px 0',
+  },
+  dividerLine: {
+    flex: 1,
+    height: '1px',
+    background: 'rgba(255,255,255,0.1)',
+  },
+  dividerText: {
+    fontSize: '12px',
+    color: '#64748b',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+  },
+  benefits: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  benefit: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    fontSize: '14px',
+    color: '#94a3b8',
+  },
+  benefitIcon: {
+    fontSize: '16px',
+  },
   footer: {
-    fontSize: 13,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '16px',
+    marginTop: '24px',
+  },
+  footerLink: {
+    fontSize: '14px',
+    color: '#64748b',
+    textDecoration: 'none',
+  },
+  footerDot: {
     color: '#475569',
-    marginBottom: 12,
-    textAlign: 'center',
   },
   
   cpaLink: {
@@ -720,18 +649,30 @@ export default function App() {
         {/* PROTECTED: Dashboard */}
         <Route path="/dashboard" element={<AuthProvider><ProtectedRoute><UserDashboard /></ProtectedRoute></AuthProvider>} />
 
-        {/* PAYMENT */}
+        {/* ========================================
+            PAYMENT ROUTES
+        ======================================== */}
         <Route path="/payment/pricing" element={<AuthProvider><PricingPage /></AuthProvider>} />
         <Route path="/payment/checkout/:planId" element={<AuthProvider><ProtectedRoute><CheckoutPage /></ProtectedRoute></AuthProvider>} />
         <Route path="/payment/success" element={<AuthProvider><ProtectedRoute><PaymentSuccess /></ProtectedRoute></AuthProvider>} />
         <Route path="/payment/history" element={<AuthProvider><ProtectedRoute><PaymentHistory /></ProtectedRoute></AuthProvider>} />
         <Route path="/pricing" element={<Navigate to="/payment/pricing" replace />} />
 
-        {/* CPA */}
+        {/* ========================================
+            CPA ROUTES
+        ======================================== */}
         <Route path="/cpa/login" element={<CPAAuthProvider><CPALogin /></CPAAuthProvider>} />
         <Route path="/cpa/register" element={<CPAAuthProvider><CPARegister /></CPAAuthProvider>} />
         <Route path="/cpa/dashboard" element={<CPAAuthProvider><CPAProtectedRoute><CPADashboard /></CPAProtectedRoute></CPAAuthProvider>} />
         <Route path="/cpa/admin" element={<CPAAuthProvider><CPAProtectedRoute><CPAAdmin /></CPAProtectedRoute></CPAAuthProvider>} />
+
+        {/* ========================================
+            PUBLIC INFO PAGES
+        ======================================== */}
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/investor" element={<InvestorPage />} />
+        <Route path="/career" element={<CareerPage />} />
+        <Route path="/news" element={<NewsPage />} />
 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxSky AI - Logo Concept 4 Refined</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0d0d14 100%);
+            min-height: 100vh;
+            padding: 40px;
+            color: #fff;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 50px;
+            font-size: 1.1rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #9ca3af;
+            margin: 50px 0 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-card {
+            background: linear-gradient(145deg, rgba(30, 30, 45, 0.6), rgba(20, 20, 30, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .logo-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .logo-label {
+            font-size: 0.85rem;
+            color: #6366f1;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .preview-row {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .preview-box {
+            flex: 1;
+            padding: 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-dark {
+            background: #08080c;
+        }
+
+        .preview-light {
+            background: #f8fafc;
+        }
+
+        .icon-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .size-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .download-section {
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .download-section h3 {
+            color: #a5b4fc;
+            margin-bottom: 15px;
+        }
+
+        .download-section p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .color-swatch {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 5px;
+            font-size: 0.65rem;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>TaxSky AI Logo</h1>
+    <p class="subtitle">Tech Hexagon Concept - Final Designs</p>
+
+    <!-- Primary Logo -->
+    <h2 class="section-title">🎯 Primary Logo (Full Color)</h2>
+    <div class="logo-grid">
+        <div class="logo-card">
+            <span class="logo-label">Dark Background</span>
+            <svg width="300" height="80" viewBox="0 0 300 80">
+                <defs>
+                    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1"/>
+                        <stop offset="100%" style="stop-color:#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#3b82f6"/>
+                        <stop offset="100%" style="stop-color:#06b6d4"/>
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <!-- Hexagon layers -->
+                <polygon points="42,12 62,2 82,12 82,35 62,45 42,35" fill="url(#hexGrad)" opacity="0.25"/>
+                <polygon points="35,22 55,12 75,22 75,45 55,55 35,45" fill="url(#hexGrad)" opacity="0.5"/>
+                <polygon points="40,32 58,23 76,32 76,52 58,62 40,52" fill="url(#hexGrad)" filter="url(#glow)"/>
+                <!-- Dollar sign -->
+                <path d="M58 38 L58 52 M52 42 Q58 38 64 42 Q58 46 52 50 Q58 54 64 50" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <!-- Text -->
+                <text x="95" y="50" font-family="Space Grotesk, sans-serif" font-size="36" font-weight="700" fill="white">Tax</text>
+                <text x="155" y="50" font-family="Space Grotesk, sans-serif" font-size="36" font-weight="700" fill="url(#textGrad)">Sky</text>
+                <text x="225" y="50" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="600" fill="#a78bfa">AI</text>
+            </svg>
+        </div>
+
+        <div class="logo-card">
+            <span class="logo-label">Light Background</span>
+            <div class="preview-box preview-light">
+                <svg width="300" height="80" viewBox="0 0 300 80">
+                    <defs>
+                        <linearGradient id="hexGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <polygon points="42,12 62,2 82,12 82,35 62,45 42,35" fill="url(#hexGrad2)" opacity="0.2"/>
+                    <polygon points="35,22 55,12 75,22 75,45 55,55 35,45" fill="url(#hexGrad2)" opacity="0.4"/>
+                    <polygon points="40,32 58,23 76,32 76,52 58,62 40,52" fill="url(#hexGrad2)"/>
+                    <path d="M58 38 L58 52 M52 42 Q58 38 64 42 Q58 46 52 50 Q58 54 64 50" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                    <text x="95" y="50" font-family="Space Grotesk, sans-serif" font-size="36" font-weight="700" fill="#1e1b4b">Tax</text>
+                    <text x="155" y="50" font-family="Space Grotesk, sans-serif" font-size="36" font-weight="700" fill="url(#textGrad2)">Sky</text>
+                    <text x="225" y="50" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="600" fill="#7c3aed">AI</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Compact Logo -->
+    <h2 class="section-title">📐 Compact Version</h2>
+    <div class="logo-grid">
+        <div class="logo-card">
+            <span class="logo-label">Horizontal Compact</span>
+            <svg width="220" height="50" viewBox="0 0 220 50">
+                <defs>
+                    <linearGradient id="hexGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1"/>
+                        <stop offset="100%" style="stop-color:#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="textGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#3b82f6"/>
+                        <stop offset="100%" style="stop-color:#06b6d4"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="22,8 35,2 48,8 48,22 35,28 22,22" fill="url(#hexGrad3)" opacity="0.4"/>
+                <polygon points="18,14 31,8 44,14 44,28 31,34 18,28" fill="url(#hexGrad3)"/>
+                <path d="M31 18 L31 28 M27 21 Q31 18 35 21 Q31 24 27 27 Q31 30 35 27" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                <text x="58" y="28" font-family="Space Grotesk, sans-serif" font-size="22" font-weight="700" fill="white">Tax</text>
+                <text x="100" y="28" font-family="Space Grotesk, sans-serif" font-size="22" font-weight="700" fill="url(#textGrad3)">Sky</text>
+                <text x="148" y="28" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="600" fill="#a78bfa">AI</text>
+            </svg>
+        </div>
+
+        <div class="logo-card">
+            <span class="logo-label">Stacked Version</span>
+            <svg width="120" height="100" viewBox="0 0 120 100">
+                <defs>
+                    <linearGradient id="hexGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1"/>
+                        <stop offset="100%" style="stop-color:#8b5cf6"/>
+                    </linearGradient>
+                    <linearGradient id="textGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#3b82f6"/>
+                        <stop offset="100%" style="stop-color:#06b6d4"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="50,8 70,0 90,8 90,30 70,38 50,30" fill="url(#hexGrad4)" opacity="0.3"/>
+                <polygon points="44,16 64,8 84,16 84,38 64,46 44,38" fill="url(#hexGrad4)" opacity="0.5"/>
+                <polygon points="48,24 66,16 84,24 84,44 66,52 48,44" fill="url(#hexGrad4)"/>
+                <path d="M66 30 L66 42 M60 34 Q66 30 72 34 Q66 38 60 42 Q66 46 72 42" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <text x="60" y="75" font-family="Space Grotesk, sans-serif" font-size="20" font-weight="700" fill="white" text-anchor="middle">Tax<tspan fill="url(#textGrad4)">Sky</tspan></text>
+                <text x="60" y="92" font-family="Space Grotesk, sans-serif" font-size="12" font-weight="600" fill="#a78bfa" text-anchor="middle">AI</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- App Icons -->
+    <h2 class="section-title">📱 App Icons</h2>
+    <div class="logo-card" style="max-width: 800px; margin: 0 auto;">
+        <div class="icon-grid">
+            <!-- 512x512 representation -->
+            <div>
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <defs>
+                        <linearGradient id="iconGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#0f0f1a"/>
+                            <stop offset="100%" style="stop-color:#1a1a2e"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+                    <polygon points="42,18 58,10 74,18 74,42 58,50 42,42" fill="url(#iconGrad1)" opacity="0.3"/>
+                    <polygon points="36,28 52,20 68,28 68,52 52,60 36,52" fill="url(#iconGrad1)" opacity="0.55"/>
+                    <polygon points="40,38 55,30 70,38 70,58 55,66 40,58" fill="url(#iconGrad1)"/>
+                    <path d="M55 44 L55 58 M49 48 Q55 44 61 48 Q55 52 49 56 Q55 60 61 56" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+                </svg>
+                <div class="size-label">512×512</div>
+            </div>
+
+            <!-- 192x192 -->
+            <div>
+                <svg width="80" height="80" viewBox="0 0 100 100">
+                    <rect width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+                    <polygon points="42,18 58,10 74,18 74,42 58,50 42,42" fill="url(#iconGrad1)" opacity="0.3"/>
+                    <polygon points="36,28 52,20 68,28 68,52 52,60 36,52" fill="url(#iconGrad1)" opacity="0.55"/>
+                    <polygon points="40,38 55,30 70,38 70,58 55,66 40,58" fill="url(#iconGrad1)"/>
+                    <path d="M55 44 L55 58 M49 48 Q55 44 61 48 Q55 52 49 56 Q55 60 61 56" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+                </svg>
+                <div class="size-label">192×192</div>
+            </div>
+
+            <!-- 96x96 -->
+            <div>
+                <svg width="60" height="60" viewBox="0 0 100 100">
+                    <rect width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+                    <polygon points="42,18 58,10 74,18 74,42 58,50 42,42" fill="url(#iconGrad1)" opacity="0.3"/>
+                    <polygon points="36,28 52,20 68,28 68,52 52,60 36,52" fill="url(#iconGrad1)" opacity="0.55"/>
+                    <polygon points="40,38 55,30 70,38 70,58 55,66 40,58" fill="url(#iconGrad1)"/>
+                    <path d="M55 44 L55 58 M49 48 Q55 44 61 48 Q55 52 49 56 Q55 60 61 56" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+                </svg>
+                <div class="size-label">96×96</div>
+            </div>
+
+            <!-- 48x48 -->
+            <div>
+                <svg width="48" height="48" viewBox="0 0 100 100">
+                    <rect width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+                    <polygon points="36,28 52,20 68,28 68,52 52,60 36,52" fill="url(#iconGrad1)" opacity="0.55"/>
+                    <polygon points="40,38 55,30 70,38 70,58 55,66 40,58" fill="url(#iconGrad1)"/>
+                    <path d="M55 44 L55 58 M49 48 Q55 44 61 48 Q55 52 49 56 Q55 60 61 56" stroke="white" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                </svg>
+                <div class="size-label">48×48</div>
+            </div>
+
+            <!-- 32x32 favicon -->
+            <div>
+                <svg width="32" height="32" viewBox="0 0 100 100">
+                    <rect width="100" height="100" rx="22" fill="url(#bgGrad)"/>
+                    <polygon points="40,38 55,30 70,38 70,58 55,66 40,58" fill="url(#iconGrad1)"/>
+                    <path d="M55 44 L55 58 M49 48 Q55 44 61 48 Q55 52 49 56 Q55 60 61 56" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+                </svg>
+                <div class="size-label">32×32</div>
+            </div>
+
+            <!-- 16x16 favicon -->
+            <div>
+                <svg width="16" height="16" viewBox="0 0 100 100">
+                    <rect width="100" height="100" rx="22" fill="#6366f1"/>
+                    <path d="M50 35 L50 65 M38 45 Q50 35 62 45 Q50 55 38 65 Q50 75 62 65" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
+                </svg>
+                <div class="size-label">16×16</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monochrome Versions -->
+    <h2 class="section-title">⚫ Monochrome Versions</h2>
+    <div class="logo-grid">
+        <div class="logo-card">
+            <span class="logo-label">White (for dark backgrounds)</span>
+            <svg width="250" height="60" viewBox="0 0 250 60">
+                <polygon points="32,10 48,3 64,10 64,28 48,35 32,28" fill="white" opacity="0.3"/>
+                <polygon points="26,18 42,11 58,18 58,36 42,43 26,36" fill="white" opacity="0.55"/>
+                <polygon points="30,26 45,19 60,26 60,43 45,50 30,43" fill="white"/>
+                <path d="M45 32 L45 44 M40 36 Q45 32 50 36 Q45 40 40 44 Q45 48 50 44" stroke="#0f0f1a" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <text x="75" y="40" font-family="Space Grotesk, sans-serif" font-size="28" font-weight="700" fill="white">TaxSky</text>
+                <text x="178" y="40" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="600" fill="white" opacity="0.7">AI</text>
+            </svg>
+        </div>
+
+        <div class="logo-card">
+            <span class="logo-label">Dark (for light backgrounds)</span>
+            <div class="preview-box preview-light">
+                <svg width="250" height="60" viewBox="0 0 250 60">
+                    <polygon points="32,10 48,3 64,10 64,28 48,35 32,28" fill="#1e1b4b" opacity="0.2"/>
+                    <polygon points="26,18 42,11 58,18 58,36 42,43 26,36" fill="#1e1b4b" opacity="0.4"/>
+                    <polygon points="30,26 45,19 60,26 60,43 45,50 30,43" fill="#1e1b4b"/>
+                    <path d="M45 32 L45 44 M40 36 Q45 32 50 36 Q45 40 40 44 Q45 48 50 44" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <text x="75" y="40" font-family="Space Grotesk, sans-serif" font-size="28" font-weight="700" fill="#1e1b4b">TaxSky</text>
+                    <text x="178" y="40" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="600" fill="#1e1b4b" opacity="0.6">AI</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Color Palette -->
+    <h2 class="section-title">🎨 Brand Colors</h2>
+    <div class="color-palette">
+        <div class="color-swatch" style="background: #6366f1;">#6366f1</div>
+        <div class="color-swatch" style="background: #8b5cf6;">#8b5cf6</div>
+        <div class="color-swatch" style="background: #3b82f6;">#3b82f6</div>
+        <div class="color-swatch" style="background: #06b6d4;">#06b6d4</div>
+        <div class="color-swatch" style="background: #a78bfa;">#a78bfa</div>
+        <div class="color-swatch" style="background: #1e1b4b;">#1e1b4b</div>
+    </div>
+
+    <!-- Download Info -->
+    <div class="download-section">
+        <h3>📥 Export Files</h3>
+        <p>Right-click on any logo above and "Save as" to download. For production SVG files, let me know and I'll create separate exportable files!</p>
+    </div>
+
+</body>
+</html>

@@ -1,9 +1,9 @@
 // ============================================================
-// TAXSKY AI ONBOARDING - FRIENDLY & MODERN EDITION
+// TAXSKY AI ONBOARDING - MARKETING UPDATE v2.0
 // ============================================================
-// Updated: New TaxSky AI logo + Friendlier UX for chat & login
-// Design: Welcoming, approachable dark theme
-// Flow: Select Language + State → Navigate to /login
+// Updated: Focus on SECURE SSN entry, NO W-2 upload needed
+// Added: FAQ Section, Privacy Policy, Terms of Service
+// Design: Professional, security-focused messaging
 // ============================================================
 
 import React, { useState, useEffect } from "react";
@@ -41,13 +41,10 @@ const TaxSkyLogo = ({ size = "default" }) => {
           </feMerge>
         </filter>
       </defs>
-      {/* Hexagon layers */}
       <polygon points="28,8 42,2 56,8 56,24 42,30 28,24" fill="url(#hexGrad)" opacity="0.25"/>
       <polygon points="23,14 37,8 51,14 51,30 37,36 23,30" fill="url(#hexGrad)" opacity="0.5"/>
       <polygon points="26,20 39,14 52,20 52,34 39,42 26,34" fill="url(#hexGrad)" filter="url(#glow)"/>
-      {/* Dollar sign */}
       <path d="M39 24 L39 34 M35 27 Q39 24 43 27 Q39 30 35 33 Q39 36 43 33" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
-      {/* Text */}
       <text x="62" y="34" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="24" fontWeight="700" fill="white">Tax</text>
       <text x="102" y="34" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="24" fontWeight="700" fill="url(#textGrad)">Sky</text>
       <text x="148" y="34" fontFamily="Space Grotesk, system-ui, sans-serif" fontSize="14" fontWeight="600" fill="#a78bfa">AI</text>
@@ -56,7 +53,7 @@ const TaxSkyLogo = ({ size = "default" }) => {
 };
 
 // ============================================================
-// TAXSKY AI ICON COMPONENT (for smaller uses)
+// TAXSKY AI ICON COMPONENT
 // ============================================================
 const TaxSkyIcon = ({ size = 48 }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
@@ -79,7 +76,7 @@ const TaxSkyIcon = ({ size = 48 }) => (
 );
 
 // ============================================================
-// TRANSLATIONS
+// TRANSLATIONS - UPDATED FOR SECURITY FOCUS
 // ============================================================
 const translations = {
   en: {
@@ -88,7 +85,7 @@ const translations = {
       badge: "Tax Season 2025",
       title: "Your AI Tax",
       titleHighlight: "Assistant",
-      subtitle: "File your taxes through a simple chat. I'll find every deduction and maximize your refund.",
+      subtitle: "File your taxes through a simple chat. Just answer questions - no forms to fill, no documents to upload.",
     },
     chat: {
       preview: "Hi! I'm your TaxSky AI assistant. Ready to help you file your taxes in minutes!",
@@ -121,19 +118,50 @@ const translations = {
       time: "15 min",
       timeLabel: "Avg. Time",
     },
+    // ✅ UPDATED FEATURES - Security focused, no upload
     features: {
       title: "Why people love TaxSky AI",
       items: [
-        { icon: "💬", title: "Chat to File", desc: "Just talk naturally. No confusing forms or jargon." },
-        { icon: "📷", title: "Snap & Done", desc: "Take a photo of your W-2. We handle the rest." },
-        { icon: "💰", title: "Max Refund", desc: "AI finds deductions humans miss. Guaranteed." },
-        { icon: "🌐", title: "Your Language", desc: "English, Vietnamese, Spanish, and more." },
+        { icon: "💬", title: "Chat to File", desc: "Just answer simple questions. No confusing forms or tax jargon." },
+        { icon: "🔐", title: "Bank-Level Security", desc: "Your SSN is encrypted with 256-bit SSL. Same security as major banks." },
+        { icon: "💰", title: "Max Refund Guarantee", desc: "AI finds every deduction you qualify for. Guaranteed or your money back." },
+        { icon: "🌐", title: "Your Language", desc: "File in English, Vietnamese, Spanish, Chinese, and more." },
+      ]
+    },
+    // ✅ NEW: FAQ Section
+    faq: {
+      title: "Frequently Asked Questions",
+      items: [
+        {
+          q: "Do I need to upload my W-2?",
+          a: "No! Just tell us your income and we'll handle the rest. Our AI asks simple questions - no documents needed."
+        },
+        {
+          q: "Is my SSN safe?",
+          a: "Absolutely. We use 256-bit bank-level encryption. Your data is protected by the same security used by major financial institutions. We are IRS-authorized e-file provider."
+        },
+        {
+          q: "How long does it take?",
+          a: "Most users complete their return in 15-20 minutes. Just chat naturally and answer questions about your income, dependents, and deductions."
+        },
+        {
+          q: "What if I make a mistake?",
+          a: "No worries! You can review everything before filing. Our AI double-checks for errors and suggests fixes. Plus, CPAs review complex returns."
+        },
+        {
+          q: "Is TaxSky AI free?",
+          a: "You can start for free and see your estimated refund. Filing fees start at $29.99 for simple returns. Much less than traditional tax preparers!"
+        },
+        {
+          q: "What forms do you support?",
+          a: "We support W-2, 1099-NEC, 1099-INT, 1099-DIV, 1099-R, SSA-1099, and more. Self-employed, freelancers, and gig workers welcome!"
+        }
       ]
     },
     trust: ["IRS Authorized", "SOC 2 Certified", "256-bit Encryption"],
     support: { full: "Full Support", noTax: "No State Tax", flatTax: "Flat Tax", comingSoon: "Coming 2026" },
     footer: {
-      copyright: "© 2025 TaxSky AI Inc.",
+      copyright: "© 2025 TaxSky AI Inc. All rights reserved.",
       links: ["Privacy", "Terms", "Help"],
     }
   },
@@ -143,7 +171,7 @@ const translations = {
       badge: "Mùa Thuế 2025",
       title: "Trợ Lý Thuế",
       titleHighlight: "AI Của Bạn",
-      subtitle: "Khai thuế qua chat đơn giản. Tôi sẽ tìm mọi khoản khấu trừ và tối đa hóa hoàn thuế.",
+      subtitle: "Khai thuế qua chat đơn giản. Chỉ cần trả lời câu hỏi - không cần điền form, không cần tải tài liệu.",
     },
     chat: {
       preview: "Xin chào! Tôi là trợ lý AI TaxSky. Sẵn sàng giúp bạn khai thuế trong vài phút!",
@@ -179,16 +207,45 @@ const translations = {
     features: {
       title: "Tại sao mọi người yêu thích TaxSky AI",
       items: [
-        { icon: "💬", title: "Chat Để Khai", desc: "Chỉ cần nói chuyện tự nhiên. Không form phức tạp." },
-        { icon: "📷", title: "Chụp & Xong", desc: "Chụp ảnh W-2. Chúng tôi xử lý phần còn lại." },
-        { icon: "💰", title: "Hoàn Thuế Max", desc: "AI tìm khấu trừ mà người khác bỏ lỡ." },
-        { icon: "🌐", title: "Ngôn Ngữ Của Bạn", desc: "Tiếng Anh, Việt, Tây Ban Nha." },
+        { icon: "💬", title: "Chat Để Khai", desc: "Chỉ cần trả lời câu hỏi đơn giản. Không form phức tạp." },
+        { icon: "🔐", title: "Bảo Mật Ngân Hàng", desc: "SSN được mã hóa 256-bit SSL. Bảo mật như ngân hàng lớn." },
+        { icon: "💰", title: "Hoàn Thuế Tối Đa", desc: "AI tìm mọi khoản khấu trừ. Đảm bảo hoặc hoàn tiền." },
+        { icon: "🌐", title: "Ngôn Ngữ Của Bạn", desc: "Khai bằng tiếng Anh, Việt, Tây Ban Nha, Trung Quốc." },
+      ]
+    },
+    faq: {
+      title: "Câu Hỏi Thường Gặp",
+      items: [
+        {
+          q: "Tôi có cần tải lên W-2 không?",
+          a: "Không! Chỉ cần cho chúng tôi biết thu nhập của bạn. AI của chúng tôi hỏi câu hỏi đơn giản - không cần tài liệu."
+        },
+        {
+          q: "SSN của tôi có an toàn không?",
+          a: "Tuyệt đối an toàn. Chúng tôi sử dụng mã hóa 256-bit cấp ngân hàng. Dữ liệu được bảo vệ như các tổ chức tài chính lớn. Chúng tôi được IRS ủy quyền."
+        },
+        {
+          q: "Mất bao lâu?",
+          a: "Hầu hết người dùng hoàn thành trong 15-20 phút. Chỉ cần chat tự nhiên và trả lời về thu nhập, người phụ thuộc, và khấu trừ."
+        },
+        {
+          q: "Nếu tôi nhập sai thì sao?",
+          a: "Không sao! Bạn có thể xem lại mọi thứ trước khi nộp. AI kiểm tra lỗi và đề xuất sửa. CPA xem xét các trường hợp phức tạp."
+        },
+        {
+          q: "TaxSky AI có miễn phí không?",
+          a: "Bạn có thể bắt đầu miễn phí và xem ước tính hoàn thuế. Phí nộp từ $29.99 cho khai đơn giản."
+        },
+        {
+          q: "Hỗ trợ những form nào?",
+          a: "Chúng tôi hỗ trợ W-2, 1099-NEC, 1099-INT, 1099-DIV, 1099-R, SSA-1099. Tự kinh doanh, freelancer đều được!"
+        }
       ]
     },
     trust: ["IRS Ủy Quyền", "SOC 2 Chứng Nhận", "Mã Hóa 256-bit"],
     support: { full: "Hỗ Trợ Đầy Đủ", noTax: "Không Thuế Bang", flatTax: "Thuế Cố Định", comingSoon: "Sắp Ra Mắt" },
     footer: {
-      copyright: "© 2025 TaxSky AI Inc.",
+      copyright: "© 2025 TaxSky AI Inc. Bảo lưu mọi quyền.",
       links: ["Bảo Mật", "Điều Khoản", "Hỗ Trợ"],
     }
   },
@@ -198,7 +255,7 @@ const translations = {
       badge: "Temporada 2025",
       title: "Tu Asistente",
       titleHighlight: "de Impuestos AI",
-      subtitle: "Declara tus impuestos por chat. Encontraré cada deducción y maximizaré tu reembolso.",
+      subtitle: "Declara tus impuestos por chat. Solo responde preguntas - sin formularios, sin subir documentos.",
     },
     chat: {
       preview: "¡Hola! Soy tu asistente AI de TaxSky. ¡Listo para ayudarte a declarar en minutos!",
@@ -234,16 +291,45 @@ const translations = {
     features: {
       title: "Por qué la gente ama TaxSky AI",
       items: [
-        { icon: "💬", title: "Chatea para Declarar", desc: "Solo habla naturalmente. Sin formularios confusos." },
-        { icon: "📷", title: "Foto y Listo", desc: "Toma una foto de tu W-2. Nosotros hacemos el resto." },
-        { icon: "💰", title: "Máximo Reembolso", desc: "AI encuentra deducciones que otros pierden." },
-        { icon: "🌐", title: "Tu Idioma", desc: "Inglés, Vietnamita, Español y más." },
+        { icon: "💬", title: "Chatea para Declarar", desc: "Solo responde preguntas simples. Sin formularios confusos." },
+        { icon: "🔐", title: "Seguridad Bancaria", desc: "Tu SSN está cifrado con SSL 256-bit. Igual que los bancos." },
+        { icon: "💰", title: "Máximo Reembolso", desc: "AI encuentra todas las deducciones. Garantizado o te devolvemos." },
+        { icon: "🌐", title: "Tu Idioma", desc: "Inglés, Vietnamita, Español, Chino y más." },
+      ]
+    },
+    faq: {
+      title: "Preguntas Frecuentes",
+      items: [
+        {
+          q: "¿Necesito subir mi W-2?",
+          a: "¡No! Solo dinos tu ingreso. Nuestro AI hace preguntas simples - no necesitas documentos."
+        },
+        {
+          q: "¿Mi SSN está seguro?",
+          a: "Absolutamente. Usamos cifrado 256-bit nivel bancario. Tus datos están protegidos como en instituciones financieras. Somos proveedores autorizados por el IRS."
+        },
+        {
+          q: "¿Cuánto tiempo toma?",
+          a: "La mayoría completa en 15-20 minutos. Solo chatea naturalmente sobre ingresos, dependientes y deducciones."
+        },
+        {
+          q: "¿Si cometo un error?",
+          a: "¡No te preocupes! Puedes revisar todo antes de enviar. Nuestro AI verifica errores. CPAs revisan casos complejos."
+        },
+        {
+          q: "¿TaxSky AI es gratis?",
+          a: "Puedes empezar gratis y ver tu reembolso estimado. Tarifas desde $29.99 para declaraciones simples."
+        },
+        {
+          q: "¿Qué formularios soportan?",
+          a: "Soportamos W-2, 1099-NEC, 1099-INT, 1099-DIV, 1099-R, SSA-1099. ¡Autónomos y freelancers bienvenidos!"
+        }
       ]
     },
     trust: ["IRS Autorizado", "SOC 2 Certificado", "Cifrado 256-bit"],
     support: { full: "Soporte Completo", noTax: "Sin Impuesto", flatTax: "Tasa Fija", comingSoon: "Próximamente" },
     footer: {
-      copyright: "© 2025 TaxSky AI Inc.",
+      copyright: "© 2025 TaxSky AI Inc. Todos los derechos reservados.",
       links: ["Privacidad", "Términos", "Ayuda"],
     }
   }
@@ -287,6 +373,33 @@ const ALL_STATES = [
 ];
 
 // ============================================================
+// FAQ ACCORDION COMPONENT
+// ============================================================
+const FAQItem = ({ question, answer, isOpen, onClick }) => (
+  <div style={styles.faqItem}>
+    <button 
+      onClick={onClick} 
+      style={styles.faqQuestion}
+      aria-expanded={isOpen}
+    >
+      <span>{question}</span>
+      <span style={{
+        ...styles.faqIcon,
+        transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+      }}>▼</span>
+    </button>
+    <div style={{
+      ...styles.faqAnswer,
+      maxHeight: isOpen ? '200px' : '0',
+      opacity: isOpen ? 1 : 0,
+      padding: isOpen ? '16px 20px' : '0 20px',
+    }}>
+      {answer}
+    </div>
+  </div>
+);
+
+// ============================================================
 // MAIN COMPONENT
 // ============================================================
 export default function Onboarding() {
@@ -296,7 +409,8 @@ export default function Onboarding() {
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState(null);
   const [mounted, setMounted] = useState(false);
-  const [chatTyping, setChatTyping] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const t = translations[language];
   const selectedState = ALL_STATES.find(s => s.code === state);
@@ -307,14 +421,8 @@ export default function Onboarding() {
     if (saved) setState(saved);
     const savedLang = localStorage.getItem("taxsky_language");
     if (savedLang) setLanguage(savedLang);
-    
-    // Simulate chat typing effect
-    setTimeout(() => setChatTyping(true), 500);
   }, []);
 
-  // ============================================================
-  // ✅ CONTINUE - Validate and navigate to /login
-  // ============================================================
   const handleContinue = async () => {
     setError(null);
     setIsValidating(true);
@@ -398,7 +506,7 @@ export default function Onboarding() {
             </h1>
             <p style={styles.heroSubtitle}>{t.hero.subtitle}</p>
 
-            {/* Chat Preview Card - CLICKABLE with REAL CONVERSATION */}
+            {/* Chat Preview Card */}
             <div 
               style={styles.chatPreview}
               onClick={handleContinue}
@@ -418,7 +526,6 @@ export default function Onboarding() {
                 </div>
               </div>
               
-              {/* Multi-message conversation */}
               <div style={styles.chatMessages}>
                 {t.chat.messages && t.chat.messages.map((msg, index) => (
                   <div 
@@ -452,13 +559,7 @@ export default function Onboarding() {
                 ))}
               </div>
 
-              <div 
-                style={styles.chatInputPreview}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleContinue();
-                }}
-              >
+              <div style={styles.chatInputPreview}>
                 <input
                   type="text"
                   placeholder={t.chat.placeholder}
@@ -466,16 +567,7 @@ export default function Onboarding() {
                   onFocus={handleContinue}
                   readOnly
                 />
-                <button 
-                  style={styles.chatSendBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleContinue();
-                  }}
-                  aria-label="Start chatting"
-                >
-                  →
-                </button>
+                <button style={styles.chatSendBtn} aria-label="Start chatting">→</button>
               </div>
               <div style={styles.chatClickHint}>
                 👆 Click anywhere to start chatting
@@ -510,9 +602,7 @@ export default function Onboarding() {
               
               {/* Language Select */}
               <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  🌐 {t.form.languageLabel}
-                </label>
+                <label style={styles.label}>🌐 {t.form.languageLabel}</label>
                 <div style={styles.selectWrap}>
                   <select 
                     style={styles.select} 
@@ -529,9 +619,7 @@ export default function Onboarding() {
 
               {/* State Select */}
               <div style={styles.formGroup}>
-                <label style={styles.label}>
-                  📍 {t.form.stateLabel}
-                </label>
+                <label style={styles.label}>📍 {t.form.stateLabel}</label>
                 <div style={styles.selectWrap}>
                   <select 
                     style={styles.select} 
@@ -634,7 +722,7 @@ export default function Onboarding() {
           </div>
         </div>
 
-        {/* Features Section */}
+        {/* Features Section - UPDATED */}
         <div style={styles.features}>
           <h2 style={styles.featuresTitle}>{t.features.title}</h2>
           <div style={styles.featuresGrid}>
@@ -648,10 +736,140 @@ export default function Onboarding() {
           </div>
         </div>
 
-        {/* Professional Footer */}
+        {/* ✅ NEW: Comparison Section - TaxSky vs Competitors */}
+        <div style={styles.comparisonSection}>
+          <div style={styles.comparisonHeader}>
+            <span style={styles.comparisonBadge}>⚡ Compare</span>
+            <h2 style={styles.comparisonTitle}>Why Choose TaxSky AI?</h2>
+            <p style={styles.comparisonSubtitle}>See how we stack up against the competition</p>
+          </div>
+          
+          {/* Comparison Table */}
+          <div style={styles.comparisonTable}>
+            {/* Header Row */}
+            <div style={styles.comparisonHeaderRow}>
+              <div style={styles.comparisonFeatureHeader}>Features</div>
+              <div style={styles.comparisonBrandHeader}>
+                <div style={styles.comparisonBrandLogo}>
+                  <span style={styles.taxskyMini}>🚀</span>
+                  <span style={styles.comparisonBrandName}>TaxSky AI</span>
+                </div>
+              </div>
+              <div style={styles.comparisonCompetitorHeader}>TurboTax</div>
+              <div style={styles.comparisonCompetitorHeader}>H&R Block</div>
+              <div style={styles.comparisonCompetitorHeader}>TaxAct</div>
+            </div>
+            
+            {/* Row 1: AI Chat Filing */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>💬</span>
+                <span>AI Chat Filing</span>
+              </div>
+              <div style={styles.comparisonCheck}>✅</div>
+              <div style={styles.comparisonX}>❌</div>
+              <div style={styles.comparisonX}>❌</div>
+              <div style={styles.comparisonX}>❌</div>
+            </div>
+            
+            {/* Row 2: No Forms Required */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>📝</span>
+                <span>No Forms to Fill</span>
+              </div>
+              <div style={styles.comparisonCheck}>✅</div>
+              <div style={styles.comparisonX}>❌</div>
+              <div style={styles.comparisonX}>❌</div>
+              <div style={styles.comparisonX}>❌</div>
+            </div>
+            
+            {/* Row 3: Average Time */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>⏱️</span>
+                <span>Average Filing Time</span>
+              </div>
+              <div style={styles.comparisonHighlight}>15 min</div>
+              <div style={styles.comparisonNeutral}>45+ min</div>
+              <div style={styles.comparisonNeutral}>60+ min</div>
+              <div style={styles.comparisonNeutral}>50+ min</div>
+            </div>
+            
+            {/* Row 4: Starting Price */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>💰</span>
+                <span>Starting Price</span>
+              </div>
+              <div style={styles.comparisonHighlight}>$29.99</div>
+              <div style={styles.comparisonNeutral}>$89+</div>
+              <div style={styles.comparisonNeutral}>$55+</div>
+              <div style={styles.comparisonNeutral}>$49+</div>
+            </div>
+            
+            {/* Row 5: Multilingual */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>🌐</span>
+                <span>Multilingual Support</span>
+              </div>
+              <div style={styles.comparisonCheck}>✅ 5+ Languages</div>
+              <div style={styles.comparisonPartial}>🟡 Limited</div>
+              <div style={styles.comparisonPartial}>🟡 Limited</div>
+              <div style={styles.comparisonX}>❌</div>
+            </div>
+            
+            {/* Row 6: Max Refund Guarantee */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>🎯</span>
+                <span>Max Refund Guarantee</span>
+              </div>
+              <div style={styles.comparisonCheck}>✅</div>
+              <div style={styles.comparisonCheck}>✅</div>
+              <div style={styles.comparisonCheck}>✅</div>
+              <div style={styles.comparisonCheck}>✅</div>
+            </div>
+            
+            {/* Row 7: CPA Review */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>👨‍💼</span>
+                <span>CPA Review Option</span>
+              </div>
+              <div style={styles.comparisonHighlight}>$49.99</div>
+              <div style={styles.comparisonNeutral}>$169+</div>
+              <div style={styles.comparisonNeutral}>$89+</div>
+              <div style={styles.comparisonX}>❌</div>
+            </div>
+            
+            {/* Row 8: State Filing */}
+            <div style={styles.comparisonRow}>
+              <div style={styles.comparisonFeature}>
+                <span style={styles.featureIcon}>🏛️</span>
+                <span>State Filing</span>
+              </div>
+              <div style={styles.comparisonHighlight}>$19.99</div>
+              <div style={styles.comparisonNeutral}>$54+</div>
+              <div style={styles.comparisonNeutral}>$45+</div>
+              <div style={styles.comparisonNeutral}>$39+</div>
+            </div>
+          </div>
+          
+          {/* Bottom CTA */}
+          <div style={styles.comparisonCTA}>
+            <p style={styles.comparisonCTAText}>Ready to try the smarter way to file?</p>
+            <button onClick={handleContinue} style={styles.comparisonCTAButton}>
+              Start FREE with TaxSky AI →
+            </button>
+          </div>
+        </div>
+
+        {/* ✅ IMPROVED: Professional 4-Column Footer */}
         <footer style={styles.footerSection}>
           <div style={styles.footerGrid}>
-            {/* Contact Column */}
+            {/* Column 1: Contact */}
             <div style={styles.footerColumn}>
               <h4 style={styles.footerHeading}>CONTACT</h4>
               <div style={styles.footerItem}>
@@ -660,36 +878,49 @@ export default function Onboarding() {
               </div>
               <div style={styles.footerItem}>
                 <span style={styles.footerIconEmoji}>📞</span>
-                <span>+1-844-737-4799</span>
+                <a href="tel:+18448297591" style={styles.footerLinkInline}>+1-844-TAX-SKY1</a>
               </div>
               <div style={styles.footerItem}>
                 <span style={styles.footerIconEmoji}>✉️</span>
-                <span>support@taxsky.com</span>
+                <a href="mailto:support@taxsky.ai" style={styles.footerLinkInline}>support@taxsky.ai</a>
               </div>
               <div style={styles.socialLinks}>
-                <a href="#" style={styles.socialIcon}>𝕏</a>
-                <a href="#" style={styles.socialIcon}>in</a>
-                <a href="#" style={styles.socialIcon}>▶</a>
-                <a href="#" style={styles.socialIcon}>📷</a>
+                <a href="https://twitter.com/taxskyai" style={styles.socialIcon} target="_blank" rel="noopener noreferrer" aria-label="Twitter">𝕏</a>
+                <a href="https://linkedin.com/company/taxsky" style={styles.socialIcon} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+                <a href="https://youtube.com/@taxskyai" style={styles.socialIcon} target="_blank" rel="noopener noreferrer" aria-label="YouTube">▶</a>
+                <a href="https://instagram.com/taxskyai" style={styles.socialIcon} target="_blank" rel="noopener noreferrer" aria-label="Instagram">📷</a>
               </div>
             </div>
 
-            {/* Services Column */}
+            {/* Column 2: Services */}
             <div style={styles.footerColumn}>
               <h4 style={styles.footerHeading}>SERVICES</h4>
-              <a href="#" style={styles.footerLink}>Federal Tax Filing</a>
-              <a href="#" style={styles.footerLink}>State Tax Filing</a>
-              <a href="#" style={styles.footerLink}>Self-Employment Taxes</a>
-              <a href="#" style={styles.footerLink}>W-2 Import</a>
-              <a href="#" style={styles.footerLink}>1099 Processing</a>
-              <a href="/cpa/login" style={styles.footerLink}>👨‍💼 CPA Portal</a>
+              <a href="/services/federal" style={styles.footerLink}>Federal Tax Filing</a>
+              <a href="/services/state" style={styles.footerLink}>State Tax Filing</a>
+              <a href="/services/self-employment" style={styles.footerLink}>Self-Employment Taxes</a>
+              <a href="/services/1099" style={styles.footerLink}>1099 Processing</a>
+              <a href="/calculator" style={styles.footerLink}>Tax Refund Calculator</a>
+              <a href="/cpa" style={styles.footerLink}>🧑‍💼 CPA Portal</a>
             </div>
 
-            {/* About Us Column */}
+            {/* Column 3: Company (NEW!) */}
             <div style={styles.footerColumn}>
-              <h4 style={styles.footerHeading}>ABOUT US</h4>
+              <h4 style={styles.footerHeading}>COMPANY</h4>
+              <a href="/faq" style={styles.footerLink}>FAQ</a>
+              <a href="/investor" style={styles.footerLink}>Investor Relations</a>
+              <a href="/career" style={styles.footerLink}>Careers</a>
+              <a href="/news" style={styles.footerLink}>News</a>
+              <a href="/pricing" style={styles.footerLink}>Pricing</a>
+              <a href="/about" style={styles.footerLink}>About Us</a>
+            </div>
+
+            {/* Column 4: About & Trust Badges */}
+            <div style={styles.footerColumn}>
+              <h4 style={styles.footerHeading}>ABOUT TAXSKY</h4>
               <p style={styles.footerAbout}>
-                TaxSky AI is dedicated to providing smart, AI-powered tax preparation solutions. Our mission is to maximize your refund while minimizing your stress. We combine cutting-edge technology with tax expertise to deliver an unparalleled filing experience.
+                TaxSky AI is dedicated to providing smart, AI-powered tax preparation solutions. 
+                Our mission is to maximize your refund while minimizing your stress. 
+                File taxes through simple chat - no forms, no uploads, just answers.
               </p>
               <div style={styles.footerBadges}>
                 <span style={styles.trustBadgeSmall}>✓ IRS E-File</span>
@@ -699,15 +930,15 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* Footer Bottom */}
+          {/* Footer Bottom with Policy Links */}
           <div style={styles.footerBottom}>
             <p style={styles.footerCopyright}>{t.footer.copyright}</p>
             <div style={styles.footerBottomLinks}>
-              <a href="#" style={styles.footerBottomLink}>Privacy Policy</a>
+              <a href="/privacy" style={styles.footerBottomLink}>Privacy Policy</a>
               <span style={styles.footerDivider}>•</span>
-              <a href="#" style={styles.footerBottomLink}>Terms of Service</a>
+              <a href="/terms" style={styles.footerBottomLink}>Terms of Service</a>
               <span style={styles.footerDivider}>•</span>
-              <a href="#" style={styles.footerBottomLink}>Contact Us</a>
+              <a href="/security" style={styles.footerBottomLink}>Security</a>
             </div>
           </div>
         </footer>
@@ -733,42 +964,15 @@ export default function Onboarding() {
           to { transform: rotate(360deg); }
         }
         
-        @keyframes bounce {
-          0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-6px); }
-        }
-        
         @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         
         .chat-preview-hover:hover {
           border-color: rgba(99, 102, 241, 0.5) !important;
           box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2) !important;
           transform: translateY(-2px);
-        }
-        
-        .chat-preview-hover:hover .chat-hint {
-          opacity: 1 !important;
-        }
-        
-        /* Custom scrollbar for chat messages */
-        .chat-preview-hover::-webkit-scrollbar {
-          width: 4px;
-        }
-        .chat-preview-hover::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .chat-preview-hover::-webkit-scrollbar-thumb {
-          background: rgba(99, 102, 241, 0.3);
-          border-radius: 4px;
         }
         
         ::selection {
@@ -899,44 +1103,39 @@ const styles = {
   },
   
   greeting: {
-    fontSize: 18,
-    color: '#a78bfa',
-    marginBottom: 12,
+    fontSize: 16,
+    color: '#94a3b8',
+    marginBottom: 8,
   },
   
   heroTitle: {
-    fontSize: 'clamp(36px, 5vw, 52px)',
+    fontSize: 48,
     fontWeight: 700,
     color: '#fff',
-    lineHeight: 1.15,
-    letterSpacing: '-1px',
+    lineHeight: 1.1,
     marginBottom: 16,
   },
   
   heroHighlight: {
-    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
+    background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
   },
   
   heroSubtitle: {
     fontSize: 18,
     color: '#94a3b8',
-    maxWidth: 450,
     lineHeight: 1.6,
     marginBottom: 32,
   },
   
   chatPreview: {
-    background: 'linear-gradient(145deg, rgba(30, 30, 45, 0.8), rgba(20, 20, 30, 0.9))',
-    border: '1px solid rgba(99, 102, 241, 0.2)',
+    background: 'rgba(15, 23, 42, 0.8)',
+    border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 20,
     padding: 20,
-    marginBottom: 32,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    position: 'relative',
   },
   
   chatHeader: {
@@ -944,8 +1143,8 @@ const styles = {
     alignItems: 'center',
     gap: 12,
     marginBottom: 16,
-    paddingBottom: 16,
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
+    paddingBottom: 12,
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
   },
   
   chatHeaderText: {
@@ -954,7 +1153,7 @@ const styles = {
   },
   
   chatName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 600,
     color: '#fff',
   },
@@ -964,194 +1163,135 @@ const styles = {
     color: '#10b981',
     display: 'flex',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   
   onlineDot: {
-    width: 8,
-    height: 8,
-    borderRadius: '50%',
+    width: 6,
+    height: 6,
     background: '#10b981',
-    boxShadow: '0 0 8px #10b981',
+    borderRadius: '50%',
   },
   
-  chatBubble: {
-    background: 'rgba(99, 102, 241, 0.15)',
-    border: '1px solid rgba(99, 102, 241, 0.2)',
-    borderRadius: 16,
-    borderTopLeftRadius: 4,
-    padding: '14px 18px',
-    fontSize: 15,
-    color: '#e2e8f0',
-    lineHeight: 1.5,
-    marginBottom: 16,
-  },
-  
-  // Multi-message chat styles
   chatMessages: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-    marginBottom: 16,
-    maxHeight: 280,
+    maxHeight: 200,
     overflowY: 'auto',
-    paddingRight: 4,
+    marginBottom: 12,
   },
   
   chatMessage: {
-    animation: 'fadeInUp 0.4s ease-out both',
+    marginBottom: 10,
+    animation: 'fadeInUp 0.4s ease forwards',
+  },
+  
+  chatMessageUser: {
+    textAlign: 'right',
+  },
+  
+  chatMessageResult: {
+    textAlign: 'center',
   },
   
   chatMessageAI: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: 10,
+    gap: 8,
   },
   
   chatAIAvatar: {
     fontSize: 18,
-    marginTop: 2,
   },
   
   chatMessageText: {
-    background: 'rgba(99, 102, 241, 0.12)',
-    border: '1px solid rgba(99, 102, 241, 0.2)',
-    borderRadius: 14,
-    borderTopLeftRadius: 4,
-    padding: '10px 14px',
-    fontSize: 13,
+    fontSize: 14,
     color: '#e2e8f0',
     lineHeight: 1.5,
-    maxWidth: '85%',
-  },
-  
-  chatMessageUser: {
-    display: 'flex',
-    justifyContent: 'flex-end',
   },
   
   chatMessageUserBubble: {
-    background: 'rgba(255, 255, 255, 0.08)',
-    border: '1px solid rgba(255, 255, 255, 0.12)',
-    borderRadius: 14,
-    borderTopRightRadius: 4,
-    padding: '10px 14px',
-    fontSize: 13,
-    color: '#fff',
-    lineHeight: 1.5,
-    maxWidth: '75%',
-  },
-  
-  chatMessageResult: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginTop: 8,
+    display: 'inline-block',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    padding: '8px 14px',
+    borderRadius: 16,
+    borderBottomRightRadius: 4,
   },
   
   chatResultCard: {
-    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))',
+    display: 'inline-flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    background: 'rgba(16, 185, 129, 0.15)',
     border: '1px solid rgba(16, 185, 129, 0.3)',
-    borderRadius: 16,
     padding: '16px 24px',
-    textAlign: 'center',
-    position: 'relative',
-    boxShadow: '0 4px 20px rgba(16, 185, 129, 0.15)',
+    borderRadius: 16,
+    marginTop: 8,
   },
   
   chatResultLabel: {
-    display: 'block',
-    fontSize: 11,
-    color: '#94a3b8',
+    fontSize: 12,
+    color: '#10b981',
     marginBottom: 4,
-    textTransform: 'uppercase',
-    letterSpacing: '0.5px',
   },
   
   chatResultAmount: {
-    display: 'block',
     fontSize: 28,
     fontWeight: 700,
     color: '#10b981',
-    fontFamily: "'Space Grotesk', sans-serif",
   },
   
   chatResultConfetti: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
     fontSize: 20,
-    animation: 'bounce 1s ease infinite',
-  },
-  
-  typingIndicator: {
-    display: 'inline-flex',
-    gap: 4,
+    marginTop: 4,
   },
   
   chatInputPreview: {
     display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 12,
-    padding: '12px 16px',
-  },
-  
-  chatPlaceholder: {
-    fontSize: 14,
-    color: '#64748b',
-  },
-  
-  chatSendBtn: {
-    width: 36,
-    height: 36,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    borderRadius: 10,
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    border: 'none',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    flexShrink: 0,
+    gap: 8,
   },
   
   chatInput: {
     flex: 1,
-    background: 'transparent',
-    border: 'none',
-    outline: 'none',
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    padding: '12px 16px',
     fontSize: 14,
     color: '#fff',
+    outline: 'none',
+  },
+  
+  chatSendBtn: {
+    width: 44,
+    height: 44,
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    border: 'none',
+    borderRadius: 12,
+    color: '#fff',
+    fontSize: 18,
     cursor: 'pointer',
   },
   
   chatClickHint: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#8b5cf6',
+    color: '#64748b',
     marginTop: 12,
-    opacity: 0.8,
   },
   
   statsRow: {
     display: 'flex',
     gap: 24,
+    marginTop: 32,
     flexWrap: 'wrap',
   },
   
   statItem: {
     display: 'flex',
     flexDirection: 'column',
-    gap: 4,
   },
   
   statValue: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 700,
     color: '#fff',
   },
@@ -1164,11 +1304,10 @@ const styles = {
   rightColumn: {},
   
   formCard: {
-    background: 'linear-gradient(145deg, rgba(30, 30, 45, 0.9), rgba(20, 20, 30, 0.95))',
-    border: '1px solid rgba(99, 102, 241, 0.15)',
+    background: 'rgba(15, 23, 42, 0.8)',
+    border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 24,
     padding: 32,
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
   },
   
   formTitle: {
@@ -1197,15 +1336,14 @@ const styles = {
   
   select: {
     width: '100%',
-    padding: '14px 40px 14px 16px',
+    padding: '14px 16px',
     fontSize: 15,
     color: '#fff',
     background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.15)',
     borderRadius: 12,
     appearance: 'none',
     cursor: 'pointer',
-    transition: 'all 0.2s',
     outline: 'none',
   },
   
@@ -1215,7 +1353,7 @@ const styles = {
     top: '50%',
     transform: 'translateY(-50%)',
     color: '#64748b',
-    fontSize: 12,
+    fontSize: 10,
     pointerEvents: 'none',
   },
   
@@ -1223,7 +1361,7 @@ const styles = {
     display: 'inline-block',
     padding: '6px 12px',
     borderRadius: 8,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 600,
     marginTop: 10,
     border: '1px solid',
@@ -1238,12 +1376,12 @@ const styles = {
   error: {
     display: 'flex',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
     padding: '12px 16px',
     background: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid rgba(239, 68, 68, 0.2)',
+    border: '1px solid rgba(239, 68, 68, 0.3)',
     borderRadius: 12,
-    color: '#f87171',
+    color: '#fca5a5',
     fontSize: 14,
     marginBottom: 16,
   },
@@ -1254,12 +1392,11 @@ const styles = {
     fontSize: 16,
     fontWeight: 700,
     color: '#fff',
-    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
     border: 'none',
     borderRadius: 14,
     cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 8px 32px rgba(99, 102, 241, 0.35)',
+    transition: 'all 0.2s',
   },
   
   buttonContent: {
@@ -1336,6 +1473,7 @@ const styles = {
     borderRadius: 6,
   },
   
+  // Features Section
   features: {
     marginBottom: 60,
   },
@@ -1381,18 +1519,223 @@ const styles = {
     lineHeight: 1.5,
   },
   
-  // Professional Footer Styles
+  // ✅ NEW: Comparison Section Styles
+  comparisonSection: {
+    marginBottom: 80,
+    maxWidth: 1000,
+    margin: '0 auto 80px',
+    padding: '0 20px',
+  },
+
+  comparisonHeader: {
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+
+  comparisonBadge: {
+    display: 'inline-block',
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#10b981',
+    background: 'rgba(16, 185, 129, 0.1)',
+    padding: '8px 16px',
+    borderRadius: 20,
+    marginBottom: 16,
+  },
+  
+  comparisonTitle: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+
+  comparisonSubtitle: {
+    fontSize: 16,
+    color: '#94a3b8',
+    textAlign: 'center',
+  },
+
+  comparisonTable: {
+    background: 'rgba(255,255,255,0.02)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+
+  comparisonHeaderRow: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 1.2fr 1fr 1fr 1fr',
+    background: 'rgba(99, 102, 241, 0.1)',
+    borderBottom: '1px solid rgba(255,255,255,0.08)',
+  },
+
+  comparisonFeatureHeader: {
+    padding: '18px 24px',
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#94a3b8',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+
+  comparisonBrandHeader: {
+    padding: '14px 16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(99, 102, 241, 0.15)',
+  },
+
+  comparisonBrandLogo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  taxskyMini: {
+    fontSize: 18,
+  },
+
+  comparisonBrandName: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#fff',
+  },
+
+  comparisonCompetitorHeader: {
+    padding: '18px 16px',
+    fontSize: 13,
+    fontWeight: 600,
+    color: '#64748b',
+    textAlign: 'center',
+    borderLeft: '1px solid rgba(255,255,255,0.05)',
+  },
+
+  comparisonRow: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 1.2fr 1fr 1fr 1fr',
+    borderBottom: '1px solid rgba(255,255,255,0.05)',
+    transition: 'background 0.2s ease',
+  },
+
+  comparisonFeature: {
+    padding: '16px 24px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    fontSize: 14,
+    color: '#e2e8f0',
+  },
+
+  featureIcon: {
+    fontSize: 18,
+  },
+
+  comparisonCheck: {
+    padding: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    color: '#10b981',
+    fontWeight: 600,
+    background: 'rgba(16, 185, 129, 0.08)',
+  },
+
+  comparisonX: {
+    padding: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    color: '#ef4444',
+    borderLeft: '1px solid rgba(255,255,255,0.05)',
+  },
+
+  comparisonHighlight: {
+    padding: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#10b981',
+    background: 'rgba(16, 185, 129, 0.08)',
+  },
+
+  comparisonNeutral: {
+    padding: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 13,
+    color: '#94a3b8',
+    borderLeft: '1px solid rgba(255,255,255,0.05)',
+  },
+
+  comparisonPartial: {
+    padding: '16px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 13,
+    color: '#f59e0b',
+    borderLeft: '1px solid rgba(255,255,255,0.05)',
+  },
+
+  comparisonCTA: {
+    textAlign: 'center',
+    marginTop: 40,
+    padding: '30px',
+    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(16, 185, 129, 0.1))',
+    borderRadius: 20,
+    border: '1px solid rgba(99, 102, 241, 0.2)',
+  },
+
+  comparisonCTAText: {
+    fontSize: 18,
+    color: '#e2e8f0',
+    marginBottom: 16,
+  },
+
+  comparisonCTAButton: {
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    border: 'none',
+    padding: '16px 32px',
+    borderRadius: 12,
+    fontSize: 16,
+    fontWeight: 700,
+    color: '#fff',
+    cursor: 'pointer',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+  },
+  
+  // Footer Styles - IMPROVED 4-Column Layout
   footerSection: {
-    marginTop: 60,
-    paddingTop: 48,
+    marginTop: 80,
+    paddingTop: 60,
     borderTop: '1px solid rgba(255,255,255,0.08)',
   },
   
   footerGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: 48,
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: 40,
     marginBottom: 48,
+  },
+
+  '@media (max-width: 1024px)': {
+    footerGrid: {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+  },
+
+  '@media (max-width: 640px)': {
+    footerGrid: {
+      gridTemplateColumns: '1fr',
+    },
   },
   
   footerColumn: {
@@ -1401,11 +1744,12 @@ const styles = {
   },
   
   footerHeading: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 700,
     color: '#fff',
     marginBottom: 24,
-    letterSpacing: '0.5px',
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
   },
   
   footerItem: {
@@ -1428,7 +1772,13 @@ const styles = {
     fontSize: 14,
     color: '#94a3b8',
     textDecoration: 'none',
-    marginBottom: 12,
+    marginBottom: 14,
+    transition: 'color 0.2s',
+  },
+
+  footerLinkInline: {
+    color: '#94a3b8',
+    textDecoration: 'none',
     transition: 'color 0.2s',
   },
   
@@ -1446,7 +1796,7 @@ const styles = {
   },
   
   trustBadgeSmall: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#64748b',
     background: 'rgba(255,255,255,0.05)',
     padding: '6px 12px',
@@ -1456,13 +1806,13 @@ const styles = {
   
   socialLinks: {
     display: 'flex',
-    gap: 12,
-    marginTop: 16,
+    gap: 10,
+    marginTop: 20,
   },
   
   socialIcon: {
-    width: 40,
-    height: 40,
+    width: 38,
+    height: 38,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1494,7 +1844,7 @@ const styles = {
   footerBottomLinks: {
     display: 'flex',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
     flexWrap: 'wrap',
   },
   

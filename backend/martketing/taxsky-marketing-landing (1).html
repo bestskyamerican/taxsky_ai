@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxSky AI - Smart Tax Filing Made Simple | File in 15 Minutes</title>
+  <meta name="description" content="File your taxes through a simple chat with AI. TaxSky AI finds every deduction and maximizes your refund. Average refund $3,247. Start free today.">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8b5cf6;
+      --accent: #06b6d4;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --bg-dark: #0a0a0f;
+      --bg-card: rgba(30, 30, 45, 0.8);
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Animated Background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: float 15s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: rgba(99, 102, 241, 0.12);
+      top: -200px;
+      left: -100px;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: rgba(139, 92, 246, 0.1);
+      bottom: -150px;
+      right: -100px;
+      animation-delay: -5s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: rgba(6, 182, 212, 0.08);
+      top: 50%;
+      left: 50%;
+      animation-delay: -10s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(5deg); }
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-text {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .logo-text span {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-ai {
+      font-size: 14px;
+      color: #a78bfa;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: white;
+    }
+
+    .nav-cta {
+      padding: 12px 28px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+    }
+
+    .nav-phone {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 40px 80px;
+      z-index: 1;
+    }
+
+    .hero-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .hero-content {
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--success);
+      margin-bottom: 24px;
+    }
+
+    .hero-badge::before {
+      content: '🎉';
+    }
+
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(48px, 6vw, 72px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -2px;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .btn-primary {
+      padding: 18px 36px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.35);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      padding: 18px 36px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+    }
+
+    .stat {
+      text-align: left;
+    }
+
+    .stat-value {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .stat-value.green { color: var(--success); }
+    .stat-value.gold { color: var(--warning); }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+      position: relative;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .chat-mockup {
+      background: var(--bg-card);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 20px;
+    }
+
+    .chat-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .chat-info h4 {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .chat-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--success);
+    }
+
+    .chat-status::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .message {
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.5;
+      animation: messageIn 0.5s ease-out both;
+    }
+
+    .message:nth-child(1) { animation-delay: 0.5s; }
+    .message:nth-child(2) { animation-delay: 1s; }
+    .message:nth-child(3) { animation-delay: 1.5s; }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.ai {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-top-left-radius: 4px;
+      align-self: flex-start;
+      max-width: 85%;
+    }
+
+    .message.user {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-top-right-radius: 4px;
+      align-self: flex-end;
+      max-width: 75%;
+    }
+
+    .chat-input {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 14px 20px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 15px;
+    }
+
+    .chat-input input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .chat-send {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .chat-send:hover {
+      transform: scale(1.05);
+    }
+
+    /* Refund Calculator */
+    .refund-preview {
+      position: absolute;
+      bottom: -30px;
+      right: -30px;
+      background: linear-gradient(145deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 16px;
+      padding: 20px 28px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+    }
+
+    .refund-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .refund-amount {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    /* Features Section */
+    .features {
+      position: relative;
+      padding: 120px 40px;
+      z-index: 1;
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto 80px;
+    }
+
+    .section-tag {
+      display: inline-block;
+      padding: 8px 16px;
+      background: rgba(99, 102, 241, 0.15);
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 700;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 40px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 20px 60px rgba(99, 102, 241, 0.15);
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 24px;
+    }
+
+    .feature-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .feature-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* Pricing Section */
+    .pricing {
+      position: relative;
+      padding: 120px 40px;
+      z-index: 1;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--primary);
+      transform: scale(1.05);
+      box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .pricing-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .pricing-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .pricing-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 56px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price span {
+      font-size: 20px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .pricing-period {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .pricing-features {
+      text-align: left;
+      margin-bottom: 32px;
+    }
+
+    .pricing-feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    .pricing-feature::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .pricing-cta {
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .pricing-card.featured .pricing-cta {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      color: white;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .pricing-card:not(.featured) .pricing-cta {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      position: relative;
+      padding: 120px 40px;
+      z-index: 1;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 40px;
+    }
+
+    .testimonial-stars {
+      color: var(--warning);
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .testimonial-text {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .testimonial-avatar {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .testimonial-name {
+      font-weight: 600;
+    }
+
+    .testimonial-role {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* CTA Section */
+    .cta {
+      position: relative;
+      padding: 120px 40px;
+      z-index: 1;
+    }
+
+    .cta-container {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+      background: linear-gradient(145deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 32px;
+      padding: 80px;
+    }
+
+    .cta-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .cta-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .cta-phone {
+      font-size: 20px;
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    .footer {
+      position: relative;
+      padding: 80px 40px 40px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      z-index: 1;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+      margin-bottom: 60px;
+    }
+
+    .footer-brand p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.7;
+      margin: 20px 0;
+      max-width: 300px;
+    }
+
+    .footer-heading {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-links a {
+      display: block;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 15px;
+      margin-bottom: 14px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-contact p {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .footer-bottom {
+      padding-top: 40px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copyright {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .footer-badges {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-badge {
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      
+      .hero-subtitle {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-cta-group {
+        justify-content: center;
+      }
+
+      .hero-stats {
+        justify-content: center;
+      }
+
+      .features-grid,
+      .pricing-grid,
+      .testimonials-grid {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+      }
+
+      .pricing-card.featured {
+        transform: none;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 16px 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding: 100px 20px 60px;
+      }
+
+      .features,
+      .pricing,
+      .testimonials,
+      .cta {
+        padding: 80px 20px;
+      }
+
+      .cta-container {
+        padding: 40px 24px;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background -->
+  <div class="bg-gradient"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="#" class="logo">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+        <defs>
+          <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+        <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#logoGrad)" opacity="0.3"/>
+        <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#logoGrad)" opacity="0.6"/>
+        <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#logoGrad)"/>
+        <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      </svg>
+      <span class="logo-text">Tax<span>Sky</span></span>
+      <span class="logo-ai">AI</span>
+    </a>
+    <div class="nav-links">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#testimonials" class="nav-link">Reviews</a>
+      <span class="nav-phone">📞 +1-844-737-4799</span>
+      <a href="#" class="nav-cta">Start Free →</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <div class="hero-badge">Tax Season 2025 - File Now!</div>
+        <h1 class="hero-title">
+          File Taxes in <span class="highlight">15 Minutes</span> with AI
+        </h1>
+        <p class="hero-subtitle">
+          Just chat naturally. Our AI finds every deduction, maximizes your refund, and files for you. No forms, no stress.
+        </p>
+        <div class="hero-cta-group">
+          <a href="#" class="btn-primary">💬 Start Chatting Free</a>
+          <a href="#" class="btn-secondary">📞 Call Us</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-value">50K+</div>
+            <div class="stat-label">Happy Filers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value green">$3,247</div>
+            <div class="stat-label">Avg. Refund</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value gold">4.9 ⭐</div>
+            <div class="stat-label">Rating</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="chat-mockup">
+          <div class="chat-header">
+            <div class="chat-avatar">💬</div>
+            <div class="chat-info">
+              <h4>TaxSky AI</h4>
+              <div class="chat-status">Online & Ready</div>
+            </div>
+          </div>
+          <div class="chat-messages">
+            <div class="message ai">
+              Hi! 👋 I'm your AI tax assistant. Upload your W-2 or just tell me about your income, and I'll handle everything!
+            </div>
+            <div class="message user">
+              I made $75,000 and have 2 kids
+            </div>
+            <div class="message ai">
+              Great! Based on your income and 2 dependents, you may qualify for up to <strong style="color: #10b981;">$4,000</strong> in Child Tax Credits! Let me calculate your full refund...
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" placeholder="Ask me anything about your taxes...">
+            <button class="chat-send">→</button>
+          </div>
+        </div>
+        <div class="refund-preview">
+          <div class="refund-label">Estimated Refund</div>
+          <div class="refund-amount">+$3,847</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="section-tag">Why TaxSky AI?</div>
+      <h2 class="section-title">Tax Filing, Reimagined</h2>
+      <p class="section-subtitle">
+        No more confusing forms or expensive accountants. Just chat with AI and get your maximum refund.
+      </p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3 class="feature-title">Chat to File</h3>
+        <p class="feature-desc">
+          Just talk naturally about your taxes. Our AI understands complex situations and guides you step by step.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📷</div>
+        <h3 class="feature-title">Snap & Done</h3>
+        <p class="feature-desc">
+          Take a photo of your W-2 or 1099. We extract all the data automatically - no manual entry needed.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3 class="feature-title">Maximum Refund</h3>
+        <p class="feature-desc">
+          Our AI finds deductions that humans miss. We guarantee you get every dollar you deserve.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-title">Bank-Grade Security</h3>
+        <p class="feature-desc">
+          SOC 2 Type II certified with 256-bit encryption. Your data is safer than at a bank.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3 class="feature-title">Multi-Language</h3>
+        <p class="feature-desc">
+          File your taxes in English, Vietnamese, Spanish, and more. We speak your language.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3 class="feature-title">Fast & Easy</h3>
+        <p class="feature-desc">
+          Average filing time is just 15 minutes. Get your refund faster with direct deposit.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing" id="pricing">
+    <div class="section-header">
+      <div class="section-tag">Simple Pricing</div>
+      <h2 class="section-title">Choose Your Plan</h2>
+      <p class="section-subtitle">
+        No hidden fees. Pay only when you file. 100% money-back guarantee.
+      </p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-name">Basic</div>
+        <div class="pricing-desc">Simple W-2 filing</div>
+        <div class="pricing-price">$0<span></span></div>
+        <div class="pricing-period">Federal Free</div>
+        <div class="pricing-features">
+          <div class="pricing-feature">Federal tax filing</div>
+          <div class="pricing-feature">W-2 income only</div>
+          <div class="pricing-feature">AI chat support</div>
+          <div class="pricing-feature">E-file included</div>
+        </div>
+        <button class="pricing-cta">Start Free</button>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most Popular</div>
+        <div class="pricing-name">Plus</div>
+        <div class="pricing-desc">Federal + State</div>
+        <div class="pricing-price">$49<span></span></div>
+        <div class="pricing-period">One-time payment</div>
+        <div class="pricing-features">
+          <div class="pricing-feature">Everything in Basic</div>
+          <div class="pricing-feature">State tax filing</div>
+          <div class="pricing-feature">1099 & investments</div>
+          <div class="pricing-feature">Priority support</div>
+          <div class="pricing-feature">Audit protection</div>
+        </div>
+        <button class="pricing-cta">Get Started →</button>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-name">Premium</div>
+        <div class="pricing-desc">Self-employed & complex</div>
+        <div class="pricing-price">$89<span></span></div>
+        <div class="pricing-period">One-time payment</div>
+        <div class="pricing-features">
+          <div class="pricing-feature">Everything in Plus</div>
+          <div class="pricing-feature">Self-employment income</div>
+          <div class="pricing-feature">Rental income</div>
+          <div class="pricing-feature">CPA review</div>
+          <div class="pricing-feature">Max refund guarantee</div>
+        </div>
+        <button class="pricing-cta">Get Started</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials" id="testimonials">
+    <div class="section-header">
+      <div class="section-tag">Loved by Thousands</div>
+      <h2 class="section-title">What Our Users Say</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">
+          "I was skeptical about AI doing my taxes, but TaxSky found $1,200 more in deductions than TurboTax! The chat interface made it so easy."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SM</div>
+          <div>
+            <div class="testimonial-name">Sarah M.</div>
+            <div class="testimonial-role">Small Business Owner</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">
+          "Finally, a tax app in Vietnamese! My parents could file their own taxes for the first time. The AI explained everything perfectly."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">TN</div>
+          <div>
+            <div class="testimonial-name">Tuan N.</div>
+            <div class="testimonial-role">Software Engineer</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+        <p class="testimonial-text">
+          "15 minutes and done! I just took a photo of my W-2 and chatted about my situation. Got my $3,400 refund in 10 days."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JR</div>
+          <div>
+            <div class="testimonial-name">Jessica R.</div>
+            <div class="testimonial-role">Teacher</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-container">
+      <h2 class="cta-title">Ready to Get Your Maximum Refund?</h2>
+      <p class="cta-subtitle">
+        Join 50,000+ happy filers. Start chatting with our AI and file your taxes in minutes.
+      </p>
+      <div class="cta-buttons">
+        <a href="#" class="btn-primary">💬 Start Filing Free</a>
+        <a href="tel:+18447374799" class="btn-secondary">📞 Call +1-844-737-4799</a>
+      </div>
+      <p class="cta-phone">Need help? Call us: <strong>+1-844-737-4799</strong></p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <defs>
+                <linearGradient id="logoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+              <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#logoGrad2)" opacity="0.3"/>
+              <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#logoGrad2)" opacity="0.6"/>
+              <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#logoGrad2)"/>
+              <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            </svg>
+            <span class="logo-text">Tax<span>Sky</span></span>
+            <span class="logo-ai">AI</span>
+          </a>
+          <p>
+            TaxSky AI is dedicated to providing smart, AI-powered tax preparation solutions. Our mission is to maximize your refund while minimizing your stress.
+          </p>
+        </div>
+        <div class="footer-links">
+          <h4 class="footer-heading">Services</h4>
+          <a href="#">Federal Tax Filing</a>
+          <a href="#">State Tax Filing</a>
+          <a href="#">Self-Employment</a>
+          <a href="#">W-2 Import</a>
+          <a href="#">1099 Processing</a>
+        </div>
+        <div class="footer-links">
+          <h4 class="footer-heading">Company</h4>
+          <a href="#">About Us</a>
+          <a href="#">CPA Portal</a>
+          <a href="#">Careers</a>
+          <a href="#">Blog</a>
+          <a href="#">Press</a>
+        </div>
+        <div class="footer-contact">
+          <h4 class="footer-heading">Contact</h4>
+          <p>📍 123 Tax Street, Suite 100<br>San Jose, CA 95110</p>
+          <p>📞 +1-844-737-4799</p>
+          <p>✉️ support@taxsky.com</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copyright">© 2025 TaxSky AI Inc. All rights reserved.</p>
+        <div class="footer-badges">
+          <span class="footer-badge">✓ IRS E-File</span>
+          <span class="footer-badge">✓ SOC 2</span>
+          <span class="footer-badge">✓ 256-bit SSL</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

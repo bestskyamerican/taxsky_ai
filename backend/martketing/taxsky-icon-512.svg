@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#6366f1"/>
+            <stop offset="100%" style="stop-color:#8b5cf6"/>
+        </linearGradient>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#0f0f1a"/>
+            <stop offset="100%" style="stop-color:#1a1a2e"/>
+        </linearGradient>
+    </defs>
+    <!-- Background -->
+    <rect width="512" height="512" rx="112" fill="url(#bgGrad)"/>
+    <!-- Hexagon layers -->
+    <polygon points="215,92 297,51 379,92 379,215 297,256 215,215" fill="url(#iconGrad)" opacity="0.3"/>
+    <polygon points="184,143 266,102 348,143 348,266 266,307 184,266" fill="url(#iconGrad)" opacity="0.55"/>
+    <polygon points="205,194 282,153 358,194 358,297 282,338 205,297" fill="url(#iconGrad)"/>
+    <!-- Dollar sign -->
+    <path d="M282 225 L282 297 M251 246 Q282 225 313 246 Q282 266 251 287 Q282 307 313 287" stroke="white" stroke-width="15" stroke-linecap="round" fill="none"/>
+</svg>

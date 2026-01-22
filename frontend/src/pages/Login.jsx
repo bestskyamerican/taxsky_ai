@@ -1,9 +1,10 @@
 // ============================================================
-// TAXSKY LOGIN PAGE - DARK THEME
+// TAXSKY LOGIN PAGE - DARK THEME (FIXED FOR PAYMENT REDIRECT)
 // ============================================================
 // Standalone login page for /login route
 // Matches Onboarding & Dashboard dark theme
 // Updated: New TaxSky AI Hexagon Logo
+// FIXED: Redirect to checkout after login if coming from pricing
 // ============================================================
 
 import React, { useState, useEffect } from "react";
@@ -89,8 +90,22 @@ export default function Login() {
         // Also store language
         localStorage.setItem("taxsky_language", language);
         
-        // Navigate to tax chat
-        navigate("/taxchat");
+        // ============================================================
+        // ✅ FIXED: Check for redirect URL (from pricing page)
+        // ============================================================
+        const redirectUrl = localStorage.getItem("taxsky_redirect_after_login");
+        
+        if (redirectUrl) {
+          // Clear the stored redirect
+          localStorage.removeItem("taxsky_redirect_after_login");
+          // Navigate to the stored URL (e.g., /checkout/standard)
+          navigate(redirectUrl);
+        } else {
+          // Default: go to tax chat
+          navigate("/taxchat");
+        }
+        // ============================================================
+        
       } else {
         throw new Error(data.error || "Login failed");
       }

@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxSky AI - Complete Social Media Kit 2025</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: linear-gradient(180deg, #0f0f1a 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .page-header h1 {
+      color: white;
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      color: #94a3b8;
+      font-size: 18px;
+    }
+
+    .section {
+      max-width: 1400px;
+      margin: 0 auto 80px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .section-title .icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .graphics-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .graphic-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .label {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.05);
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .size-info {
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    /* ========================================
+       FACEBOOK GRAPHICS
+    ======================================== */
+    
+    /* Facebook Page Cover - 820x312 */
+    .fb-cover {
+      width: 820px;
+      height: 312px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 60%, #0f0f1a 100%);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 0 60px;
+    }
+
+    .fb-cover::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -50px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .fb-cover::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      left: 100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .fb-cover-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    .fb-cover-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .fb-cover-logo-text {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .fb-cover-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-cover-headline {
+      font-size: 42px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .fb-cover-headline .highlight {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-cover-tagline {
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    .fb-cover-right {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .fb-cover-stats {
+      display: flex;
+      gap: 30px;
+    }
+
+    .fb-cover-stat {
+      text-align: center;
+      background: rgba(255,255,255,0.05);
+      padding: 20px 25px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .fb-cover-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .fb-cover-stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Facebook Profile Picture - 180x180 */
+    .fb-profile {
+      width: 180px;
+      height: 180px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .fb-profile::before {
+      content: '';
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .fb-profile-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    /* Facebook Post - 1200x630 (scaled) */
+    .fb-post {
+      width: 600px;
+      height: 315px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 35px 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fb-post::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -40px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .fb-post-left {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    .fb-post-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .fb-post-logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .fb-post-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-post-headline {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .fb-post-headline .highlight {
+      background: linear-gradient(135deg, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-post-subhead {
+      font-size: 16px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+    }
+
+    .fb-post-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 700;
+      color: white;
+      font-size: 16px;
+    }
+
+    .fb-post-right {
+      position: relative;
+      z-index: 1;
+    }
+
+    .fb-post-refund-card {
+      background: rgba(16, 185, 129, 0.12);
+      border: 2px solid rgba(16, 185, 129, 0.25);
+      border-radius: 20px;
+      padding: 25px 35px;
+      text-align: center;
+    }
+
+    .fb-post-refund-label {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+
+    .fb-post-refund-amount {
+      font-size: 42px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    /* Facebook Event Cover - 1920x1005 (scaled) */
+    .fb-event {
+      width: 640px;
+      height: 335px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+      border-radius: 12px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .fb-event::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .fb-event-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .fb-event-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .fb-event-headline {
+      font-size: 38px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+
+    .fb-event-headline .highlight {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-event-details {
+      font-size: 18px;
+      color: #94a3b8;
+      margin-bottom: 25px;
+    }
+
+    .fb-event-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      font-size: 18px;
+    }
+
+    /* ========================================
+       INSTAGRAM GRAPHICS
+    ======================================== */
+
+    /* Instagram Post - 1080x1080 (scaled) */
+    .ig-post {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 35px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .ig-post::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .ig-post::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .ig-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ig-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .ig-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .ig-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ig-headline {
+      font-size: 30px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .ig-headline .highlight {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ig-stats {
+      display: flex;
+      gap: 25px;
+    }
+
+    .ig-stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .ig-stat-label {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .ig-cta {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 16px 24px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 700;
+      color: white;
+      font-size: 15px;
+    }
+
+    /* Instagram Story - 1080x1920 (scaled) */
+    .ig-story {
+      width: 225px;
+      height: 400px;
+      background: linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%);
+      border-radius: 20px;
+      padding: 25px 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+
+    .ig-story::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .story-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .story-headline {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.3;
+      margin-bottom: 12px;
+    }
+
+    .story-subhead {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 18px;
+    }
+
+    .story-refund {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .story-refund-label {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .story-refund-amount {
+      font-size: 32px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .story-cta {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+
+    .story-cta-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .story-swipe {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* Instagram Carousel Slide */
+    .ig-carousel {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 35px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .ig-carousel::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .ig-carousel-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ig-carousel-number {
+      font-size: 80px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .ig-carousel-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .ig-carousel-desc {
+      font-size: 16px;
+      color: #94a3b8;
+      line-height: 1.5;
+      max-width: 300px;
+    }
+
+    .ig-carousel-dots {
+      position: absolute;
+      bottom: 20px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .ig-carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+    }
+
+    .ig-carousel-dot.active {
+      background: #6366f1;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* ========================================
+       TWITTER/X GRAPHICS
+    ======================================== */
+
+    /* Twitter Header - 1500x500 (scaled) */
+    .twitter-header {
+      width: 600px;
+      height: 200px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 30px 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .twitter-header::before {
+      content: '';
+      position: absolute;
+      top: -80%;
+      right: 0;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .twitter-left {
+      position: relative;
+      z-index: 1;
+    }
+
+    .twitter-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .twitter-logo-text {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .twitter-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .twitter-tagline {
+      font-size: 16px;
+      color: #94a3b8;
+    }
+
+    .twitter-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 30px;
+    }
+
+    .twitter-stat {
+      text-align: center;
+    }
+
+    .twitter-stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .twitter-stat-value.green {
+      color: #10b981;
+    }
+
+    .twitter-stat-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Twitter Post Image - 1200x675 (scaled) */
+    .twitter-post {
+      width: 533px;
+      height: 300px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 16px;
+      padding: 30px 35px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .twitter-post::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .twitter-post-left {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+
+    .twitter-post-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .twitter-post-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .twitter-post-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .twitter-post-headline {
+      font-size: 26px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .twitter-post-subhead {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 18px;
+    }
+
+    .twitter-post-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 700;
+      color: white;
+      font-size: 14px;
+    }
+
+    .twitter-post-right {
+      position: relative;
+      z-index: 1;
+    }
+
+    .twitter-post-refund {
+      background: rgba(16, 185, 129, 0.12);
+      border: 2px solid rgba(16, 185, 129, 0.25);
+      border-radius: 16px;
+      padding: 20px 28px;
+      text-align: center;
+    }
+
+    .twitter-post-refund-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .twitter-post-refund-amount {
+      font-size: 36px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    /* ========================================
+       LINKEDIN GRAPHICS
+    ======================================== */
+
+    /* LinkedIn Banner - 1584x396 (scaled) */
+    .linkedin-banner {
+      width: 792px;
+      height: 198px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 8px;
+      padding: 25px 40px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .linkedin-banner::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      right: 10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .linkedin-left {
+      position: relative;
+      z-index: 1;
+    }
+
+    .linkedin-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .linkedin-logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .linkedin-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .linkedin-headline {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .linkedin-tagline {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .linkedin-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 25px;
+    }
+
+    .linkedin-stat {
+      text-align: center;
+      background: rgba(255,255,255,0.05);
+      padding: 15px 20px;
+      border-radius: 12px;
+    }
+
+    .linkedin-stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .linkedin-stat-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* LinkedIn Post - 1200x627 (scaled) */
+    .linkedin-post {
+      width: 600px;
+      height: 313px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 8px;
+      padding: 35px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .linkedin-post::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -40px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .linkedin-post-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .linkedin-post-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .linkedin-post-logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .linkedin-post-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .linkedin-post-headline {
+      font-size: 30px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      margin-bottom: 15px;
+    }
+
+    .linkedin-post-desc {
+      font-size: 16px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: auto;
+    }
+
+    .linkedin-post-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .linkedin-post-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-weight: 700;
+      color: white;
+      font-size: 15px;
+    }
+
+    .linkedin-post-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .linkedin-post-stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .linkedin-post-stat-label {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* ========================================
+       YOUTUBE GRAPHICS
+    ======================================== */
+
+    /* YouTube Channel Art - 2560x1440 (scaled to banner visible area) */
+    .youtube-banner {
+      width: 800px;
+      height: 200px;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 0;
+      padding: 30px 60px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .youtube-banner::before {
+      content: '';
+      position: absolute;
+      top: -100%;
+      right: 5%;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(255, 0, 0, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .youtube-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -80%;
+      left: 20%;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .youtube-left {
+      position: relative;
+      z-index: 1;
+    }
+
+    .youtube-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .youtube-logo-text {
+      font-size: 32px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .youtube-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .youtube-tagline {
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    .youtube-right {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 30px;
+    }
+
+    .youtube-stat {
+      text-align: center;
+    }
+
+    .youtube-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .youtube-stat-value.green {
+      color: #10b981;
+    }
+
+    .youtube-stat-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* YouTube Thumbnail - 1280x720 (scaled) */
+    .youtube-thumb {
+      width: 480px;
+      height: 270px;
+      background: linear-gradient(145deg, #0a0a0f 0%, #1a1a2e 100%);
+      border-radius: 12px;
+      padding: 25px 30px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .youtube-thumb::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -30px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(255, 0, 0, 0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .youtube-thumb-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .youtube-thumb-badge {
+      display: inline-block;
+      background: #ff0000;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .youtube-thumb-headline {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .youtube-thumb-headline .highlight {
+      color: #10b981;
+    }
+
+    .youtube-thumb-footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .youtube-thumb-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .youtube-thumb-logo-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .youtube-thumb-logo-text span {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .youtube-thumb-refund {
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 12px 18px;
+      text-align: center;
+    }
+
+    .youtube-thumb-refund-label {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+
+    .youtube-thumb-refund-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    /* Logo SVG reusable */
+    .logo-svg {
+      flex-shrink: 0;
+    }
+
+    /* Download instructions */
+    .instructions {
+      max-width: 800px;
+      margin: 60px auto 0;
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 16px;
+      padding: 30px 40px;
+    }
+
+    .instructions h3 {
+      color: white;
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+
+    .instructions p {
+      color: #94a3b8;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .instructions code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #a78bfa;
+    }
+
+    .instructions ul {
+      color: #94a3b8;
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>🎨 TaxSky AI - Social Media Kit 2025</h1>
+    <p>Complete graphics for Facebook, Instagram, Twitter/X, LinkedIn & YouTube</p>
+  </div>
+
+  <!-- ============================================
+       FACEBOOK SECTION
+  ============================================ -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">📘</span>
+      Facebook
+    </h2>
+    
+    <div class="graphics-row">
+      <!-- FB Cover -->
+      <div class="graphic-container">
+        <div class="label">Page Cover Photo</div>
+        <div class="fb-cover">
+          <div class="fb-cover-content">
+            <div class="fb-cover-logo">
+              <svg class="logo-svg" width="45" height="45" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="fbg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#fbg1)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#fbg1)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#fbg1)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="fb-cover-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <h1 class="fb-cover-headline">
+              File Taxes in<br>
+              <span class="highlight">15 Minutes</span> 💬
+            </h1>
+            <p class="fb-cover-tagline">AI-Powered Tax Filing • No Forms • Maximum Refund</p>
+          </div>
+          <div class="fb-cover-right">
+            <div class="fb-cover-stats">
+              <div class="fb-cover-stat">
+                <div class="fb-cover-stat-value">$3,247</div>
+                <div class="fb-cover-stat-label">Avg. Refund</div>
+              </div>
+              <div class="fb-cover-stat">
+                <div class="fb-cover-stat-value">50K+</div>
+                <div class="fb-cover-stat-label">Happy Filers</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">820 × 312 px</div>
+      </div>
+    </div>
+
+    <div class="graphics-row" style="margin-top: 30px;">
+      <!-- FB Profile -->
+      <div class="graphic-container">
+        <div class="label">Profile Picture</div>
+        <div class="fb-profile">
+          <div class="fb-profile-content">
+            <svg width="80" height="80" viewBox="0 0 40 40" fill="none">
+              <defs>
+                <linearGradient id="fbg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+              <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#fbg2)" opacity="0.3"/>
+              <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#fbg2)" opacity="0.6"/>
+              <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#fbg2)"/>
+              <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+        </div>
+        <div class="size-info">180 × 180 px</div>
+      </div>
+
+      <!-- FB Post -->
+      <div class="graphic-container">
+        <div class="label">Post / Ad Image</div>
+        <div class="fb-post">
+          <div class="fb-post-left">
+            <div class="fb-post-logo">
+              <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="fbg3" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#fbg3)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#fbg3)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#fbg3)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="fb-post-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <h2 class="fb-post-headline">
+              Get Your<br>
+              <span class="highlight">Maximum Refund</span> 💰
+            </h2>
+            <p class="fb-post-subhead">Chat with AI to file taxes in 15 minutes</p>
+            <div class="fb-post-cta">Start FREE →</div>
+          </div>
+          <div class="fb-post-right">
+            <div class="fb-post-refund-card">
+              <div class="fb-post-refund-label">Avg. Refund</div>
+              <div class="fb-post-refund-amount">$3,247</div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">1200 × 630 px</div>
+      </div>
+    </div>
+
+    <div class="graphics-row" style="margin-top: 30px;">
+      <!-- FB Event -->
+      <div class="graphic-container">
+        <div class="label">Event Cover</div>
+        <div class="fb-event">
+          <div class="fb-event-content">
+            <div class="fb-event-badge">🎉 TAX SEASON 2025</div>
+            <h2 class="fb-event-headline">
+              FREE Tax Filing<br>
+              <span class="highlight">Workshop</span>
+            </h2>
+            <p class="fb-event-details">Learn how to maximize your refund with AI</p>
+            <div class="fb-event-cta">Register Now →</div>
+          </div>
+        </div>
+        <div class="size-info">1920 × 1005 px</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       INSTAGRAM SECTION
+  ============================================ -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">📸</span>
+      Instagram
+    </h2>
+    
+    <div class="graphics-row">
+      <!-- IG Post -->
+      <div class="graphic-container">
+        <div class="label">Feed Post</div>
+        <div class="ig-post">
+          <div class="ig-content">
+            <div class="ig-logo">
+              <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="igg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#igg1)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#igg1)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#igg1)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="ig-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <h2 class="ig-headline">
+              File Taxes in<br>
+              <span class="highlight">15 Minutes</span><br>
+              with AI 💬
+            </h2>
+            <div class="ig-stats">
+              <div class="ig-stat">
+                <div class="ig-stat-value">$3,247</div>
+                <div class="ig-stat-label">Avg. Refund</div>
+              </div>
+              <div class="ig-stat">
+                <div class="ig-stat-value">50K+</div>
+                <div class="ig-stat-label">Happy Filers</div>
+              </div>
+            </div>
+          </div>
+          <div class="ig-cta">Start FREE → taxsky.ai</div>
+        </div>
+        <div class="size-info">1080 × 1080 px</div>
+      </div>
+
+      <!-- IG Story -->
+      <div class="graphic-container">
+        <div class="label">Story</div>
+        <div class="ig-story">
+          <div class="story-content">
+            <svg width="45" height="45" viewBox="0 0 40 40" fill="none" style="margin-bottom: 15px;">
+              <defs>
+                <linearGradient id="igg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="100%" stop-color="#8b5cf6"/>
+                </linearGradient>
+              </defs>
+              <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#igg2)" opacity="0.3"/>
+              <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#igg2)" opacity="0.6"/>
+              <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#igg2)"/>
+              <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            </svg>
+            <h2 class="story-headline">Just Chat<br>to File Taxes 💬</h2>
+            <p class="story-subhead">No forms. No confusion.<br>AI handles everything.</p>
+            <div class="story-refund">
+              <div class="story-refund-label">Average Refund</div>
+              <div class="story-refund-amount">$3,247</div>
+            </div>
+          </div>
+          <div class="story-cta">
+            <div class="story-cta-btn">Start FREE Now</div>
+            <div class="story-swipe">↑ Swipe Up</div>
+          </div>
+        </div>
+        <div class="size-info">1080 × 1920 px</div>
+      </div>
+
+      <!-- IG Carousel -->
+      <div class="graphic-container">
+        <div class="label">Carousel Slide</div>
+        <div class="ig-carousel">
+          <div class="ig-carousel-content">
+            <div class="ig-carousel-number">01</div>
+            <h3 class="ig-carousel-title">Just Chat 💬</h3>
+            <p class="ig-carousel-desc">No forms to fill. Just answer simple questions about your income.</p>
+          </div>
+          <div class="ig-carousel-dots">
+            <div class="ig-carousel-dot active"></div>
+            <div class="ig-carousel-dot"></div>
+            <div class="ig-carousel-dot"></div>
+            <div class="ig-carousel-dot"></div>
+          </div>
+        </div>
+        <div class="size-info">1080 × 1080 px</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       TWITTER/X SECTION
+  ============================================ -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">🐦</span>
+      Twitter / X
+    </h2>
+    
+    <div class="graphics-row">
+      <!-- Twitter Header -->
+      <div class="graphic-container">
+        <div class="label">Profile Header</div>
+        <div class="twitter-header">
+          <div class="twitter-left">
+            <div class="twitter-logo">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="twg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#twg1)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#twg1)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#twg1)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="twitter-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <p class="twitter-tagline">AI-Powered Tax Filing • taxsky.ai</p>
+          </div>
+          <div class="twitter-right">
+            <div class="twitter-stat">
+              <div class="twitter-stat-value green">$3,247</div>
+              <div class="twitter-stat-label">Avg. Refund</div>
+            </div>
+            <div class="twitter-stat">
+              <div class="twitter-stat-value">15 min</div>
+              <div class="twitter-stat-label">Avg. Time</div>
+            </div>
+            <div class="twitter-stat">
+              <div class="twitter-stat-value">50K+</div>
+              <div class="twitter-stat-label">Filers</div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">1500 × 500 px</div>
+      </div>
+    </div>
+
+    <div class="graphics-row" style="margin-top: 30px;">
+      <!-- Twitter Post -->
+      <div class="graphic-container">
+        <div class="label">Post Image</div>
+        <div class="twitter-post">
+          <div class="twitter-post-left">
+            <div class="twitter-post-logo">
+              <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="twg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#twg2)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#twg2)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#twg2)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="twitter-post-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <h2 class="twitter-post-headline">File Taxes in 15 Min<br>with AI Chat 💬</h2>
+            <p class="twitter-post-subhead">No forms needed. Just talk to our AI.</p>
+            <div class="twitter-post-cta">Start FREE →</div>
+          </div>
+          <div class="twitter-post-right">
+            <div class="twitter-post-refund">
+              <div class="twitter-post-refund-label">Avg. Refund</div>
+              <div class="twitter-post-refund-amount">$3,247</div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">1200 × 675 px</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       LINKEDIN SECTION
+  ============================================ -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">💼</span>
+      LinkedIn
+    </h2>
+    
+    <div class="graphics-row">
+      <!-- LinkedIn Banner -->
+      <div class="graphic-container">
+        <div class="label">Company Page Banner</div>
+        <div class="linkedin-banner">
+          <div class="linkedin-left">
+            <div class="linkedin-logo">
+              <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="lig1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#lig1)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#lig1)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#lig1)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="linkedin-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <h2 class="linkedin-headline">AI-Powered Tax Filing</h2>
+            <p class="linkedin-tagline">File in 15 minutes • Maximum refund guaranteed</p>
+          </div>
+          <div class="linkedin-right">
+            <div class="linkedin-stat">
+              <div class="linkedin-stat-value">$3,247</div>
+              <div class="linkedin-stat-label">Avg. Refund</div>
+            </div>
+            <div class="linkedin-stat">
+              <div class="linkedin-stat-value">50K+</div>
+              <div class="linkedin-stat-label">Users</div>
+            </div>
+            <div class="linkedin-stat">
+              <div class="linkedin-stat-value">4.9⭐</div>
+              <div class="linkedin-stat-label">Rating</div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">1584 × 396 px</div>
+      </div>
+    </div>
+
+    <div class="graphics-row" style="margin-top: 30px;">
+      <!-- LinkedIn Post -->
+      <div class="graphic-container">
+        <div class="label">Post Image</div>
+        <div class="linkedin-post">
+          <div class="linkedin-post-content">
+            <div class="linkedin-post-logo">
+              <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="lig2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#lig2)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#lig2)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#lig2)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="linkedin-post-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <h2 class="linkedin-post-headline">We're Hiring! 🚀<br>Join the TaxSky Team</h2>
+            <p class="linkedin-post-desc">Help us revolutionize how millions of Americans file their taxes with AI technology.</p>
+            <div class="linkedin-post-footer">
+              <div class="linkedin-post-cta">View Open Roles →</div>
+              <div class="linkedin-post-stats">
+                <div>
+                  <div class="linkedin-post-stat-value">$180K+</div>
+                  <div class="linkedin-post-stat-label">Salary Range</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">1200 × 627 px</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       YOUTUBE SECTION
+  ============================================ -->
+  <div class="section">
+    <h2 class="section-title">
+      <span class="icon">▶️</span>
+      YouTube
+    </h2>
+    
+    <div class="graphics-row">
+      <!-- YouTube Banner -->
+      <div class="graphic-container">
+        <div class="label">Channel Banner</div>
+        <div class="youtube-banner">
+          <div class="youtube-left">
+            <div class="youtube-logo">
+              <svg width="45" height="45" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="ytg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#ytg1)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#ytg1)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#ytg1)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="youtube-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <p class="youtube-tagline">Tax Tips • Tutorials • News | Subscribe! 🔔</p>
+          </div>
+          <div class="youtube-right">
+            <div class="youtube-stat">
+              <div class="youtube-stat-value green">$3,247</div>
+              <div class="youtube-stat-label">Avg. Refund</div>
+            </div>
+            <div class="youtube-stat">
+              <div class="youtube-stat-value">15 min</div>
+              <div class="youtube-stat-label">File Time</div>
+            </div>
+            <div class="youtube-stat">
+              <div class="youtube-stat-value">50K+</div>
+              <div class="youtube-stat-label">Users</div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">2560 × 1440 px (safe area shown)</div>
+      </div>
+    </div>
+
+    <div class="graphics-row" style="margin-top: 30px;">
+      <!-- YouTube Thumbnail -->
+      <div class="graphic-container">
+        <div class="label">Video Thumbnail</div>
+        <div class="youtube-thumb">
+          <div class="youtube-thumb-content">
+            <div class="youtube-thumb-badge">TAX TIPS 2025</div>
+            <h2 class="youtube-thumb-headline">
+              How to Get Your<br>
+              <span class="highlight">MAXIMUM</span> Refund
+            </h2>
+          </div>
+          <div class="youtube-thumb-footer">
+            <div class="youtube-thumb-logo">
+              <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
+                <defs>
+                  <linearGradient id="ytg2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#8b5cf6"/>
+                  </linearGradient>
+                </defs>
+                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#ytg2)" opacity="0.3"/>
+                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#ytg2)" opacity="0.6"/>
+                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#ytg2)"/>
+                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+              </svg>
+              <span class="youtube-thumb-logo-text">Tax<span>Sky</span> AI</span>
+            </div>
+            <div class="youtube-thumb-refund">
+              <div class="youtube-thumb-refund-label">Avg. Refund</div>
+              <div class="youtube-thumb-refund-amount">$3,247</div>
+            </div>
+          </div>
+        </div>
+        <div class="size-info">1280 × 720 px</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <h3>📥 How to Export These Graphics</h3>
+    <p>To use these graphics for your social media:</p>
+    <ul>
+      <li><strong>Screenshot Method:</strong> Take a screenshot of each graphic and crop to size</li>
+      <li><strong>Browser Print:</strong> Use <code>Ctrl/Cmd + P</code> → Save as PDF → Extract images</li>
+      <li><strong>Developer Tools:</strong> Right-click → Inspect → Screenshot node</li>
+      <li><strong>Design Software:</strong> Recreate in Figma, Canva, or Adobe using these as templates</li>
+    </ul>
+    <p style="margin-top: 15px;"><strong>Recommended:</strong> Export at 2x resolution for best quality on high-DPI screens.</p>
+  </div>
+
+</body>
+</html>

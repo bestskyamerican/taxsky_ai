@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaxSky AI - Email Templates</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a2e;
+      padding: 40px;
+      margin: 0;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .label {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto 60px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    /* Email Header */
+    .email-header {
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .email-logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .email-logo span {
+      color: #6366f1;
+    }
+
+    .email-tagline {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+
+    /* Email Body */
+    .email-body {
+      padding: 40px 30px;
+    }
+
+    .email-greeting {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+    }
+
+    .email-text {
+      font-size: 16px;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .email-highlight {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      border-left: 4px solid #6366f1;
+      padding: 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 24px 0;
+    }
+
+    .email-highlight h3 {
+      font-size: 18px;
+      color: #1a1a2e;
+      margin: 0 0 8px 0;
+    }
+
+    .email-highlight p {
+      font-size: 14px;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .email-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+
+    .email-cta-secondary {
+      display: inline-block;
+      background: #f1f5f9;
+      color: #475569;
+      padding: 14px 28px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .email-stats {
+      display: flex;
+      justify-content: space-around;
+      background: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
+      margin: 24px 0;
+    }
+
+    .email-stat {
+      text-align: center;
+    }
+
+    .email-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .email-stat-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .email-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    .email-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .email-feature-icon {
+      font-size: 24px;
+    }
+
+    .email-feature-text h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin: 0 0 4px 0;
+    }
+
+    .email-feature-text p {
+      font-size: 13px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .email-divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 30px 0;
+    }
+
+    .email-signature {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .email-signature strong {
+      color: #1a1a2e;
+    }
+
+    /* Email Footer */
+    .email-footer {
+      background: #f8fafc;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .email-footer-links {
+      margin-bottom: 16px;
+    }
+
+    .email-footer-links a {
+      color: #64748b;
+      text-decoration: none;
+      font-size: 13px;
+      margin: 0 12px;
+    }
+
+    .email-footer-contact {
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 16px;
+    }
+
+    .email-footer-contact strong {
+      color: #6366f1;
+    }
+
+    .email-footer-social {
+      margin-bottom: 16px;
+    }
+
+    .email-footer-social a {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      background: #e2e8f0;
+      border-radius: 50%;
+      margin: 0 4px;
+      line-height: 36px;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .email-footer-unsubscribe {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .email-footer-unsubscribe a {
+      color: #94a3b8;
+    }
+
+    /* Refund Card */
+    .refund-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+      border: 2px solid rgba(16, 185, 129, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .refund-card-label {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .refund-card-amount {
+      font-size: 42px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .refund-card-note {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    /* Progress Steps */
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      margin: 24px 0;
+      position: relative;
+    }
+
+    .progress-steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50px;
+      right: 50px;
+      height: 2px;
+      background: #e2e8f0;
+    }
+
+    .progress-step {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-step-number {
+      width: 40px;
+      height: 40px;
+      background: #6366f1;
+      border-radius: 50%;
+      color: white;
+      font-weight: 700;
+      line-height: 40px;
+      margin: 0 auto 8px;
+    }
+
+    .progress-step-number.completed {
+      background: #10b981;
+    }
+
+    .progress-step-number.pending {
+      background: #e2e8f0;
+      color: #64748b;
+    }
+
+    .progress-step-text {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Alert Box */
+    .alert-box {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .alert-box-icon {
+      font-size: 24px;
+    }
+
+    .alert-box-text {
+      font-size: 14px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1>TaxSky AI - Email Newsletter Templates</h1>
+
+  <!-- Email 1: Welcome Email -->
+  <div class="label">Email 1: Welcome Email</div>
+  <div class="email-container">
+    <div class="email-header">
+      <div class="email-logo">Tax<span>Sky</span> AI</div>
+      <div class="email-tagline">Smart Tax Filing Made Simple</div>
+    </div>
+    <div class="email-body">
+      <h1 class="email-greeting">Welcome to TaxSky AI! 🎉</h1>
+      <p class="email-text">
+        Hi <strong>{FirstName}</strong>,
+      </p>
+      <p class="email-text">
+        You've just taken the first step toward the easiest tax filing experience ever. No more confusing forms, no more expensive accountants – just a simple chat with our AI assistant.
+      </p>
+
+      <div class="email-highlight">
+        <h3>Here's how it works:</h3>
+        <p>1. Tell us about your income 💬<br>
+        2. Upload your W-2 (just snap a photo!) 📷<br>
+        3. Review your maximum refund 💰<br>
+        4. File in minutes! ⚡</p>
+      </div>
+
+      <div class="email-stats">
+        <div class="email-stat">
+          <div class="email-stat-value">$3,247</div>
+          <div class="email-stat-label">Avg. Refund</div>
+        </div>
+        <div class="email-stat">
+          <div class="email-stat-value">15 min</div>
+          <div class="email-stat-label">Avg. Time</div>
+        </div>
+        <div class="email-stat">
+          <div class="email-stat-value">50K+</div>
+          <div class="email-stat-label">Happy Filers</div>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="#" class="email-cta">💬 Start Filing Now</a>
+      </div>
+
+      <div class="email-divider"></div>
+
+      <p class="email-text">
+        Have questions? Our AI is available 24/7, or you can call us at <strong>+1-844-737-4799</strong>.
+      </p>
+
+      <p class="email-signature">
+        Happy filing!<br>
+        <strong>The TaxSky AI Team</strong>
+      </p>
+    </div>
+    <div class="email-footer">
+      <div class="email-footer-links">
+        <a href="#">Help Center</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <div class="email-footer-contact">
+        📞 <strong>+1-844-737-4799</strong> | ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3b484e4b4b54494f7b4f5a4348504215585456">[email&#160;protected]</a>
+      </div>
+      <div class="email-footer-social">
+        <a href="#">𝕏</a>
+        <a href="#">in</a>
+        <a href="#">▶</a>
+        <a href="#">📷</a>
+      </div>
+      <div class="email-footer-unsubscribe">
+        © 2025 TaxSky AI Inc. | <a href="#">Unsubscribe</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email 2: Tax Deadline Reminder -->
+  <div class="label">Email 2: Tax Deadline Reminder</div>
+  <div class="email-container">
+    <div class="email-header">
+      <div class="email-logo">Tax<span>Sky</span> AI</div>
+      <div class="email-tagline">Smart Tax Filing Made Simple</div>
+    </div>
+    <div class="email-body">
+      <h1 class="email-greeting">⏰ Tax Deadline in 2 Weeks!</h1>
+      <p class="email-text">
+        Hi <strong>{FirstName}</strong>,
+      </p>
+      <p class="email-text">
+        April 15th is just around the corner! Don't wait until the last minute – file your taxes now and get your refund faster.
+      </p>
+
+      <div class="alert-box">
+        <span class="alert-box-icon">⚠️</span>
+        <div class="alert-box-text">
+          <strong>Last-minute filers</strong> are more likely to make mistakes and miss deductions. File early with TaxSky AI and avoid the stress!
+        </div>
+      </div>
+
+      <div class="refund-card">
+        <div class="refund-card-label">Average TaxSky Refund</div>
+        <div class="refund-card-amount">$3,247</div>
+        <div class="refund-card-note">What could YOU do with this money?</div>
+      </div>
+
+      <div class="email-features">
+        <div class="email-feature">
+          <span class="email-feature-icon">⚡</span>
+          <div class="email-feature-text">
+            <h4>File in 15 Minutes</h4>
+            <p>No more hours of paperwork</p>
+          </div>
+        </div>
+        <div class="email-feature">
+          <span class="email-feature-icon">💰</span>
+          <div class="email-feature-text">
+            <h4>Maximum Refund</h4>
+            <p>AI finds every deduction</p>
+          </div>
+        </div>
+        <div class="email-feature">
+          <span class="email-feature-icon">🔒</span>
+          <div class="email-feature-text">
+            <h4>100% Secure</h4>
+            <p>Bank-level encryption</p>
+          </div>
+        </div>
+        <div class="email-feature">
+          <span class="email-feature-icon">✅</span>
+          <div class="email-feature-text">
+            <h4>IRS Authorized</h4>
+            <p>E-file directly to IRS</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="#" class="email-cta">File My Taxes Now →</a>
+        <br>
+        <a href="tel:+18447374799" class="email-cta-secondary">📞 Call +1-844-737-4799</a>
+      </div>
+
+      <div class="email-divider"></div>
+
+      <p class="email-signature">
+        Don't wait – file today!<br>
+        <strong>The TaxSky AI Team</strong>
+      </p>
+    </div>
+    <div class="email-footer">
+      <div class="email-footer-links">
+        <a href="#">Help Center</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <div class="email-footer-contact">
+        📞 <strong>+1-844-737-4799</strong> | ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2e5d5b5e5e415c5a6e5a4f565d4557004d4143">[email&#160;protected]</a>
+      </div>
+      <div class="email-footer-unsubscribe">
+        © 2025 TaxSky AI Inc. | <a href="#">Unsubscribe</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email 3: Filing Progress / Abandoned Cart -->
+  <div class="label">Email 3: Filing Progress (Abandoned Cart)</div>
+  <div class="email-container">
+    <div class="email-header">
+      <div class="email-logo">Tax<span>Sky</span> AI</div>
+      <div class="email-tagline">Smart Tax Filing Made Simple</div>
+    </div>
+    <div class="email-body">
+      <h1 class="email-greeting">Your Refund is Waiting! 💰</h1>
+      <p class="email-text">
+        Hi <strong>{FirstName}</strong>,
+      </p>
+      <p class="email-text">
+        You started filing your taxes but didn't finish. Good news – we saved your progress! You're just a few steps away from getting your refund.
+      </p>
+
+      <div class="progress-steps">
+        <div class="progress-step">
+          <div class="progress-step-number completed">✓</div>
+          <div class="progress-step-text">Income<br>Entered</div>
+        </div>
+        <div class="progress-step">
+          <div class="progress-step-number completed">✓</div>
+          <div class="progress-step-text">W-2<br>Uploaded</div>
+        </div>
+        <div class="progress-step">
+          <div class="progress-step-number">3</div>
+          <div class="progress-step-text">Review<br>Deductions</div>
+        </div>
+        <div class="progress-step">
+          <div class="progress-step-number pending">4</div>
+          <div class="progress-step-text">File &<br>Submit</div>
+        </div>
+      </div>
+
+      <div class="refund-card">
+        <div class="refund-card-label">Your Estimated Refund</div>
+        <div class="refund-card-amount">${RefundAmount}</div>
+        <div class="refund-card-note">Based on your info so far</div>
+      </div>
+
+      <div class="email-highlight">
+        <h3>🎯 You're almost done!</h3>
+        <p>It only takes about 5 more minutes to finish and submit your return. Don't leave money on the table!</p>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="#" class="email-cta">Continue My Return →</a>
+      </div>
+
+      <div class="email-divider"></div>
+
+      <p class="email-text">
+        Need help finishing? Our AI assistant is ready 24/7, or call us at <strong>+1-844-737-4799</strong>.
+      </p>
+
+      <p class="email-signature">
+        See you soon!<br>
+        <strong>The TaxSky AI Team</strong>
+      </p>
+    </div>
+    <div class="email-footer">
+      <div class="email-footer-links">
+        <a href="#">Help Center</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <div class="email-footer-contact">
+        📞 <strong>+1-844-737-4799</strong> | ✉️ <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="97e4e2e7e7f8e5e3d7e3f6efe4fceeb9f4f8fa">[email&#160;protected]</a>
+      </div>
+      <div class="email-footer-unsubscribe">
+        © 2025 TaxSky AI Inc. | <a href="#">Unsubscribe</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email 4: Success / Refund Confirmation -->
+  <div class="label">Email 4: Filing Success Confirmation</div>
+  <div class="email-container">
+    <div class="email-header" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+      <div class="email-logo" style="font-size: 48px;">🎉</div>
+      <div class="email-tagline" style="color: white; font-size: 18px;">Your Taxes Are Filed!</div>
+    </div>
+    <div class="email-body">
+      <h1 class="email-greeting">Congratulations, {FirstName}! 🎊</h1>
+      <p class="email-text">
+        Your federal and state tax returns have been successfully submitted to the IRS and accepted!
+      </p>
+
+      <div class="refund-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1)); border-color: #10b981;">
+        <div class="refund-card-label">Your Refund Amount</div>
+        <div class="refund-card-amount">${RefundAmount}</div>
+        <div class="refund-card-note">Expected deposit: 10-21 days</div>
+      </div>
+
+      <div class="email-highlight" style="border-color: #10b981; background: rgba(16, 185, 129, 0.1);">
+        <h3>📋 Your Filing Summary</h3>
+        <p>
+          <strong>Confirmation #:</strong> TXS-2025-XXXXXX<br>
+          <strong>Federal Return:</strong> ✅ Accepted<br>
+          <strong>State Return:</strong> ✅ Accepted<br>
+          <strong>Filing Date:</strong> {Date}
+        </p>
+      </div>
+
+      <p class="email-text">
+        <strong>What happens next?</strong>
+      </p>
+      <p class="email-text">
+        Your refund will be deposited directly into your bank account within 10-21 days. We'll send you an email as soon as it's on the way!
+      </p>
+
+      <div style="text-align: center;">
+        <a href="#" class="email-cta" style="background: linear-gradient(135deg, #059669, #10b981);">View My Return →</a>
+        <br>
+        <a href="#" class="email-cta-secondary">Download PDF Copy</a>
+      </div>
+
+      <div class="email-divider"></div>
+
+      <p class="email-text">
+        <strong>Love TaxSky AI?</strong> Share with friends and family – they'll thank you!
+      </p>
+
+      <p class="email-signature">
+        Thanks for choosing TaxSky AI!<br>
+        <strong>The TaxSky AI Team</strong>
+      </p>
+    </div>
+    <div class="email-footer">
+      <div class="email-footer-links">
+        <a href="#">Help Center</a>
+        <a hre
