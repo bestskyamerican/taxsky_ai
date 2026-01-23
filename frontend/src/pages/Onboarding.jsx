@@ -495,12 +495,12 @@ export default function Onboarding() {
         </header>
 
         {/* Main Content - Two Column Layout */}
-        <div style={styles.mainContent}>
+        <div style={styles.mainContent} className="main-content-grid">
           
           {/* Left Column - Hero & Chat Preview */}
           <div style={styles.leftColumn}>
             <div style={styles.greeting}>{t.hero.greeting}</div>
-            <h1 style={styles.heroTitle}>
+            <h1 style={styles.heroTitle} className="hero-title-main">
               {t.hero.title}
               <span style={styles.heroHighlight}> {t.hero.titleHighlight}</span>
             </h1>
@@ -575,7 +575,7 @@ export default function Onboarding() {
             </div>
 
             {/* Stats */}
-            <div style={styles.statsRow}>
+            <div style={styles.statsRow} className="stats-row-grid">
               <div style={styles.statItem}>
                 <span style={styles.statValue}>{t.stats.users}</span>
                 <span style={styles.statLabel}>{t.stats.usersLabel}</span>
@@ -596,8 +596,8 @@ export default function Onboarding() {
           </div>
 
           {/* Right Column - Login Form */}
-          <div style={styles.rightColumn}>
-            <div style={styles.formCard}>
+          <div style={styles.rightColumn} className="right-column-form">
+            <div style={styles.formCard} className="form-card-main">
               <h2 style={styles.formTitle}>Get Started Free</h2>
               
               {/* Language Select */}
@@ -745,7 +745,7 @@ export default function Onboarding() {
           </div>
           
           {/* Comparison Table */}
-          <div style={styles.comparisonTable}>
+          <div style={styles.comparisonTable} className="comparison-table">
             {/* Header Row */}
             <div style={styles.comparisonHeaderRow}>
               <div style={styles.comparisonFeatureHeader}>Features</div>
@@ -975,6 +975,47 @@ export default function Onboarding() {
           transform: translateY(-2px);
         }
         
+        /* Mobile Responsive Fixes */
+        @media (min-width: 900px) {
+          .main-content-grid {
+            grid-template-columns: 1fr 420px !important;
+            gap: 60px !important;
+          }
+        }
+        
+        @media (max-width: 899px) {
+          .main-content-grid {
+            grid-template-columns: 1fr !important;
+            gap: 30px !important;
+          }
+          
+          .right-column-form {
+            order: -1;
+          }
+          
+          .hero-title-main {
+            font-size: 32px !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-title-main {
+            font-size: 28px !important;
+          }
+          
+          .stats-row-grid {
+            gap: 16px !important;
+          }
+          
+          .form-card-main {
+            padding: 20px !important;
+          }
+          
+          .comparison-table {
+            overflow-x: auto;
+          }
+        }
+        
         ::selection {
           background: #6366f1;
           color: white;
@@ -992,7 +1033,8 @@ const styles = {
     minHeight: '100vh',
     background: '#0a0a0f',
     position: 'relative',
-    overflow: 'hidden',
+    overflowX: 'hidden',
+    overflowY: 'auto',
   },
   
   bgGradient: {
@@ -1092,8 +1134,8 @@ const styles = {
   
   mainContent: {
     display: 'grid',
-    gridTemplateColumns: '1fr 420px',
-    gap: 60,
+    gridTemplateColumns: '1fr',
+    gap: 40,
     alignItems: 'start',
     marginBottom: 60,
   },
@@ -1627,10 +1669,6 @@ const styles = {
     gap: 12,
     fontSize: 14,
     color: '#e2e8f0',
-  },
-
-  featureIcon: {
-    fontSize: 18,
   },
 
   comparisonCheck: {
