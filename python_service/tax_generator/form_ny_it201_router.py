@@ -1,6 +1,6 @@
 """
 =============================================================
-NEW YORK FORM IT-201 PDF ROUTER - v2.0 with SSN Protection
+NEW YORK FORM IT-201 PDF ROUTER - v2.1 with Auto-Calculate
 POST /generate/ny-it201  → Generate NY IT-201 PDF
 GET  /generate/ny-it201/fields → Show field mapping
 =============================================================
@@ -10,6 +10,7 @@ FEATURES:
 - NYC and Yonkers tax support
 - Empire State Child Credit
 - Actual field IDs from it201_fill_in.pdf
+- ✅ v2.1: Auto-calculates taxable income if not provided
 =============================================================
 """
 
@@ -572,7 +573,12 @@ async def generate_ny_it201(data: RequestNY_IT201):
         ny_agi = state.get("ny_agi", federal_agi)
         std_ded = state.get("standard_deduction", 0)
         itemized = state.get("itemized_deduction", 0)
+        
+        # ✅ FIXED: Auto-calculate taxable income if not provided
         taxable_income = state.get("taxable_income", 0)
+        if not taxable_income and ny_agi > 0:
+            deduction = max(std_ded, itemized) if itemized > 0 else std_ded
+            taxable_income = max(0, ny_agi - deduction)
         
         print(f"\n  📝 NY Adjustments:")
         print(f"     NY AGI: ${ny_agi:,.0f}")

@@ -1,8 +1,11 @@
 // ============================================================
-// PAYMENT CONTROLLER - Updated to Match Frontend Pricing
+// PAYMENT CONTROLLER - v2.0 CPA PRICING MODEL
 // ============================================================
 // Location: backend/controllers/paymentController.js
-// Prices match PricingPage.jsx exactly
+//
+// PRICING LOGIC:
+// - WITHOUT CPA = $0 (FREE self-file, download PDF, mail yourself)
+// - WITH CPA = Plan Price + ($59 × number of forms)
 // ============================================================
 
 import dotenv from 'dotenv';
@@ -12,137 +15,161 @@ import Stripe from 'stripe';
 import Payment from '../models/Payment.js';
 import TaxSession from '../models/TaxSession.js';
 
-// Initialize Stripe
-if (!process.env.STRIPE_SECRET_KEY) {
+// ============================================================
+// STRIPE INITIALIZATION - WITH VALIDATION
+// ============================================================
+let stripe = null;
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+
+if (!STRIPE_KEY) {
   console.error('❌ STRIPE_SECRET_KEY is missing in .env file!');
+  console.error('   Payments will NOT work until you add it.');
+} else if (!STRIPE_KEY.startsWith('sk_')) {
+  console.error('❌ STRIPE_SECRET_KEY appears invalid (should start with sk_)');
+} else {
+  stripe = new Stripe(STRIPE_KEY);
+  console.log('✅ Stripe initialized successfully');
 }
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 
 // ============================================================
-// PRICING PLANS - Matches Frontend PricingPage.jsx
+// CPA FEE - $59 per form
+// ============================================================
+export const CPA_FEE_PER_FORM = 5900; // $59.00 in cents
+
+// ============================================================
+// PRICING PLANS - Base prices (only charged if CPA selected)
 // ============================================================
 export const PRICING = {
   free: {
     id: 'free',
     name: 'Free Estimate',
-    price: 0, // FREE
-    description: 'See your refund before you pay',
-    incomeLimit: 'Any',
-    formsIncluded: 'Unlimited (estimate only)',
-    features: [
-      'Unlimited tax estimates',
-      'AI-powered calculations',
-      'See potential refund',
-      'No credit card required'
-    ]
+    price: 0,
+    originalPrice: 0,
+    description: 'View estimate only',
+    formsIncluded: 0,
   },
   basic: {
     id: 'basic',
     name: 'Basic',
-    price: 2999, // $29.99
+    price: 2999, // $29.99 - only charged if CPA
+    originalPrice: 2999,
     description: 'Simple W-2 income only',
-    incomeLimit: 'Under $50,000',
-    formsIncluded: '1 W-2',
-    features: [
-      '1 W-2 form',
-      'Federal e-file',
-      'Download Form 1040',
-      'Max refund guarantee',
-      'Chat support'
-    ]
+    formsIncluded: 1,
   },
   standard: {
     id: 'standard',
     name: 'Standard',
-    price: 4999, // $49.99
+    price: 4999, // $49.99 - only charged if CPA
+    originalPrice: 4999,
     description: 'Most popular for employees',
-    incomeLimit: 'Under $100,000',
-    formsIncluded: 'Up to 3 forms',
-    features: [
-      'Up to 3 forms (W-2, 1099)',
-      'Federal e-file',
-      'Download Form 1040',
-      'Interest & dividends',
-      'Max refund guarantee',
-      'Priority chat support'
-    ]
+    formsIncluded: 3,
   },
   plus: {
     id: 'plus',
     name: 'Plus',
-    price: 7999, // $79.99
+    price: 7999, // $79.99 - only charged if CPA
+    originalPrice: 7999,
     description: 'Multiple income sources',
-    incomeLimit: 'Under $200,000',
-    formsIncluded: 'Up to 5 forms',
-    features: [
-      'Up to 5 forms',
-      'Federal e-file',
-      'Retirement income (1099-R)',
-      'Social Security (SSA-1099)',
-      'Capital gains (1099-B)',
-      'Rental income',
-      'Max refund guarantee',
-      'Priority support'
-    ]
+    formsIncluded: 5,
   },
   premium: {
     id: 'premium',
     name: 'Premium',
-    price: 12999, // $129.99
+    price: 12999, // $129.99 - only charged if CPA
+    originalPrice: 12999,
     description: 'High income & complex returns',
-    incomeLimit: '$200,000+',
-    formsIncluded: 'Unlimited forms',
-    features: [
-      'Unlimited forms',
-      'Federal e-file',
-      'All income types',
-      'Itemized deductions',
-      'Investment income',
-      'Rental properties',
-      'Max refund guarantee',
-      'Priority phone support',
-      'Audit protection (1 year)'
-    ]
+    formsIncluded: 10,
   },
   selfEmployed: {
     id: 'selfEmployed',
     name: 'Self-Employed',
-    price: 8999, // $89.99
+    price: 8999, // $89.99 - only charged if CPA
+    originalPrice: 8999,
     description: 'Freelancers & gig workers',
-    incomeLimit: 'Any',
-    formsIncluded: '1099-NEC + Schedule C',
-    features: [
-      '1099-NEC processing',
-      'Schedule C (business income)',
-      'Business expense deductions',
-      'Home office deduction',
-      'Self-employment tax calc',
-      'Quarterly estimate help',
-      'Federal e-file',
-      'Max refund guarantee'
-    ]
+    formsIncluded: 3,
   }
 };
 
 // ============================================================
-// ADD-ON PRICING
+// ADD-ON PRICING (State return counts as additional form for CPA)
 // ============================================================
 export const ADDONS = {
-  state: { id: 'state', name: 'State Tax Return', price: 1999, description: 'File your state taxes' },
-  extra_w2: { id: 'extra_w2', name: 'Additional W-2', price: 999, description: 'Per extra W-2 form' },
-  '1099_nec': { id: '1099_nec', name: '1099-NEC', price: 1499, description: 'Self-employment income' },
-  '1099_int': { id: '1099_int', name: '1099-INT', price: 499, description: 'Interest income' },
-  '1099_div': { id: '1099_div', name: '1099-DIV', price: 499, description: 'Dividend income' },
-  '1099_r': { id: '1099_r', name: '1099-R', price: 999, description: 'Retirement distribution' },
-  '1099_g': { id: '1099_g', name: '1099-G', price: 499, description: 'Unemployment income' },
-  '1099_b': { id: '1099_b', name: '1099-B', price: 1499, description: 'Capital gains/stocks' },
-  ssa_1099: { id: 'ssa_1099', name: 'SSA-1099', price: 499, description: 'Social Security benefits' },
-  schedule_c: { id: 'schedule_c', name: 'Schedule C', price: 2999, description: 'Business income/expenses' },
-  schedule_e: { id: 'schedule_e', name: 'Schedule E', price: 2999, description: 'Rental income' },
-  cpa_review: { id: 'cpa_review', name: 'CPA Review', price: 4999, description: 'Licensed CPA reviews your return' },
-  audit_protection: { id: 'audit_protection', name: 'Audit Protection', price: 3999, description: '3-year audit assistance' },
-  priority_support: { id: 'priority_support', name: 'Priority Support', price: 1999, description: 'Phone & chat priority' }
+  state: { id: 'state', name: 'State Tax Return', price: 0, cpaPrice: 5900, description: 'File your state taxes', isForm: true },
+  extra_w2: { id: 'extra_w2', name: 'Additional W-2', price: 0, cpaPrice: 0, description: 'Per extra W-2 form', isForm: false },
+  '1099_nec': { id: '1099_nec', name: '1099-NEC', price: 0, cpaPrice: 0, description: 'Self-employment income', isForm: false },
+  '1099_int': { id: '1099_int', name: '1099-INT', price: 0, cpaPrice: 0, description: 'Interest income', isForm: false },
+  '1099_div': { id: '1099_div', name: '1099-DIV', price: 0, cpaPrice: 0, description: 'Dividend income', isForm: false },
+  '1099_r': { id: '1099_r', name: '1099-R', price: 0, cpaPrice: 0, description: 'Retirement distribution', isForm: false },
+  '1099_g': { id: '1099_g', name: '1099-G', price: 0, cpaPrice: 0, description: 'Unemployment income', isForm: false },
+  '1099_b': { id: '1099_b', name: '1099-B', price: 0, cpaPrice: 0, description: 'Capital gains/stocks', isForm: false },
+  ssa_1099: { id: 'ssa_1099', name: 'SSA-1099', price: 0, cpaPrice: 0, description: 'Social Security benefits', isForm: false },
+  schedule_c: { id: 'schedule_c', name: 'Schedule C', price: 0, cpaPrice: 0, description: 'Business income/expenses', isForm: false },
+  schedule_e: { id: 'schedule_e', name: 'Schedule E', price: 0, cpaPrice: 0, description: 'Rental income', isForm: false },
+  cpa_review: { id: 'cpa_review', name: 'CPA Review', price: 0, cpaPrice: 0, description: 'CPA reviews and signs your return', isForm: false, isCPA: true },
+  audit_protection: { id: 'audit_protection', name: 'Audit Protection', price: 0, cpaPrice: 3999, description: '3-year audit assistance', isForm: false },
+  priority_support: { id: 'priority_support', name: 'Priority Support', price: 0, cpaPrice: 1999, description: 'Phone & chat priority', isForm: false }
 };
+
+// ============================================================
+// CALCULATE TOTAL PRICE
+// ============================================================
+export function calculateTotal(planId, addons = [], includeCPA = false, numberOfForms = 1) {
+  const plan = PRICING[planId];
+  if (!plan) return { total: 0, breakdown: {} };
+
+  // If no CPA, everything is FREE
+  if (!includeCPA) {
+    return {
+      total: 0,
+      breakdown: {
+        planPrice: 0,
+        planOriginalPrice: plan.originalPrice,
+        cpaFee: 0,
+        addonsTotal: 0,
+        discount: plan.originalPrice, // Show how much they save
+      },
+      isFree: true,
+      message: 'Free self-file - Download PDF and mail to IRS'
+    };
+  }
+
+  // WITH CPA: Plan Price + (CPA Fee × Number of Forms)
+  let total = plan.price;
+  let cpaFee = CPA_FEE_PER_FORM * numberOfForms;
+  let addonsTotal = 0;
+
+  // Add addon prices (if any have CPA pricing)
+  addons.forEach(addonId => {
+    const addon = ADDONS[addonId];
+    if (addon) {
+      // State return adds another form for CPA fee
+      if (addon.isForm) {
+        cpaFee += CPA_FEE_PER_FORM;
+      }
+      // Other addons might have their own CPA-only prices
+      if (addon.cpaPrice) {
+        addonsTotal += addon.cpaPrice;
+      }
+    }
+  });
+
+  total = plan.price + cpaFee + addonsTotal;
+
+  return {
+    total,
+    breakdown: {
+      planPrice: plan.price,
+      planOriginalPrice: plan.originalPrice,
+      cpaFee,
+      cpaFeePerForm: CPA_FEE_PER_FORM,
+      numberOfForms,
+      addonsTotal,
+      discount: 0,
+    },
+    isFree: false,
+    message: `CPA Review: Plan ($${(plan.price/100).toFixed(2)}) + CPA Fee ($${(cpaFee/100).toFixed(2)})`
+  };
+}
 
 // ============================================================
 // GET PRICING
@@ -151,15 +178,29 @@ export async function getPricing(req, res) {
   try {
     const plans = Object.values(PRICING).map(plan => ({
       ...plan,
-      priceDisplay: plan.price === 0 ? 'FREE' : `$${(plan.price / 100).toFixed(2)}`
+      priceDisplay: '$0.00', // All plans are FREE without CPA
+      originalPriceDisplay: plan.originalPrice === 0 ? 'FREE' : `$${(plan.originalPrice / 100).toFixed(2)}`,
+      withCPAPrice: plan.price + CPA_FEE_PER_FORM, // Price if CPA is selected (1 form)
+      withCPAPriceDisplay: plan.price === 0 ? 'FREE' : `$${((plan.price + CPA_FEE_PER_FORM) / 100).toFixed(2)}`,
     }));
-    
+
     const addons = Object.values(ADDONS).map(addon => ({
       ...addon,
-      priceDisplay: `$${(addon.price / 100).toFixed(2)}`
+      priceDisplay: '$0.00', // Free without CPA
+      cpaPriceDisplay: addon.cpaPrice ? `$${(addon.cpaPrice / 100).toFixed(2)}` : '$0.00',
     }));
-    
-    res.json({ success: true, plans, addons });
+
+    res.json({ 
+      success: true, 
+      plans, 
+      addons,
+      cpaFeePerForm: CPA_FEE_PER_FORM,
+      cpaFeePerFormDisplay: `$${(CPA_FEE_PER_FORM / 100).toFixed(2)}`,
+      pricingModel: {
+        withoutCPA: 'FREE - Download PDF, print & mail to IRS yourself',
+        withCPA: 'Plan Price + $59 per form (Federal = 1 form, State = 1 form)'
+      }
+    });
   } catch (error) {
     console.error('getPricing error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -172,15 +213,14 @@ export async function getPricing(req, res) {
 export async function getRecommendedPlan(req, res) {
   try {
     const { userId } = req.params;
-    
-    // Try to get user's tax session to recommend based on their situation
+
     let session = null;
     try {
       session = await TaxSession.findOne({ userId });
     } catch (e) {
-      // TaxSession model might not exist, continue without it
+      // TaxSession model might not exist
     }
-    
+
     if (!session) {
       return res.json({
         success: true,
@@ -189,22 +229,18 @@ export async function getRecommendedPlan(req, res) {
         userSituation: null
       });
     }
-    
-    const answers = session.answers instanceof Map 
-      ? Object.fromEntries(session.answers) 
+
+    const answers = session.answers instanceof Map
+      ? Object.fromEntries(session.answers)
       : session.answers || {};
-    
-    const filingStatus = answers.filing_status || 'single';
-    const hasDependents = answers.has_dependents === 'yes';
-    const hasSpouse = filingStatus.includes('married');
+
     const isSelfEmployed = answers.is_self_employed === 'yes';
     const income = parseInt(answers.total_income) || 0;
     const w2Count = parseInt(answers.w2_count) || 1;
     const has1099 = answers.has_1099 === 'yes';
-    
+
     let recommendedPlan = 'basic';
-    
-    // Recommendation logic
+
     if (isSelfEmployed) {
       recommendedPlan = 'selfEmployed';
     } else if (income >= 200000) {
@@ -214,22 +250,13 @@ export async function getRecommendedPlan(req, res) {
     } else if (w2Count > 1 || income >= 50000) {
       recommendedPlan = 'standard';
     }
-    
+
     res.json({
       success: true,
       recommendedPlan,
-      planDetails: PRICING[recommendedPlan],
-      userSituation: {
-        filingStatus,
-        hasDependents,
-        hasSpouse,
-        isSelfEmployed,
-        income,
-        w2Count,
-        has1099
-      }
+      planDetails: PRICING[recommendedPlan]
     });
-    
+
   } catch (error) {
     console.error('getRecommendedPlan error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -237,153 +264,182 @@ export async function getRecommendedPlan(req, res) {
 }
 
 // ============================================================
-// CREATE PAYMENT INTENT
+// CREATE PAYMENT INTENT - WITH CPA PRICING LOGIC
 // ============================================================
 export async function createPaymentIntent(req, res) {
   try {
-    const { userId, email, name, planId, addons = [], taxYear = 2024 } = req.body;
-    
-    console.log('[PAYMENT] Creating intent:', { userId, email, planId, addons });
-    
-    // Validate input
-    if (!userId || !email || !planId) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'userId, email, and planId are required' 
+    const { 
+      userId, 
+      email, 
+      name, 
+      planId, 
+      addons = [], 
+      taxYear = 2025,
+      includeCPA = false,
+      includeState = false,
+      numberOfForms = 1  // Federal = 1, Federal + State = 2
+    } = req.body;
+
+    console.log('[PAYMENT] Creating intent:', { userId, email, planId, addons, includeCPA, numberOfForms });
+
+    // ✅ CHECK 1: Stripe initialized?
+    if (!stripe) {
+      console.error('[PAYMENT] Stripe not initialized!');
+      return res.status(500).json({
+        success: false,
+        error: 'Payment system not configured. Please contact support.'
       });
     }
-    
-    // Get plan
+
+    // ✅ CHECK 2: Required fields
+    if (!userId) {
+      return res.status(400).json({ success: false, error: 'userId is required' });
+    }
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'email is required' });
+    }
+    if (!planId) {
+      return res.status(400).json({ success: false, error: 'planId is required' });
+    }
+
+    // ✅ CHECK 3: Valid plan
     const plan = PRICING[planId];
     if (!plan) {
-      return res.status(400).json({ 
-        success: false, 
-        error: `Invalid plan: ${planId}` 
+      return res.status(400).json({
+        success: false,
+        error: `Invalid plan: ${planId}. Valid plans: ${Object.keys(PRICING).join(', ')}`
       });
     }
-    
-    // Free plan - no payment needed
-    if (plan.price === 0) {
-      const payment = await Payment.create({
+
+    // Calculate number of forms
+    let formCount = numberOfForms || 1; // At least Federal
+    if (includeState || addons.includes('state')) {
+      formCount = 2; // Federal + State
+    }
+
+    // ✅ Calculate total based on CPA selection
+    const priceCalc = calculateTotal(planId, addons, includeCPA, formCount);
+
+    console.log('[PAYMENT] Price calculation:', priceCalc);
+
+    // ✅ FREE PLAN (No CPA) - No payment needed
+    if (priceCalc.isFree || priceCalc.total === 0) {
+      console.log('[PAYMENT] Free self-file selected, no payment needed');
+      try {
+        const payment = await Payment.create({
+          userId,
+          email,
+          name: name || 'User',
+          amount: 0,
+          planId,
+          planName: plan.name,
+          taxYear,
+          status: 'completed',
+          paidAt: new Date(),
+          includeCPA: false,
+          numberOfForms: formCount,
+          priceBreakdown: priceCalc.breakdown
+        });
+
+        return res.json({
+          success: true,
+          free: true,
+          payment,
+          message: 'Free self-file activated! You can download your PDF and mail to IRS.'
+        });
+      } catch (dbError) {
+        console.error('[PAYMENT] Database error (free plan):', dbError);
+        return res.status(500).json({
+          success: false,
+          error: 'Database error: ' + dbError.message
+        });
+      }
+    }
+
+    // ✅ CHECK 4: Already paid?
+    try {
+      const existingPayment = await Payment.findOne({
+        userId,
+        planId,
+        taxYear,
+        includeCPA: true,
+        status: 'completed'
+      });
+
+      if (existingPayment) {
+        console.log('[PAYMENT] User already paid for CPA review');
+        return res.json({
+          success: true,
+          alreadyPaid: true,
+          payment: existingPayment
+        });
+      }
+    } catch (dbError) {
+      console.log('[PAYMENT] Could not check existing payment:', dbError.message);
+    }
+
+    // ✅ CREATE STRIPE PAYMENT INTENT
+    console.log(`[PAYMENT] Creating Stripe intent for $${(priceCalc.total / 100).toFixed(2)}`);
+
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: priceCalc.total,
+      currency: 'usd',
+      metadata: {
         userId,
         email,
-        name,
-        amount: 0,
+        planId,
+        planName: plan.name,
+        taxYear: String(taxYear),
+        includeCPA: 'true',
+        numberOfForms: String(formCount),
+        addons: addons.join(',')
+      },
+      receipt_email: email,
+      description: `TaxSky ${plan.name} + CPA Review (${formCount} form${formCount > 1 ? 's' : ''})`
+    });
+
+    // Save pending payment to database
+    try {
+      await Payment.create({
+        userId,
+        email,
+        name: name || 'User',
+        amount: priceCalc.total,
         planId,
         planName: plan.name,
         taxYear,
-        status: 'completed',
-        paidAt: new Date()
+        status: 'pending',
+        stripePaymentIntentId: paymentIntent.id,
+        includeCPA: true,
+        numberOfForms: formCount,
+        addons,
+        priceBreakdown: priceCalc.breakdown
       });
-      
-      return res.json({
-        success: true,
-        free: true,
-        payment
-      });
+    } catch (dbError) {
+      console.error('[PAYMENT] Could not save payment record:', dbError.message);
     }
-    
-    // Check if already paid for this plan
-    const existingPayment = await Payment.findOne({
-      userId,
-      planId,
-      taxYear,
-      status: 'completed'
-    });
-    
-    if (existingPayment) {
-      return res.json({
-        success: true,
-        alreadyPaid: true,
-        payment: existingPayment
-      });
-    }
-    
-    // Calculate total amount (plan + addons)
-    let totalAmount = plan.price;
-    const selectedAddons = [];
-    
-    if (addons && addons.length > 0) {
-      for (const addonId of addons) {
-        const addon = ADDONS[addonId];
-        if (addon) {
-          totalAmount += addon.price;
-          selectedAddons.push({ id: addon.id, name: addon.name, price: addon.price });
-        }
-      }
-    }
-    
-    // Create or get Stripe customer
-    let customer;
-    const existingCustomers = await stripe.customers.list({ email, limit: 1 });
-    
-    if (existingCustomers.data.length > 0) {
-      customer = existingCustomers.data[0];
-    } else {
-      customer = await stripe.customers.create({
-        email,
-        name,
-        metadata: { 
-          userId,
-          source: 'taxsky'
-        },
-        description: `TaxSky Customer - ${name}`
-      });
-    }
-    
-    // Create Payment Intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalAmount,
-      currency: 'usd',
-      customer: customer.id,
-      metadata: {
-        source: 'taxsky',
-        website: 'TaxSky AI',
-        userId,
-        userEmail: email,
-        planId,
-        planName: plan.name,
-        addons: JSON.stringify(selectedAddons.map(a => a.id)),
-        taxYear: String(taxYear)
-      },
-      automatic_payment_methods: {
-        enabled: true,
-      },
-      description: `[TaxSky] ${plan.name} - Tax Year ${taxYear}`
-    });
-    
-    console.log('[PAYMENT] Intent created:', paymentIntent.id, 'Amount:', totalAmount);
-    
-    // Save pending payment
-    const payment = await Payment.create({
-      userId,
-      email,
-      name,
-      amount: totalAmount,
-      planId,
-      planName: plan.name,
-      addons: selectedAddons,
-      taxYear,
-      stripePaymentIntentId: paymentIntent.id,
-      stripeCustomerId: customer.id,
-      status: 'pending'
-    });
-    
+
+    console.log(`✅ Payment intent created: ${paymentIntent.id}`);
+
     res.json({
       success: true,
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
-      payment: {
-        id: payment._id,
-        amount: totalAmount,
-        planName: plan.name,
-        addons: selectedAddons,
-        priceDisplay: `$${(totalAmount / 100).toFixed(2)}`
-      }
+      amount: priceCalc.total,
+      amountDisplay: `$${(priceCalc.total / 100).toFixed(2)}`,
+      breakdown: priceCalc.breakdown
     });
-    
+
   } catch (error) {
-    console.error('[PAYMENT] Error creating intent:', error);
+    console.error('[PAYMENT] createPaymentIntent error:', error);
+
+    if (error.type === 'StripeCardError') {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+    if (error.type === 'StripeInvalidRequestError') {
+      return res.status(400).json({ success: false, error: 'Invalid payment request: ' + error.message });
+    }
+
     res.status(500).json({ success: false, error: error.message });
   }
 }
@@ -394,21 +450,24 @@ export async function createPaymentIntent(req, res) {
 export async function confirmPayment(req, res) {
   try {
     const { paymentIntentId } = req.body;
-    
-    if (!paymentIntentId) {
-      return res.status(400).json({ success: false, error: 'paymentIntentId required' });
+
+    if (!stripe) {
+      return res.status(500).json({ success: false, error: 'Payment system not configured' });
     }
-    
-    // Verify with Stripe
+
+    if (!paymentIntentId) {
+      return res.status(400).json({ success: false, error: 'paymentIntentId is required' });
+    }
+
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
+
     if (paymentIntent.status !== 'succeeded') {
       return res.status(400).json({
         success: false,
         error: `Payment not successful. Status: ${paymentIntent.status}`
       });
     }
-    
+
     // Update payment in database
     const payment = await Payment.findOneAndUpdate(
       { stripePaymentIntentId: paymentIntentId },
@@ -419,32 +478,19 @@ export async function confirmPayment(req, res) {
       },
       { new: true }
     );
-    
+
     if (!payment) {
       return res.status(404).json({ success: false, error: 'Payment record not found' });
     }
-    
-    // Get receipt URL if available
-    if (paymentIntent.latest_charge) {
-      try {
-        const charge = await stripe.charges.retrieve(paymentIntent.latest_charge);
-        if (charge.receipt_url) {
-          payment.receiptUrl = charge.receipt_url;
-          await payment.save();
-        }
-      } catch (e) {
-        console.log('Could not get receipt URL:', e.message);
-      }
-    }
-    
-    console.log(`✅ Payment confirmed: ${payment.planName} for ${payment.email} - $${(payment.amount / 100).toFixed(2)}`);
-    
+
+    console.log(`✅ Payment confirmed: ${payment.planName} + CPA for ${payment.email}`);
+
     res.json({
       success: true,
-      message: 'Payment confirmed!',
+      message: 'Payment confirmed! CPA will review your return.',
       payment
     });
-    
+
   } catch (error) {
     console.error('confirmPayment error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -455,38 +501,36 @@ export async function confirmPayment(req, res) {
 // STRIPE WEBHOOK
 // ============================================================
 export async function handleWebhook(req, res) {
+  if (!stripe) {
+    return res.status(500).json({ error: 'Stripe not configured' });
+  }
+
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  
+
   let event;
-  
+
   try {
-    if (webhookSecret) {
+    if (webhookSecret && sig) {
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
     } else {
-      // No webhook secret configured, just parse the body
-      event = JSON.parse(req.body);
+      event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     }
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error('Webhook error:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-  
-  // Handle the event
+
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
       await Payment.findOneAndUpdate(
         { stripePaymentIntentId: paymentIntent.id },
-        { 
-          status: 'completed', 
-          paidAt: new Date(),
-          stripeChargeId: paymentIntent.latest_charge
-        }
+        { status: 'completed', paidAt: new Date(), stripeChargeId: paymentIntent.latest_charge }
       );
       console.log(`✅ Webhook: Payment succeeded - ${paymentIntent.id}`);
       break;
-      
+
     case 'payment_intent.payment_failed':
       const failedIntent = event.data.object;
       await Payment.findOneAndUpdate(
@@ -495,20 +539,8 @@ export async function handleWebhook(req, res) {
       );
       console.log(`❌ Webhook: Payment failed - ${failedIntent.id}`);
       break;
-      
-    case 'charge.refunded':
-      const refund = event.data.object;
-      await Payment.findOneAndUpdate(
-        { stripeChargeId: refund.id },
-        { status: 'refunded', refundedAt: new Date() }
-      );
-      console.log(`💰 Webhook: Refund processed - ${refund.id}`);
-      break;
-      
-    default:
-      console.log(`Webhook: Unhandled event type ${event.type}`);
   }
-  
+
   res.json({ received: true });
 }
 
@@ -519,16 +551,13 @@ export async function getUserPayments(req, res) {
   try {
     const { userId } = req.params;
     const payments = await Payment.find({ userId }).sort({ createdAt: -1 });
-    
+
     res.json({
       success: true,
       count: payments.length,
-      payments: payments.map(p => ({
-        ...p.toObject(),
-        priceDisplay: `$${(p.amount / 100).toFixed(2)}`
-      }))
+      payments
     });
-    
+
   } catch (error) {
     console.error('getUserPayments error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -540,34 +569,21 @@ export async function getUserPayments(req, res) {
 // ============================================================
 export async function checkPaymentStatus(req, res) {
   try {
-    const { userId, taxYear = 2024 } = req.params;
-    
-    const payment = await Payment.findOne({ 
-      userId, 
+    const { userId, taxYear = 2025 } = req.params;
+
+    const payment = await Payment.findOne({
+      userId,
       taxYear: parseInt(taxYear),
-      status: 'completed' 
+      status: 'completed'
     });
-    
-    if (payment) {
-      res.json({
-        success: true,
-        hasPaid: true,
-        payment: {
-          planId: payment.planId,
-          planName: payment.planName,
-          amount: payment.amount,
-          priceDisplay: `$${(payment.amount / 100).toFixed(2)}`,
-          paidAt: payment.paidAt,
-          addons: payment.addons || []
-        }
-      });
-    } else {
-      res.json({
-        success: true,
-        hasPaid: false
-      });
-    }
-    
+
+    res.json({
+      success: true,
+      hasPaid: !!payment,
+      hasCPA: payment?.includeCPA || false,
+      payment: payment || null
+    });
+
   } catch (error) {
     console.error('checkPaymentStatus error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -575,46 +591,36 @@ export async function checkPaymentStatus(req, res) {
 }
 
 // ============================================================
-// CHECK USER ACCESS (what features they have access to)
+// CHECK USER ACCESS
 // ============================================================
 export async function checkAccess(req, res) {
   try {
-    const { userId, taxYear = 2024 } = req.params;
-    
-    const payments = await Payment.find({ 
-      userId, 
-      taxYear: parseInt(taxYear),
-      status: 'completed' 
-    });
-    
-    // Determine access based on purchased plans
-    const purchasedPlanIds = payments.map(p => p.planId);
-    const purchasedAddons = payments.flatMap(p => p.addons || []).map(a => a.id);
-    
-    const access = {
-      free: true, // Always have access to free features
-      basic: purchasedPlanIds.some(id => ['basic', 'standard', 'plus', 'premium', 'selfEmployed'].includes(id)),
-      standard: purchasedPlanIds.some(id => ['standard', 'plus', 'premium'].includes(id)),
-      plus: purchasedPlanIds.some(id => ['plus', 'premium'].includes(id)),
-      premium: purchasedPlanIds.includes('premium'),
-      selfEmployed: purchasedPlanIds.includes('selfEmployed'),
-      // Add-on access
-      state_filing: purchasedAddons.includes('state') || purchasedPlanIds.some(id => ['standard', 'plus', 'premium'].includes(id)),
-      cpa_review: purchasedAddons.includes('cpa_review') || purchasedPlanIds.includes('premium'),
-      audit_protection: purchasedAddons.includes('audit_protection') || purchasedPlanIds.includes('premium'),
-      canEfile: purchasedPlanIds.some(id => ['basic', 'standard', 'plus', 'premium', 'selfEmployed'].includes(id))
-    };
-    
-    res.json({
-      success: true,
+    const { userId, taxYear = 2025 } = req.params;
+
+    const payments = await Payment.find({
       userId,
       taxYear: parseInt(taxYear),
+      status: 'completed'
+    });
+
+    const hasCPA = payments.some(p => p.includeCPA);
+    const purchasedPlanIds = payments.map(p => p.planId);
+
+    const access = {
+      canDownloadPDF: true, // Always free
+      canSelfFile: true, // Always free
+      hasCPAReview: hasCPA,
+      canEfile: hasCPA, // Only with CPA
+      plans: purchasedPlanIds
+    };
+
+    res.json({
+      success: true,
       access,
       purchasedPlans: purchasedPlanIds,
-      purchasedAddons,
-      payments
+      hasCPA
     });
-    
+
   } catch (error) {
     console.error('checkAccess error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -627,50 +633,39 @@ export async function checkAccess(req, res) {
 export async function requestRefund(req, res) {
   try {
     const { paymentId, reason } = req.body;
-    
+
+    if (!stripe) {
+      return res.status(500).json({ success: false, error: 'Payment system not configured' });
+    }
+
     const payment = await Payment.findById(paymentId);
-    
+
     if (!payment) {
       return res.status(404).json({ success: false, error: 'Payment not found' });
     }
-    
+
     if (payment.status !== 'completed') {
       return res.status(400).json({ success: false, error: 'Payment cannot be refunded' });
     }
-    
-    // Check if within refund window (30 days)
+
     const daysSincePurchase = (Date.now() - payment.paidAt) / (1000 * 60 * 60 * 24);
     if (daysSincePurchase > 30) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Refund window has expired (30 days)' 
-      });
+      return res.status(400).json({ success: false, error: 'Refund window expired (30 days)' });
     }
-    
-    // Process refund with Stripe
+
     const refund = await stripe.refunds.create({
       payment_intent: payment.stripePaymentIntentId,
       reason: 'requested_by_customer'
     });
-    
-    // Update payment record
+
     payment.status = 'refunded';
     payment.refundedAt = new Date();
-    payment.metadata = payment.metadata || {};
-    payment.metadata.refundReason = reason;
-    payment.metadata.stripeRefundId = refund.id;
     await payment.save();
-    
-    console.log(`💰 Refund processed: ${payment.planName} for ${payment.email}`);
-    
-    res.json({
-      success: true,
-      message: 'Refund processed successfully',
-      refundId: refund.id
-    });
-    
+
+    res.json({ success: true, message: 'Refund processed', refundId: refund.id });
+
   } catch (error) {
-    console.error('Refund Error:', error);
+    console.error('Refund error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 }
@@ -680,36 +675,25 @@ export async function requestRefund(req, res) {
 // ============================================================
 export async function getAllPayments(req, res) {
   try {
-    const { status, startDate, endDate, limit = 100 } = req.query;
-    
+    const { status, limit = 100 } = req.query;
+
     const query = {};
     if (status) query.status = status;
-    if (startDate || endDate) {
-      query.createdAt = {};
-      if (startDate) query.createdAt.$gte = new Date(startDate);
-      if (endDate) query.createdAt.$lte = new Date(endDate);
-    }
-    
+
     const payments = await Payment.find(query)
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
-    
-    // Calculate totals
+
     const completedPayments = payments.filter(p => p.status === 'completed');
     const totalRevenue = completedPayments.reduce((sum, p) => sum + p.amount, 0);
-    
+
     res.json({
       success: true,
       count: payments.length,
-      completedCount: completedPayments.length,
-      totalRevenue: totalRevenue / 100, // Convert cents to dollars
-      totalRevenueDisplay: `$${(totalRevenue / 100).toFixed(2)}`,
-      payments: payments.map(p => ({
-        ...p.toObject(),
-        priceDisplay: `$${(p.amount / 100).toFixed(2)}`
-      }))
+      totalRevenue: totalRevenue / 100,
+      payments
     });
-    
+
   } catch (error) {
     console.error('getAllPayments error:', error);
     res.status(500).json({ success: false, error: error.message });
@@ -727,6 +711,8 @@ export default {
   checkAccess,
   requestRefund,
   getAllPayments,
+  calculateTotal,
   PRICING,
-  ADDONS
+  ADDONS,
+  CPA_FEE_PER_FORM
 };

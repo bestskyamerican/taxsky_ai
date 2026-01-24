@@ -3,11 +3,11 @@
   "last_updated": "2025-01-23",
   
   "standard_deductions": {
-    "single": 15750,
-    "married_filing_jointly": 31500,
-    "married_filing_separately": 15750,
-    "head_of_household": 23625,
-    "qualifying_surviving_spouse": 31500,
+    "single": 15000,
+    "married_filing_jointly": 30000,
+    "married_filing_separately": 15000,
+    "head_of_household": 22500,
+    "qualifying_surviving_spouse": 30000,
     "additional_65_or_blind_single": 2000,
     "additional_65_or_blind_married": 1600
   },

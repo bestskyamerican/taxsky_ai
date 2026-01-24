@@ -1,9 +1,11 @@
 // ============================================================
-// USER DASHBOARD - v4.3 WITH TAX HISTORY & CHAT
+// USER DASHBOARD - v4.5 WITH FIXED STATE PDF GENERATION
 // ============================================================
 // ✅ v4.2: Primary data source is Python API (not Node.js)
 // ✅ v4.2: Shows data even if Node.js fails
 // ✅ v4.3: Tax History tab shows chat history & uploaded docs
+// ✅ v4.4: FIXED federalWithholding passed to SubmitFlow
+// ✅ v4.5: FIXED CA540 data structure (federal/state keys)
 // Supports: English (en), Vietnamese (vi), Spanish (es)
 // ============================================================
 
@@ -257,11 +259,15 @@ export default function UserDashboard() {
           totalAdjustments: adjustments.line_10_schedule_1_adjustments || 0, 
           agi: federalAgi,
           standardDeduction: deductions.line_12_deduction || deductions.line_12_standard_deduction || 0, 
-          taxableIncome: deductions.line_15_taxable_income || 0,
-          federalTax: taxCredits.line_16_tax || 0, 
-          withholding: payments.line_25d_total_withholding || 0,
+          taxableIncome: deductions.line_15_taxable_income || taxCredits.line_15_taxable_income || 0,
+          federalTax: taxCredits.line_16_tax || taxCredits.line_24_total_tax || 0, 
+          // ✅ FIXED: Add federalWithholding (SubmitFlow expects this field name)
+          federalWithholding: payments.line_25a_w2_withholding || payments.line_25d_total_withholding || 0,
+          withholding: payments.line_25d_total_withholding || 0,  // Keep for backward compatibility
           federalRefund: federalRefund, 
           federalOwed: federalOwed,
+          // ✅ FIXED: Pass filing_status for correct standard deduction
+          filing_status: form1040?.header?.filing_status || 'single',
           ...stateData,
           totalRefund: federalRefund + (stateData.stateRefund || 0),
           totalOwed: federalOwed + (stateData.stateOwed || 0),
@@ -393,8 +399,39 @@ export default function UserDashboard() {
         body: JSON.stringify({
           session_id: userId,
           mask_ssn: false,  // ✅ Real SSN for paid users
-          personal: { first_name: form1040Data?.header?.first_name || "", last_name: form1040Data?.header?.last_name || "", ssn: userData?.answers?.ssn || "", state: selectedState },
-          california: { filing_status: form1040Data?.header?.filing_status || "single", federal_agi: taxData?.agi || 0, ca_agi: taxData?.caAgi || 0, standard_deduction: taxData?.caStdDeduction || 0, taxable_income: taxData?.caTaxableIncome || 0, tax: taxData?.caTax || 0, withholding: taxData?.caWithholding || 0, refund: taxData?.stateRefund || 0, amount_owed: taxData?.stateOwed || 0 },
+          personal: { 
+            first_name: form1040Data?.header?.first_name || userData?.answers?.first_name || "", 
+            last_name: form1040Data?.header?.last_name || userData?.answers?.last_name || "", 
+            ssn: form1040Data?.header?.ssn || userData?.answers?.ssn || "", 
+            spouse_first_name: form1040Data?.header?.spouse_first_name || userData?.answers?.spouse_first_name || "",
+            spouse_last_name: form1040Data?.header?.spouse_last_name || userData?.answers?.spouse_last_name || "",
+            spouse_ssn: form1040Data?.header?.spouse_ssn || userData?.answers?.spouse_ssn || "",
+            address: form1040Data?.header?.address || userData?.answers?.address || "",
+            city: form1040Data?.header?.city || userData?.answers?.city || "",
+            state: "CA",
+            zip: form1040Data?.header?.zip || userData?.answers?.zip || "",
+          },
+          // ✅ FIXED: Use 'federal' key (not 'california')
+          federal: { 
+            filing_status: form1040Data?.header?.filing_status || userData?.answers?.filing_status || "single", 
+            wages: taxData?.wages || form1040Data?.income?.line_1_wages || 0,
+            agi: taxData?.agi || form1040Data?.adjustments?.line_11_agi || 0,
+          },
+          // ✅ FIXED: Use 'state' key with correct field names
+          state: { 
+            ca_agi: taxData?.caAgi || taxData?.agi || 0, 
+            standard_deduction: taxData?.caStdDeduction || 0, 
+            taxable_income: taxData?.caTaxableIncome || 0, 
+            base_tax: taxData?.caTax || 0,
+            total_tax: taxData?.caTax || 0, 
+            tax_after_credits: taxData?.caTax || 0,
+            withholding: taxData?.caWithholding || 0, 
+            caleitc: taxData?.calEitc || 0,
+            yctc: taxData?.yctc || 0,
+            refund: taxData?.stateRefund || 0, 
+            amount_owed: taxData?.stateOwed || 0,
+          },
+          dependents: userData?.dependents || [],
         }),
       });
       if (res.ok) {

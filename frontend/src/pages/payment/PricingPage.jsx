@@ -1,15 +1,21 @@
 // ============================================================
-// TAXSKY AI - PRICING PAGE v2.1 (FIXED PAYMENT FLOW)
+// TAXSKY AI - PRICING PAGE v3.0 (CPA PRICING MODEL)
 // ============================================================
-// Updated UI colors to match TaxSky brand guidelines
-// FIXED: handleSelectPlan now redirects to checkout properly
+// PRICING LOGIC:
+// - WITHOUT CPA = $0 (FREE self-file, download PDF, mail yourself)
+// - WITH CPA = Plan Price + ($59 × number of forms)
 // ============================================================
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 // ============================================================
-// PRICING DATA
+// CPA FEE
+// ============================================================
+const CPA_FEE_PER_FORM = 59; // $59 per form (Federal=1, State=1)
+
+// ============================================================
+// PRICING DATA - Prices only apply when CPA is selected
 // ============================================================
 const PRICING_PLANS = {
   free: {
@@ -26,9 +32,8 @@ const PRICING_PLANS = {
       "No credit card required",
     ],
     notIncluded: [
-      "E-file to IRS",
       "Download Form 1040",
-      "State return",
+      "CPA Review",
     ],
     cta: "Start Free",
     popular: false,
@@ -44,15 +49,14 @@ const PRICING_PLANS = {
     formsIncluded: "1 W-2",
     features: [
       "1 W-2 form",
-      "Federal e-file",
-      "Download Form 1040",
+      "Download Form 1040 PDF",
+      "Print & mail to IRS",
       "Max refund guarantee",
       "Chat support",
     ],
     notIncluded: [
       "Multiple W-2s",
       "1099 forms",
-      "State return (+$19.99)",
     ],
     cta: "Choose Basic",
     popular: false,
@@ -68,15 +72,14 @@ const PRICING_PLANS = {
     formsIncluded: "Up to 3 forms",
     features: [
       "Up to 3 forms (W-2, 1099)",
-      "Federal e-file",
-      "Download Form 1040",
+      "Download Form 1040 PDF",
+      "Print & mail to IRS",
       "Interest & dividends",
       "Max refund guarantee",
       "Priority chat support",
     ],
     notIncluded: [
       "Self-employment income",
-      "State return (+$19.99)",
     ],
     cta: "Choose Standard",
     popular: true,
@@ -92,17 +95,15 @@ const PRICING_PLANS = {
     formsIncluded: "Up to 5 forms",
     features: [
       "Up to 5 forms",
-      "Federal e-file",
+      "Download Form 1040 PDF",
       "Retirement income (1099-R)",
       "Social Security (SSA-1099)",
       "Capital gains (1099-B)",
       "Rental income",
       "Max refund guarantee",
-      "Priority support",
     ],
     notIncluded: [
       "Self-employment",
-      "State return (+$19.99)",
     ],
     cta: "Choose Plus",
     popular: false,
@@ -118,18 +119,15 @@ const PRICING_PLANS = {
     formsIncluded: "Unlimited forms",
     features: [
       "Unlimited forms",
-      "Federal e-file",
+      "Download Form 1040 PDF",
       "All income types",
       "Itemized deductions",
       "Investment income",
       "Rental properties",
       "Max refund guarantee",
       "Priority phone support",
-      "Audit protection (1 year)",
     ],
-    notIncluded: [
-      "State return (+$19.99)",
-    ],
+    notIncluded: [],
     cta: "Choose Premium",
     popular: false,
     color: "#f59e0b",
@@ -149,12 +147,10 @@ const PRICING_PLANS = {
       "Home office deduction",
       "Self-employment tax calc",
       "Quarterly estimate help",
-      "Federal e-file",
+      "Download Form 1040 PDF",
       "Max refund guarantee",
     ],
-    notIncluded: [
-      "State return (+$19.99)",
-    ],
+    notIncluded: [],
     cta: "Choose Self-Employed",
     popular: false,
     color: "#10b981",
@@ -163,430 +159,145 @@ const PRICING_PLANS = {
 };
 
 // ============================================================
-// ADD-ON PRICING
-// ============================================================
-const ADDONS = [
-  { id: "state", name: "State Tax Return", price: 19.99, description: "File your state taxes" },
-  { id: "extra_w2", name: "Additional W-2", price: 9.99, description: "Per extra W-2 form" },
-  { id: "1099_nec", name: "1099-NEC", price: 14.99, description: "Self-employment income" },
-  { id: "1099_int", name: "1099-INT", price: 4.99, description: "Interest income" },
-  { id: "1099_div", name: "1099-DIV", price: 4.99, description: "Dividend income" },
-  { id: "1099_r", name: "1099-R", price: 9.99, description: "Retirement distribution" },
-  { id: "1099_g", name: "1099-G", price: 4.99, description: "Unemployment income" },
-  { id: "1099_b", name: "1099-B", price: 14.99, description: "Capital gains/stocks" },
-  { id: "ssa_1099", name: "SSA-1099", price: 4.99, description: "Social Security benefits" },
-  { id: "schedule_c", name: "Schedule C", price: 29.99, description: "Business income/expenses" },
-  { id: "schedule_e", name: "Schedule E", price: 29.99, description: "Rental income" },
-  { id: "cpa_review", name: "CPA Review", price: 49.99, description: "Licensed CPA reviews your return" },
-  { id: "audit_protection", name: "Audit Protection", price: 39.99, description: "3-year audit assistance" },
-  { id: "priority_support", name: "Priority Support", price: 19.99, description: "Phone & chat priority" },
-];
-
-// ============================================================
 // TRANSLATIONS
 // ============================================================
 const translations = {
   en: {
-    title: "Simple, Transparent Pricing",
-    subtitle: "No hidden fees. Pay only when you file.",
-    calculator: {
-      title: "💰 Calculate Your Price",
-      income: "Your Total Income",
-      w2Count: "Number of W-2s",
-      has1099: "Do you have 1099 income?",
-      hasState: "File state return?",
-      result: "Your Estimated Price",
-      recommended: "Recommended Plan",
-    },
+    title: "Free Tax Filing",
+    subtitle: "File your taxes FREE. Only pay if you want CPA review.",
+    selfFile: "Self-File (FREE)",
+    selfFileDesc: "Download PDF, print & mail to IRS yourself",
+    withCPA: "With CPA Review",
+    withCPADesc: "CPA reviews, signs & files for you",
+    cpaFee: "CPA Fee",
+    perForm: "per form",
+    federal: "Federal",
+    state: "State",
+    total: "Total",
+    selectPlan: "Select Plan",
+    includeCPA: "Include CPA Review?",
+    includeState: "Include State Return?",
     features: {
       title: "All Plans Include",
       items: [
         "🔐 Bank-level 256-bit encryption",
-        "✅ IRS e-file authorized",
+        "✅ IRS-accurate calculations",
         "💰 Maximum refund guarantee",
         "🤖 AI-powered accuracy check",
         "📱 File from any device",
         "💬 Chat support",
       ],
     },
-    guarantee: {
-      title: "Our Guarantees",
-      items: [
-        {
-          icon: "💰",
-          title: "Max Refund Guarantee",
-          desc: "Get the biggest refund you're entitled to, or we'll pay you the difference.",
-        },
-        {
-          icon: "✅",
-          title: "100% Accuracy",
-          desc: "If there's an IRS error due to our calculations, we pay the penalty.",
-        },
-        {
-          icon: "🔒",
-          title: "Secure & Private",
-          desc: "Your data is encrypted and never sold. SOC 2 certified.",
-        },
-        {
-          icon: "😊",
-          title: "Satisfaction Guarantee",
-          desc: "Not happy? Get a full refund before filing.",
-        },
-      ],
-    },
     faq: {
       title: "Pricing FAQ",
       items: [
         {
-          q: "When do I pay?",
-          a: "You only pay when you're ready to file. Estimate your refund for free, then pay to e-file to the IRS.",
+          q: "Is it really free?",
+          a: "Yes! You can prepare your taxes and download the PDF completely free. Only pay if you want a CPA to review and sign your return.",
         },
         {
-          q: "What if I need more forms than my plan includes?",
-          a: "You can add extra forms à la carte, or upgrade to a higher plan. We'll recommend the best option.",
+          q: "What does CPA Review include?",
+          a: "A licensed CPA reviews your entire return for accuracy, finds additional deductions, signs your return, and submits it to the IRS on your behalf.",
         },
         {
-          q: "Is state filing included?",
-          a: "State filing is $19.99 extra for all plans. Some states have no income tax, so you may not need it.",
+          q: "How much is CPA Review?",
+          a: "CPA Review is your plan price + $59 per form. For example: Standard ($49.99) + Federal ($59) + State ($59) = $167.99 total.",
         },
         {
-          q: "What's included in CPA Review?",
-          a: "A licensed CPA reviews your entire return for accuracy and optimization before filing. They'll suggest additional deductions you may have missed.",
+          q: "Can I file without CPA?",
+          a: "Yes! Download your completed Form 1040 PDF for free, print it, sign it, and mail it to the IRS yourself.",
         },
         {
-          q: "Can I get a refund?",
-          a: "Yes! If you're not satisfied before filing, we offer a full refund. After filing, refunds are not available as we've already submitted to the IRS.",
-        },
-        {
-          q: "Do you support all states?",
-          a: "We currently support California fully, plus all no-income-tax states (TX, FL, WA, etc.) and flat-tax states. More states coming soon!",
+          q: "What states do you support?",
+          a: "We fully support California (Form 540). All no-income-tax states (TX, FL, WA, etc.) don't need a state return.",
         },
       ],
     },
     cta: {
       title: "Ready to File?",
-      subtitle: "Start your free estimate now. No credit card required.",
-      button: "Start Free Estimate",
+      subtitle: "Start your free tax return now. No credit card required.",
+      button: "Start Free",
     },
-    perYear: "/year",
-    popular: "Most Popular",
-    included: "Included",
-    notIncluded: "Not included",
-    addons: "Add-Ons",
-    comparePlans: "Compare All Plans",
   },
   vi: {
-    title: "Giá Đơn Giản, Minh Bạch",
-    subtitle: "Không phí ẩn. Chỉ trả khi bạn nộp thuế.",
-    calculator: {
-      title: "💰 Tính Giá Của Bạn",
-      income: "Tổng Thu Nhập",
-      w2Count: "Số lượng W-2",
-      has1099: "Bạn có thu nhập 1099?",
-      hasState: "Nộp thuế tiểu bang?",
-      result: "Giá Ước Tính",
-      recommended: "Gói Đề Xuất",
-    },
+    title: "Khai Thuế Miễn Phí",
+    subtitle: "Khai thuế MIỄN PHÍ. Chỉ trả nếu bạn muốn CPA xem xét.",
+    selfFile: "Tự Nộp (MIỄN PHÍ)",
+    selfFileDesc: "Tải PDF, in và gửi đến IRS",
+    withCPA: "Với CPA Xem Xét",
+    withCPADesc: "CPA xem xét, ký và nộp cho bạn",
+    cpaFee: "Phí CPA",
+    perForm: "mỗi form",
+    federal: "Liên Bang",
+    state: "Tiểu Bang",
+    total: "Tổng",
+    selectPlan: "Chọn Gói",
+    includeCPA: "Bao gồm CPA?",
+    includeState: "Bao gồm Thuế Tiểu Bang?",
     features: {
       title: "Tất Cả Gói Bao Gồm",
       items: [
-        "🔐 Mã hóa 256-bit cấp ngân hàng",
-        "✅ IRS ủy quyền e-file",
+        "🔐 Mã hóa 256-bit",
+        "✅ Tính toán chính xác IRS",
         "💰 Đảm bảo hoàn thuế tối đa",
         "🤖 AI kiểm tra chính xác",
         "📱 Nộp từ mọi thiết bị",
         "💬 Hỗ trợ chat",
       ],
     },
-    guarantee: {
-      title: "Cam Kết Của Chúng Tôi",
-      items: [
-        {
-          icon: "💰",
-          title: "Đảm Bảo Hoàn Thuế Tối Đa",
-          desc: "Nhận hoàn thuế lớn nhất bạn được quyền, hoặc chúng tôi trả chênh lệch.",
-        },
-        {
-          icon: "✅",
-          title: "Chính Xác 100%",
-          desc: "Nếu có lỗi IRS do tính toán của chúng tôi, chúng tôi trả tiền phạt.",
-        },
-        {
-          icon: "🔒",
-          title: "An Toàn & Riêng Tư",
-          desc: "Dữ liệu được mã hóa và không bao giờ bán. Chứng nhận SOC 2.",
-        },
-        {
-          icon: "😊",
-          title: "Đảm Bảo Hài Lòng",
-          desc: "Không hài lòng? Hoàn tiền đầy đủ trước khi nộp.",
-        },
-      ],
-    },
-    faq: {
-      title: "Câu Hỏi Về Giá",
-      items: [
-        {
-          q: "Khi nào tôi phải trả?",
-          a: "Bạn chỉ trả khi sẵn sàng nộp. Ước tính hoàn thuế miễn phí, sau đó trả để e-file đến IRS.",
-        },
-        {
-          q: "Nếu tôi cần nhiều form hơn gói bao gồm?",
-          a: "Bạn có thể thêm form riêng lẻ, hoặc nâng cấp gói cao hơn. Chúng tôi sẽ đề xuất tùy chọn tốt nhất.",
-        },
-        {
-          q: "Nộp thuế tiểu bang có bao gồm không?",
-          a: "Nộp tiểu bang thêm $19.99 cho tất cả gói. Một số tiểu bang không có thuế thu nhập.",
-        },
-        {
-          q: "CPA Review bao gồm gì?",
-          a: "CPA có giấy phép xem xét toàn bộ tờ khai của bạn về độ chính xác và tối ưu hóa trước khi nộp.",
-        },
-        {
-          q: "Tôi có thể hoàn tiền không?",
-          a: "Có! Nếu không hài lòng trước khi nộp, chúng tôi hoàn tiền đầy đủ.",
-        },
-        {
-          q: "Bạn hỗ trợ tất cả tiểu bang?",
-          a: "Chúng tôi hiện hỗ trợ California đầy đủ, cộng với các tiểu bang không thuế thu nhập và thuế cố định.",
-        },
-      ],
-    },
     cta: {
-      title: "Sẵn Sàng Nộp?",
-      subtitle: "Bắt đầu ước tính miễn phí. Không cần thẻ tín dụng.",
+      title: "Sẵn Sàng Khai Thuế?",
+      subtitle: "Bắt đầu khai thuế miễn phí ngay.",
       button: "Bắt Đầu Miễn Phí",
     },
-    perYear: "/năm",
-    popular: "Phổ Biến Nhất",
-    included: "Bao gồm",
-    notIncluded: "Không bao gồm",
-    addons: "Dịch Vụ Thêm",
-    comparePlans: "So Sánh Tất Cả Gói",
   },
   es: {
-    title: "Precios Simples y Transparentes",
-    subtitle: "Sin cargos ocultos. Paga solo cuando declares.",
-    calculator: {
-      title: "💰 Calcula Tu Precio",
-      income: "Tu Ingreso Total",
-      w2Count: "Número de W-2s",
-      has1099: "¿Tienes ingresos 1099?",
-      hasState: "¿Declarar impuestos estatales?",
-      result: "Tu Precio Estimado",
-      recommended: "Plan Recomendado",
-    },
+    title: "Declaración Gratis",
+    subtitle: "Declara tus impuestos GRATIS. Solo paga si quieres revisión CPA.",
+    selfFile: "Auto-Declarar (GRATIS)",
+    selfFileDesc: "Descarga PDF, imprime y envía al IRS",
+    withCPA: "Con Revisión CPA",
+    withCPADesc: "CPA revisa, firma y envía por ti",
+    cpaFee: "Tarifa CPA",
+    perForm: "por formulario",
+    federal: "Federal",
+    state: "Estatal",
+    total: "Total",
+    selectPlan: "Seleccionar Plan",
+    includeCPA: "¿Incluir CPA?",
+    includeState: "¿Incluir Declaración Estatal?",
     features: {
-      title: "Todos los Planes Incluyen",
+      title: "Todos Los Planes Incluyen",
       items: [
-        "🔐 Cifrado 256-bit nivel bancario",
-        "✅ IRS autorizado para e-file",
-        "💰 Garantía de reembolso máximo",
-        "🤖 Verificación de precisión con AI",
+        "🔐 Encriptación 256-bit",
+        "✅ Cálculos precisos IRS",
+        "💰 Garantía de máximo reembolso",
+        "🤖 Verificación AI",
         "📱 Declara desde cualquier dispositivo",
         "💬 Soporte por chat",
       ],
     },
-    guarantee: {
-      title: "Nuestras Garantías",
-      items: [
-        {
-          icon: "💰",
-          title: "Garantía de Reembolso Máximo",
-          desc: "Obtén el mayor reembolso al que tienes derecho, o te pagamos la diferencia.",
-        },
-        {
-          icon: "✅",
-          title: "100% Precisión",
-          desc: "Si hay un error del IRS debido a nuestros cálculos, pagamos la penalidad.",
-        },
-        {
-          icon: "🔒",
-          title: "Seguro y Privado",
-          desc: "Tus datos están cifrados y nunca se venden. Certificado SOC 2.",
-        },
-        {
-          icon: "😊",
-          title: "Garantía de Satisfacción",
-          desc: "¿No estás contento? Reembolso completo antes de declarar.",
-        },
-      ],
-    },
-    faq: {
-      title: "Preguntas de Precios",
-      items: [
-        {
-          q: "¿Cuándo pago?",
-          a: "Solo pagas cuando estés listo para declarar. Estima tu reembolso gratis, luego paga para e-file al IRS.",
-        },
-        {
-          q: "¿Qué si necesito más formularios?",
-          a: "Puedes agregar formularios extra individualmente, o actualizar a un plan superior.",
-        },
-        {
-          q: "¿Está incluida la declaración estatal?",
-          a: "La declaración estatal es $19.99 extra para todos los planes.",
-        },
-        {
-          q: "¿Qué incluye la Revisión CPA?",
-          a: "Un CPA licenciado revisa toda tu declaración para precisión y optimización antes de enviar.",
-        },
-        {
-          q: "¿Puedo obtener un reembolso?",
-          a: "¡Sí! Si no estás satisfecho antes de declarar, ofrecemos reembolso completo.",
-        },
-        {
-          q: "¿Soportan todos los estados?",
-          a: "Actualmente soportamos California completamente, más estados sin impuesto sobre la renta y estados de tasa fija.",
-        },
-      ],
-    },
     cta: {
       title: "¿Listo para Declarar?",
-      subtitle: "Comienza tu estimación gratis. No se requiere tarjeta de crédito.",
+      subtitle: "Comienza tu declaración gratis ahora.",
       button: "Comenzar Gratis",
     },
-    perYear: "/año",
-    popular: "Más Popular",
-    included: "Incluido",
-    notIncluded: "No incluido",
-    addons: "Complementos",
-    comparePlans: "Comparar Todos los Planes",
   },
 };
 
 // ============================================================
-// PRICING CALCULATOR COMPONENT
+// PLAN CARD WITH CPA TOGGLE
 // ============================================================
-const PricingCalculator = ({ language, onSelectPlan }) => {
-  const t = translations[language].calculator;
-  const [income, setIncome] = useState(50000);
-  const [w2Count, setW2Count] = useState(1);
-  const [has1099, setHas1099] = useState(false);
-  const [hasState, setHasState] = useState(true);
-
-  // Calculate recommended plan
-  const getRecommendedPlan = () => {
-    if (has1099) return PRICING_PLANS.selfEmployed;
-    
-    const totalForms = w2Count + (has1099 ? 1 : 0);
-    
-    if (income >= 200000) return PRICING_PLANS.premium;
-    if (income >= 100000 || totalForms > 3) return PRICING_PLANS.plus;
-    if (totalForms > 1 || income >= 50000) return PRICING_PLANS.standard;
-    return PRICING_PLANS.basic;
-  };
-
-  const recommended = getRecommendedPlan();
-  const statePrice = hasState ? 19.99 : 0;
-  const extraW2Price = Math.max(0, w2Count - (recommended.id === 'basic' ? 1 : recommended.id === 'standard' ? 2 : 5)) * 9.99;
-  const totalPrice = recommended.price + statePrice + extraW2Price;
-
-  return (
-    <div style={styles.calculator}>
-      <h3 style={styles.calculatorTitle}>{t.title}</h3>
-      
-      <div style={styles.calculatorGrid}>
-        {/* Income Slider */}
-        <div style={styles.calcField}>
-          <label style={styles.calcLabel}>{t.income}</label>
-          <input
-            type="range"
-            min="10000"
-            max="500000"
-            step="10000"
-            value={income}
-            onChange={(e) => setIncome(parseInt(e.target.value))}
-            style={styles.slider}
-          />
-          <div style={styles.sliderValue}>${income.toLocaleString()}</div>
-        </div>
-
-        {/* W-2 Count */}
-        <div style={styles.calcField}>
-          <label style={styles.calcLabel}>{t.w2Count}</label>
-          <div style={styles.counterRow}>
-            <button 
-              onClick={() => setW2Count(Math.max(0, w2Count - 1))}
-              style={styles.counterBtn}
-            >−</button>
-            <span style={styles.counterValue}>{w2Count}</span>
-            <button 
-              onClick={() => setW2Count(w2Count + 1)}
-              style={styles.counterBtn}
-            >+</button>
-          </div>
-        </div>
-
-        {/* 1099 Toggle */}
-        <div style={styles.calcField}>
-          <label style={styles.calcLabel}>{t.has1099}</label>
-          <div style={styles.toggleRow}>
-            <button
-              onClick={() => setHas1099(false)}
-              style={{
-                ...styles.toggleBtn,
-                ...(has1099 ? {} : styles.toggleBtnActive)
-              }}
-            >No</button>
-            <button
-              onClick={() => setHas1099(true)}
-              style={{
-                ...styles.toggleBtn,
-                ...(has1099 ? styles.toggleBtnActive : {})
-              }}
-            >Yes</button>
-          </div>
-        </div>
-
-        {/* State Toggle */}
-        <div style={styles.calcField}>
-          <label style={styles.calcLabel}>{t.hasState}</label>
-          <div style={styles.toggleRow}>
-            <button
-              onClick={() => setHasState(false)}
-              style={{
-                ...styles.toggleBtn,
-                ...(hasState ? {} : styles.toggleBtnActive)
-              }}
-            >No</button>
-            <button
-              onClick={() => setHasState(true)}
-              style={{
-                ...styles.toggleBtn,
-                ...(hasState ? styles.toggleBtnActive : {})
-              }}
-            >Yes (+$19.99)</button>
-          </div>
-        </div>
-      </div>
-
-      {/* Result */}
-      <div style={styles.calcResult}>
-        <div style={styles.calcResultRow}>
-          <span style={styles.calcResultLabel}>{t.recommended}</span>
-          <span style={styles.calcResultPlan}>{recommended.name}</span>
-        </div>
-        <div style={styles.calcResultRow}>
-          <span style={styles.calcResultLabel}>{t.result}</span>
-          <span style={styles.calcResultPrice}>${totalPrice.toFixed(2)}</span>
-        </div>
-        <button 
-          onClick={() => onSelectPlan(recommended.id)}
-          style={styles.calcCta}
-        >
-          Choose {recommended.name} →
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ============================================================
-// PLAN CARD COMPONENT
-// ============================================================
-const PlanCard = ({ plan, language, onSelect }) => {
+const PlanCard = ({ plan, language, onSelect, includeCPA, includeState }) => {
   const t = translations[language];
+  
+  // Calculate prices
+  const selfFilePrice = 0; // Always free without CPA
+  const formCount = includeState ? 2 : 1; // Federal + State
+  const cpaPrice = plan.price + (CPA_FEE_PER_FORM * formCount);
+  
+  const displayPrice = includeCPA ? cpaPrice : selfFilePrice;
+  const originalPrice = plan.price;
   
   return (
     <div style={{
@@ -596,7 +307,7 @@ const PlanCard = ({ plan, language, onSelect }) => {
     }}>
       {plan.popular && (
         <div style={{...styles.popularBadge, background: plan.gradient}}>
-          ⭐ {t.popular}
+          ⭐ Most Popular
         </div>
       )}
       
@@ -605,11 +316,49 @@ const PlanCard = ({ plan, language, onSelect }) => {
         <p style={styles.planDesc}>{plan.description}</p>
       </div>
       
+      {/* Price Display - Shows original price with strikethrough */}
       <div style={styles.planPrice}>
-        <span style={styles.planPriceAmount}>
-          {plan.price === 0 ? 'Free' : `$${plan.price}`}
-        </span>
-        {plan.price > 0 && <span style={styles.planPricePer}>{t.perYear}</span>}
+        {includeCPA ? (
+          <>
+            <span style={styles.planPriceAmount}>${cpaPrice.toFixed(2)}</span>
+            <div style={styles.priceBreakdownSmall}>
+              <span>Plan: ${plan.price.toFixed(2)}</span>
+              <span>+ CPA: ${(CPA_FEE_PER_FORM * formCount).toFixed(2)}</span>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Show original price crossed out, then FREE */}
+            {plan.price > 0 ? (
+              <div>
+                <span style={{ color: '#64748b', fontSize: '18px', textDecoration: 'line-through', marginRight: '8px' }}>
+                  ${plan.price.toFixed(2)}
+                </span>
+                <span style={{...styles.planPriceAmount, color: '#10b981'}}>$0.00</span>
+                <div style={{ marginTop: '4px' }}>
+                  <span style={{ 
+                    display: 'inline-block',
+                    padding: '4px 8px', 
+                    background: 'rgba(16, 185, 129, 0.15)', 
+                    borderRadius: '4px',
+                    fontSize: '11px', 
+                    color: '#10b981',
+                    fontWeight: '600'
+                  }}>
+                    🎉 FREE this year!
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <span style={{...styles.planPriceAmount, color: '#10b981'}}>FREE</span>
+            )}
+            {plan.price > 0 && (
+              <span style={styles.originalPrice}>
+                With CPA: ${cpaPrice.toFixed(2)}
+              </span>
+            )}
+          </>
+        )}
       </div>
       
       <div style={styles.planMeta}>
@@ -630,6 +379,13 @@ const PlanCard = ({ plan, language, onSelect }) => {
             {feature}
           </li>
         ))}
+        {/* Show CPA feature if selected */}
+        {includeCPA && plan.id !== 'free' && (
+          <li style={{...styles.planFeature, color: '#a78bfa'}}>
+            <span style={{...styles.featureCheck, color: '#a78bfa'}}>✓</span>
+            <strong>CPA Review & E-File</strong>
+          </li>
+        )}
         {plan.notIncluded && plan.notIncluded.map((item, i) => (
           <li key={`not-${i}`} style={styles.planFeatureNot}>
             <span style={styles.featureX}>✗</span>
@@ -639,35 +395,201 @@ const PlanCard = ({ plan, language, onSelect }) => {
       </ul>
       
       <button 
-        onClick={() => onSelect(plan.id)}
+        onClick={() => onSelect(plan.id, includeCPA, includeState)}
         style={{
           ...styles.planCta,
           background: plan.popular 
             ? plan.gradient
-            : 'rgba(255,255,255,0.08)',
-          borderColor: plan.popular ? 'transparent' : plan.color,
-        }}
-        onMouseEnter={(e) => {
-          if (!plan.popular) {
-            e.target.style.background = plan.gradient;
-            e.target.style.borderColor = 'transparent';
-          }
-        }}
-        onMouseLeave={(e) => {
-          if (!plan.popular) {
-            e.target.style.background = 'rgba(255,255,255,0.08)';
-            e.target.style.borderColor = plan.color;
-          }
+            : includeCPA ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'linear-gradient(135deg, #10b981, #34d399)',
+          borderColor: 'transparent',
         }}
       >
-        {plan.cta}
+        {includeCPA ? `Get CPA Review - $${cpaPrice.toFixed(2)}` : 'Start Free'}
       </button>
     </div>
   );
 };
 
 // ============================================================
-// FAQ ITEM COMPONENT
+// PRICING CALCULATOR
+// ============================================================
+const PricingCalculator = ({ language, onSelectPlan }) => {
+  const t = translations[language];
+  const [selectedPlan, setSelectedPlan] = useState('standard');
+  const [includeCPA, setIncludeCPA] = useState(false);
+  const [includeState, setIncludeState] = useState(true);
+  
+  const plan = PRICING_PLANS[selectedPlan];
+  const formCount = includeState ? 2 : 1;
+  
+  // Calculate prices
+  const selfFilePrice = 0;
+  const cpaFee = CPA_FEE_PER_FORM * formCount;
+  const totalWithCPA = plan.price + cpaFee;
+  const totalPrice = includeCPA ? totalWithCPA : selfFilePrice;
+  
+  return (
+    <div style={styles.calculator}>
+      <h3 style={styles.calculatorTitle}>💰 Calculate Your Price</h3>
+      
+      {/* Plan Selection - Shows original price with strikethrough */}
+      <div style={styles.calcSection}>
+        <label style={styles.calcLabel}>{t.selectPlan}</label>
+        <div style={styles.planButtonsGrid}>
+          {Object.values(PRICING_PLANS).filter(p => p.id !== 'free').map(p => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedPlan(p.id)}
+              style={{
+                ...styles.planButton,
+                ...(selectedPlan === p.id ? {
+                  background: p.gradient,
+                  borderColor: 'transparent',
+                  color: 'white'
+                } : {})
+              }}
+            >
+              <span style={styles.planButtonName}>{p.name}</span>
+              <span style={styles.planButtonPrice}>
+                <span style={{ textDecoration: 'line-through', marginRight: '4px' }}>${p.price}</span>
+                <span style={{ color: '#10b981', fontWeight: '600' }}>$0</span>
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Include State Toggle */}
+      <div style={styles.calcSection}>
+        <label style={styles.calcLabel}>{t.includeState}</label>
+        <div style={styles.toggleRow}>
+          <button
+            onClick={() => setIncludeState(false)}
+            style={{
+              ...styles.toggleBtn,
+              ...(!includeState ? styles.toggleBtnActive : {})
+            }}
+          >No (Federal only)</button>
+          <button
+            onClick={() => setIncludeState(true)}
+            style={{
+              ...styles.toggleBtn,
+              ...(includeState ? styles.toggleBtnActive : {})
+            }}
+          >Yes (+ State)</button>
+        </div>
+      </div>
+      
+      {/* CPA Toggle */}
+      <div style={styles.calcSection}>
+        <label style={styles.calcLabel}>{t.includeCPA}</label>
+        <div style={styles.cpaToggleRow}>
+          <button
+            onClick={() => setIncludeCPA(false)}
+            style={{
+              ...styles.cpaToggleBtn,
+              ...(!includeCPA ? styles.cpaToggleBtnActive : {}),
+              borderColor: !includeCPA ? '#10b981' : 'rgba(255,255,255,0.2)'
+            }}
+          >
+            <span style={styles.cpaToggleIcon}>📄</span>
+            <span style={styles.cpaToggleTitle}>{t.selfFile}</span>
+            <span style={styles.cpaTogglePrice}>$0</span>
+            <span style={styles.cpaToggleDesc}>{t.selfFileDesc}</span>
+          </button>
+          <button
+            onClick={() => setIncludeCPA(true)}
+            style={{
+              ...styles.cpaToggleBtn,
+              ...(includeCPA ? styles.cpaToggleBtnActive : {}),
+              borderColor: includeCPA ? '#7c3aed' : 'rgba(255,255,255,0.2)'
+            }}
+          >
+            <span style={styles.cpaToggleIcon}>👨‍💼</span>
+            <span style={styles.cpaToggleTitle}>{t.withCPA}</span>
+            <span style={{...styles.cpaTogglePrice, color: '#a78bfa'}}>${totalWithCPA.toFixed(2)}</span>
+            <span style={styles.cpaToggleDesc}>{t.withCPADesc}</span>
+          </button>
+        </div>
+      </div>
+      
+      {/* Price Breakdown - Shows original price and discount clearly */}
+      <div style={styles.calcResult}>
+        <div style={styles.priceBreakdown}>
+          {/* Plan Price Row */}
+          <div style={styles.priceRow}>
+            <span>{plan.name} Plan</span>
+            <span>
+              {includeCPA ? (
+                `$${plan.price.toFixed(2)}`
+              ) : (
+                <span style={{ textDecoration: 'line-through', color: '#64748b' }}>${plan.price.toFixed(2)}</span>
+              )}
+            </span>
+          </div>
+          
+          {/* Discount Row - Only show when not CPA */}
+          {!includeCPA && (
+            <div style={{...styles.priceRow, color: '#10b981'}}>
+              <span>🎉 This Year's Discount</span>
+              <span>-${plan.price.toFixed(2)}</span>
+            </div>
+          )}
+          
+          {/* CPA Fees - Only show when CPA selected */}
+          {includeCPA && (
+            <>
+              <div style={styles.priceRow}>
+                <span>{t.cpaFee} ({t.federal})</span>
+                <span>${CPA_FEE_PER_FORM.toFixed(2)}</span>
+              </div>
+              {includeState && (
+                <div style={styles.priceRow}>
+                  <span>{t.cpaFee} ({t.state})</span>
+                  <span>${CPA_FEE_PER_FORM.toFixed(2)}</span>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        
+        <div style={styles.totalRow}>
+          <span>{t.total}</span>
+          <span style={{
+            ...styles.totalAmount,
+            color: includeCPA ? '#a78bfa' : '#10b981'
+          }}>
+            {includeCPA ? `$${totalWithCPA.toFixed(2)}` : 'FREE'}
+          </span>
+        </div>
+        
+        {/* Savings Message */}
+        {!includeCPA && plan.price > 0 && (
+          <div style={{ textAlign: 'center', marginTop: '12px', padding: '8px', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '8px' }}>
+            <span style={{ color: '#10b981', fontSize: '13px', fontWeight: '500' }}>
+              ✓ You save ${plan.price.toFixed(2)} with this year's promotion!
+            </span>
+          </div>
+        )}
+        
+        <button 
+          onClick={() => onSelectPlan(selectedPlan, includeCPA, includeState)}
+          style={{
+            ...styles.calcCta,
+            background: includeCPA 
+              ? 'linear-gradient(135deg, #7c3aed, #a855f7)' 
+              : 'linear-gradient(135deg, #10b981, #34d399)'
+          }}
+        >
+          {includeCPA ? `Checkout - $${totalWithCPA.toFixed(2)}` : 'Start Free →'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// FAQ ITEM
 // ============================================================
 const FAQItem = ({ question, answer, isOpen, onClick }) => (
   <div style={styles.faqItem}>
@@ -690,13 +612,14 @@ const FAQItem = ({ question, answer, isOpen, onClick }) => (
 );
 
 // ============================================================
-// MAIN PRICING PAGE COMPONENT
+// MAIN PRICING PAGE
 // ============================================================
 export default function Pricing() {
   const navigate = useNavigate();
   const [language, setLanguage] = useState("en");
   const [openFAQ, setOpenFAQ] = useState(null);
-  const [showAllPlans, setShowAllPlans] = useState(false);
+  const [includeCPA, setIncludeCPA] = useState(false);
+  const [includeState, setIncludeState] = useState(true);
 
   useEffect(() => {
     const savedLang = localStorage.getItem("taxsky_language");
@@ -705,67 +628,52 @@ export default function Pricing() {
 
   const t = translations[language];
 
-  // ============================================================
-  // ✅ FIXED: handleSelectPlan with proper checkout redirect
-  // ============================================================
-  const handleSelectPlan = (planId) => {
-    // Store selected plan
+  const handleSelectPlan = (planId, withCPA = false, withState = true) => {
+    // Store selections
     localStorage.setItem("taxsky_selected_plan", planId);
+    localStorage.setItem("taxsky_include_cpa", withCPA ? 'true' : 'false');
+    localStorage.setItem("taxsky_include_state", withState ? 'true' : 'false');
     
-    // Check if user is already logged in
+    // Check if user is logged in
     const token = localStorage.getItem('taxsky_token') || localStorage.getItem('token');
     const user = localStorage.getItem('taxsky_user') || localStorage.getItem('user');
     
-    if (token && user) {
-      // ✅ User is logged in - go directly to checkout
-      navigate(`/checkout/${planId}`);
+    if (withCPA) {
+      // CPA selected - need to pay
+      if (token && user) {
+        navigate(`/checkout/${planId}?cpa=true&state=${withState}`);
+      } else {
+        localStorage.setItem("taxsky_redirect_after_login", `/checkout/${planId}?cpa=true&state=${withState}`);
+        navigate("/login");
+      }
     } else {
-      // ❌ User not logged in - go to login first, then redirect to checkout
-      localStorage.setItem("taxsky_redirect_after_login", `/checkout/${planId}`);
-      navigate("/login");
+      // Free self-file - go to dashboard
+      if (token && user) {
+        navigate("/dashboard");
+      } else {
+        localStorage.setItem("taxsky_redirect_after_login", "/dashboard");
+        navigate("/login");
+      }
     }
   };
-  // ============================================================
 
   const mainPlans = [
-    PRICING_PLANS.free,
     PRICING_PLANS.basic,
     PRICING_PLANS.standard,
     PRICING_PLANS.plus,
-  ];
-
-  const allPlans = [
-    ...mainPlans,
-    PRICING_PLANS.premium,
     PRICING_PLANS.selfEmployed,
   ];
 
   return (
     <div style={styles.page}>
-      {/* Background Effects */}
+      {/* Background */}
       <div style={styles.bgGradient} />
-      <div style={styles.bgGradient2} />
 
       <div style={styles.container}>
         {/* Header */}
         <header style={styles.header}>
           <a href="/" style={styles.logoLink}>
-            <div style={styles.logoContainer}>
-              {/* TaxSky Logo SVG */}
-              <svg viewBox="0 0 40 40" style={styles.logoSvg} fill="none">
-                <defs>
-                  <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#6366f1"/>
-                    <stop offset="100%" stopColor="#8b5cf6"/>
-                  </linearGradient>
-                </defs>
-                <polygon points="20,4 32,10 32,26 20,32 8,26 8,10" fill="url(#logo-grad)" opacity="0.3"/>
-                <polygon points="20,8 28,12 28,24 20,28 12,24 12,12" fill="url(#logo-grad)" opacity="0.6"/>
-                <polygon points="20,12 26,15 26,22 20,25 14,22 14,15" fill="url(#logo-grad)"/>
-                <path d="M20 15 L20 22 M17 17 Q20 15 23 17 Q20 19 17 21 Q20 23 23 21" stroke="white" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-              </svg>
-              <span style={styles.logoText}>Tax<span style={styles.logoHighlight}>Sky</span> <span style={styles.logoAI}>AI</span></span>
-            </div>
+            <span style={styles.logoText}>Tax<span style={styles.logoHighlight}>Sky</span> AI</span>
           </a>
           <div style={styles.headerRight}>
             <select
@@ -785,6 +693,37 @@ export default function Pricing() {
         <div style={styles.hero}>
           <h1 style={styles.title}>{t.title}</h1>
           <p style={styles.subtitle}>{t.subtitle}</p>
+          
+          {/* FREE Badge */}
+          <div style={styles.freeBadge}>
+            <span style={styles.freeBadgeIcon}>🎉</span>
+            <span>Self-file is <strong>100% FREE</strong> - Download PDF & mail to IRS</span>
+          </div>
+        </div>
+
+        {/* CPA Toggle - Global */}
+        <div style={styles.globalCpaToggle}>
+          <span style={styles.globalCpaLabel}>View prices:</span>
+          <button
+            onClick={() => setIncludeCPA(false)}
+            style={{
+              ...styles.globalCpaBtn,
+              ...(!includeCPA ? styles.globalCpaBtnActive : {}),
+              background: !includeCPA ? 'linear-gradient(135deg, #10b981, #34d399)' : 'transparent'
+            }}
+          >
+            🆓 Self-File (FREE)
+          </button>
+          <button
+            onClick={() => setIncludeCPA(true)}
+            style={{
+              ...styles.globalCpaBtn,
+              ...(includeCPA ? styles.globalCpaBtnActive : {}),
+              background: includeCPA ? 'linear-gradient(135deg, #7c3aed, #a855f7)' : 'transparent'
+            }}
+          >
+            👨‍💼 With CPA (+$59/form)
+          </button>
         </div>
 
         {/* Pricing Calculator */}
@@ -792,798 +731,283 @@ export default function Pricing() {
 
         {/* Plans Grid */}
         <div style={styles.plansSection}>
+          <h2 style={styles.sectionTitle}>Choose Your Plan</h2>
           <div style={styles.plansGrid}>
-            {(showAllPlans ? allPlans : mainPlans).map((plan) => (
+            {mainPlans.map((plan) => (
               <PlanCard
                 key={plan.id}
                 plan={plan}
                 language={language}
                 onSelect={handleSelectPlan}
+                includeCPA={includeCPA}
+                includeState={includeState}
               />
             ))}
           </div>
-          
-          {!showAllPlans && (
-            <button
-              onClick={() => setShowAllPlans(true)}
-              style={styles.showMoreBtn}
-            >
-              {t.comparePlans} →
-            </button>
-          )}
         </div>
 
-        {/* Add-ons Section */}
-        <div style={styles.addonsSection}>
-          <h2 style={styles.sectionTitle}>{t.addons}</h2>
-          <div style={styles.addonsGrid}>
-            {ADDONS.map((addon) => (
-              <div key={addon.id} style={styles.addonCard}>
-                <div style={styles.addonInfo}>
-                  <span style={styles.addonName}>{addon.name}</span>
-                  <span style={styles.addonDesc}>{addon.description}</span>
-                </div>
-                <span style={styles.addonPrice}>+${addon.price}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Features Section */}
+        {/* Features */}
         <div style={styles.featuresSection}>
           <h2 style={styles.sectionTitle}>{t.features.title}</h2>
           <div style={styles.featuresGrid}>
-            {t.features.items.map((item, i) => (
-              <div key={i} style={styles.featureItem}>{item}</div>
-            ))}
-          </div>
-        </div>
-
-        {/* Guarantees */}
-        <div style={styles.guaranteeSection}>
-          <h2 style={styles.sectionTitle}>{t.guarantee.title}</h2>
-          <div style={styles.guaranteeGrid}>
-            {t.guarantee.items.map((item, i) => (
-              <div key={i} style={styles.guaranteeCard}>
-                <span style={styles.guaranteeIcon}>{item.icon}</span>
-                <h3 style={styles.guaranteeTitle}>{item.title}</h3>
-                <p style={styles.guaranteeDesc}>{item.desc}</p>
-              </div>
+            {t.features.items.map((feature, i) => (
+              <div key={i} style={styles.featureItem}>{feature}</div>
             ))}
           </div>
         </div>
 
         {/* FAQ */}
-        <div style={styles.faqSection}>
-          <h2 style={styles.sectionTitle}>{t.faq.title}</h2>
-          <div style={styles.faqList}>
-            {t.faq.items.map((item, i) => (
-              <FAQItem
-                key={i}
-                question={item.q}
-                answer={item.a}
-                isOpen={openFAQ === i}
-                onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
-              />
-            ))}
+        {t.faq && (
+          <div style={styles.faqSection}>
+            <h2 style={styles.sectionTitle}>{t.faq.title}</h2>
+            <div style={styles.faqList}>
+              {t.faq.items.map((item, i) => (
+                <FAQItem
+                  key={i}
+                  question={item.q}
+                  answer={item.a}
+                  isOpen={openFAQ === i}
+                  onClick={() => setOpenFAQ(openFAQ === i ? null : i)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* CTA */}
         <div style={styles.ctaSection}>
           <h2 style={styles.ctaTitle}>{t.cta.title}</h2>
           <p style={styles.ctaSubtitle}>{t.cta.subtitle}</p>
-          <button onClick={() => navigate("/")} style={styles.ctaButton}>
+          <button 
+            onClick={() => handleSelectPlan('standard', false, true)}
+            style={styles.ctaButton}
+          >
             {t.cta.button}
           </button>
         </div>
-
-        {/* Footer */}
-        <footer style={styles.footer}>
-          <p style={styles.footerText}>© 2025 TaxSky AI Inc. All rights reserved.</p>
-          <div style={styles.footerLinks}>
-            <a href="/privacy" style={styles.footerLink}>Privacy Policy</a>
-            <span style={styles.footerDivider}>•</span>
-            <a href="/terms" style={styles.footerLink}>Terms of Service</a>
-            <span style={styles.footerDivider}>•</span>
-            <a href="/" style={styles.footerLink}>Home</a>
-          </div>
-        </footer>
       </div>
-
-      {/* Styles */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Space Grotesk', sans-serif; }
-        
-        /* Custom slider styling */
-        input[type="range"] {
-          -webkit-appearance: none;
-          width: 100%;
-          height: 8px;
-          background: linear-gradient(90deg, #6366f1, #8b5cf6);
-          border-radius: 4px;
-          outline: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          width: 20px;
-          height: 20px;
-          background: #fff;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        input[type="range"]::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
-          background: #fff;
-          border-radius: 50%;
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-          .plans-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }
 
 // ============================================================
-// STYLES - Updated with TaxSky brand colors
+// STYLES
 // ============================================================
 const styles = {
   page: {
     minHeight: '100vh',
-    background: 'linear-gradient(180deg, #0a0a0f 0%, #1a1a2e 50%, #0a0a0f 100%)',
+    background: '#0f172a',
     color: '#fff',
+    fontFamily: "'DM Sans', -apple-system, sans-serif",
     position: 'relative',
     overflow: 'hidden',
   },
-  
   bgGradient: {
-    position: 'fixed',
-    top: '-50%',
-    right: '-30%',
-    width: '60%',
-    height: '100%',
-    background: 'radial-gradient(ellipse, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    height: '60vh',
+    background: 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15), transparent 60%)',
     pointerEvents: 'none',
   },
-  
-  bgGradient2: {
-    position: 'fixed',
-    bottom: '-30%',
-    left: '-20%',
-    width: '50%',
-    height: '80%',
-    background: 'radial-gradient(ellipse, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
-    pointerEvents: 'none',
-  },
-  
   container: {
-    position: 'relative',
     maxWidth: 1200,
     margin: '0 auto',
-    padding: '24px',
+    padding: '0 24px',
+    position: 'relative',
+    zIndex: 1,
   },
-  
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 48,
+    padding: '24px 0',
   },
-  
-  logoLink: {
-    textDecoration: 'none',
-  },
-  
-  logoContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-  },
-  
-  logoSvg: {
-    width: 40,
-    height: 40,
-  },
-  
-  logoText: {
-    fontSize: 24,
-    fontWeight: 700,
-    color: '#fff',
-  },
-  
-  logoHighlight: {
-    background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-  },
-  
-  logoAI: {
-    fontSize: 14,
-    color: '#64748b',
-    marginLeft: 4,
-  },
-  
-  headerRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 16,
-  },
-  
+  logoLink: { textDecoration: 'none' },
+  logoText: { fontSize: 24, fontWeight: 700, color: '#fff' },
+  logoHighlight: { color: '#6366f1' },
+  headerRight: { display: 'flex', alignItems: 'center', gap: 16 },
   langSelect: {
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.15)',
-    borderRadius: 10,
-    padding: '10px 14px',
-    color: '#fff',
-    fontSize: 14,
-    cursor: 'pointer',
-    outline: 'none',
+    background: 'rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    borderRadius: 8, padding: '8px 12px',
+    color: '#fff', fontSize: 14, cursor: 'pointer',
   },
-  
   loginBtn: {
-    padding: '10px 24px',
+    padding: '10px 20px',
     background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    border: 'none',
-    borderRadius: 10,
-    color: '#fff',
-    textDecoration: 'none',
-    fontSize: 14,
-    fontWeight: 600,
-    transition: 'all 0.2s',
+    borderRadius: 10, color: '#fff',
+    textDecoration: 'none', fontWeight: 600,
   },
   
-  hero: {
-    textAlign: 'center',
-    marginBottom: 48,
+  // Hero
+  hero: { textAlign: 'center', padding: '40px 0 20px' },
+  title: { fontSize: 48, fontWeight: 700, marginBottom: 16 },
+  subtitle: { fontSize: 20, color: '#94a3b8', marginBottom: 24 },
+  freeBadge: {
+    display: 'inline-flex', alignItems: 'center', gap: 10,
+    background: 'rgba(16, 185, 129, 0.15)',
+    border: '2px solid rgba(16, 185, 129, 0.3)',
+    borderRadius: 50, padding: '12px 24px',
+    fontSize: 16, color: '#10b981',
   },
+  freeBadgeIcon: { fontSize: 24 },
   
-  title: {
-    fontSize: 48,
-    fontWeight: 700,
-    marginBottom: 16,
-    background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
+  // Global CPA Toggle
+  globalCpaToggle: {
+    display: 'flex', justifyContent: 'center', alignItems: 'center',
+    gap: 12, margin: '32px 0',
   },
-  
-  subtitle: {
-    fontSize: 20,
-    color: '#94a3b8',
+  globalCpaLabel: { color: '#94a3b8', fontSize: 14 },
+  globalCpaBtn: {
+    padding: '12px 24px', border: '2px solid rgba(255,255,255,0.2)',
+    borderRadius: 50, color: '#fff', fontSize: 14, fontWeight: 600,
+    cursor: 'pointer', transition: 'all 0.2s',
   },
+  globalCpaBtnActive: { borderColor: 'transparent' },
   
   // Calculator
   calculator: {
     background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(99, 102, 241, 0.2)',
-    borderRadius: 24,
-    padding: 32,
-    marginBottom: 48,
-    backdropFilter: 'blur(10px)',
-  },
-  
-  calculatorTitle: {
-    fontSize: 24,
-    fontWeight: 700,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  
-  calculatorGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: 24,
-    marginBottom: 24,
-  },
-  
-  calcField: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-  },
-  
-  calcLabel: {
-    fontSize: 14,
-    color: '#94a3b8',
-    fontWeight: 500,
-  },
-  
-  slider: {
-    width: '100%',
-    height: 8,
-    background: 'rgba(255,255,255,0.1)',
-    borderRadius: 4,
-    appearance: 'none',
-    cursor: 'pointer',
-  },
-  
-  sliderValue: {
-    fontSize: 22,
-    fontWeight: 700,
-    color: '#fff',
-  },
-  
-  counterRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 16,
-  },
-  
-  counterBtn: {
-    width: 40,
-    height: 40,
-    background: 'rgba(99, 102, 241, 0.2)',
-    border: '1px solid rgba(99, 102, 241, 0.3)',
-    borderRadius: 10,
-    color: '#fff',
-    fontSize: 20,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  
-  counterValue: {
-    fontSize: 22,
-    fontWeight: 700,
-    minWidth: 30,
-    textAlign: 'center',
-  },
-  
-  toggleRow: {
-    display: 'flex',
-    gap: 8,
-  },
-  
-  toggleBtn: {
-    flex: 1,
-    padding: '10px 16px',
-    background: 'rgba(255,255,255,0.05)',
     border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 10,
-    color: '#94a3b8',
-    fontSize: 14,
-    fontWeight: 500,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
+    borderRadius: 24, padding: 32, marginBottom: 48,
   },
-  
+  calculatorTitle: { fontSize: 24, fontWeight: 700, marginBottom: 24, textAlign: 'center' },
+  calcSection: { marginBottom: 24 },
+  calcLabel: { display: 'block', fontSize: 14, color: '#94a3b8', marginBottom: 12 },
+  planButtonsGrid: {
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10,
+  },
+  planButton: {
+    padding: '12px 16px', background: 'rgba(255,255,255,0.05)',
+    border: '2px solid rgba(255,255,255,0.1)', borderRadius: 12,
+    color: '#fff', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
+  },
+  planButtonName: { display: 'block', fontSize: 14, fontWeight: 600 },
+  planButtonPrice: { display: 'block', fontSize: 12, color: '#64748b' },
+  toggleRow: { display: 'flex', gap: 10 },
+  toggleBtn: {
+    flex: 1, padding: '12px 16px', background: 'rgba(255,255,255,0.05)',
+    border: '2px solid rgba(255,255,255,0.1)', borderRadius: 10,
+    color: '#94a3b8', fontSize: 14, cursor: 'pointer', transition: 'all 0.2s',
+  },
   toggleBtnActive: {
-    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3))',
-    border: '1px solid rgba(99, 102, 241, 0.5)',
-    color: '#fff',
+    background: 'rgba(99, 102, 241, 0.2)', borderColor: '#6366f1', color: '#fff',
   },
-  
+  cpaToggleRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 },
+  cpaToggleBtn: {
+    padding: 20, background: 'rgba(255,255,255,0.03)',
+    border: '2px solid rgba(255,255,255,0.1)', borderRadius: 16,
+    textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s',
+  },
+  cpaToggleBtnActive: { background: 'rgba(255,255,255,0.08)' },
+  cpaToggleIcon: { display: 'block', fontSize: 32, marginBottom: 8 },
+  cpaToggleTitle: { display: 'block', fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4 },
+  cpaTogglePrice: { display: 'block', fontSize: 24, fontWeight: 700, color: '#10b981', marginBottom: 4 },
+  cpaToggleDesc: { display: 'block', fontSize: 12, color: '#64748b' },
   calcResult: {
-    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1))',
-    border: '1px solid rgba(16, 185, 129, 0.3)',
-    borderRadius: 16,
-    padding: 24,
+    background: 'rgba(255,255,255,0.05)', borderRadius: 16, padding: 24, marginTop: 24,
   },
-  
-  calcResultRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+  priceBreakdown: { marginBottom: 16 },
+  priceRow: {
+    display: 'flex', justifyContent: 'space-between', padding: '8px 0',
+    fontSize: 14, color: '#cbd5e1', borderBottom: '1px solid rgba(255,255,255,0.05)',
   },
-  
-  calcResultLabel: {
-    fontSize: 14,
-    color: '#94a3b8',
+  totalRow: {
+    display: 'flex', justifyContent: 'space-between', padding: '16px 0',
+    fontSize: 20, fontWeight: 700, borderTop: '2px solid rgba(255,255,255,0.1)',
   },
-  
-  calcResultPlan: {
-    fontSize: 18,
-    fontWeight: 700,
-    color: '#10b981',
-  },
-  
-  calcResultPrice: {
-    fontSize: 32,
-    fontWeight: 700,
-    color: '#10b981',
-  },
-  
+  totalAmount: { fontSize: 28 },
   calcCta: {
-    width: '100%',
-    marginTop: 16,
-    padding: '14px 24px',
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    border: 'none',
-    borderRadius: 12,
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 700,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
+    width: '100%', padding: '16px 24px', border: 'none', borderRadius: 12,
+    color: '#fff', fontSize: 18, fontWeight: 700, cursor: 'pointer', marginTop: 16,
   },
   
-  // Plans
-  plansSection: {
-    marginBottom: 48,
-  },
-  
+  // Plans Section
+  plansSection: { marginBottom: 48 },
+  sectionTitle: { fontSize: 28, fontWeight: 700, textAlign: 'center', marginBottom: 32 },
   plansGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: 20,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20,
   },
-  
   planCard: {
     background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 20,
-    padding: 28,
-    position: 'relative',
-    transition: 'all 0.3s',
+    border: '2px solid rgba(255,255,255,0.1)',
+    borderRadius: 20, padding: 28, position: 'relative', transition: 'all 0.3s',
   },
-  
   planCardPopular: {
-    background: 'rgba(139, 92, 246, 0.08)',
+    background: 'rgba(99, 102, 241, 0.08)',
     transform: 'scale(1.02)',
-    boxShadow: '0 20px 50px rgba(139, 92, 246, 0.2)',
   },
-  
   popularBadge: {
-    position: 'absolute',
-    top: -12,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    padding: '6px 16px',
-    borderRadius: 20,
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 700,
-    whiteSpace: 'nowrap',
+    position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
+    padding: '6px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, color: '#fff',
   },
-  
-  planHeader: {
-    marginBottom: 20,
+  planHeader: { marginBottom: 16 },
+  planName: { fontSize: 22, fontWeight: 700, marginBottom: 4 },
+  planDesc: { fontSize: 14, color: '#94a3b8' },
+  planPrice: { marginBottom: 20 },
+  planPriceAmount: { fontSize: 36, fontWeight: 700 },
+  priceBreakdownSmall: {
+    display: 'flex', flexDirection: 'column', fontSize: 12, color: '#64748b', marginTop: 4,
   },
-  
-  planName: {
-    fontSize: 24,
-    fontWeight: 700,
-    marginBottom: 4,
-  },
-  
-  planDesc: {
-    fontSize: 14,
-    color: '#94a3b8',
-  },
-  
-  planPrice: {
-    marginBottom: 20,
-  },
-  
-  planPriceAmount: {
-    fontSize: 42,
-    fontWeight: 700,
-  },
-  
-  planPricePer: {
-    fontSize: 14,
-    color: '#64748b',
-    marginLeft: 4,
-  },
-  
+  originalPrice: { display: 'block', fontSize: 12, color: '#64748b', marginTop: 4 },
   planMeta: {
-    background: 'rgba(255,255,255,0.03)',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 20,
+    background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 14, marginBottom: 20,
   },
-  
-  planMetaItem: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    fontSize: 13,
-    marginBottom: 6,
-  },
-  
-  planMetaLabel: {
-    color: '#64748b',
-  },
-  
-  planMetaValue: {
-    color: '#fff',
-    fontWeight: 600,
-  },
-  
-  planFeatures: {
-    listStyle: 'none',
-    marginBottom: 24,
-  },
-  
-  planFeature: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 10,
-    fontSize: 14,
-    color: '#e2e8f0',
-    marginBottom: 10,
-  },
-  
-  planFeatureNot: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 10,
-    fontSize: 14,
-    color: '#64748b',
-    marginBottom: 10,
-  },
-  
-  featureCheck: {
-    color: '#10b981',
-    fontWeight: 700,
-  },
-  
-  featureX: {
-    color: '#64748b',
-  },
-  
+  planMetaItem: { display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 },
+  planMetaLabel: { color: '#64748b' },
+  planMetaValue: { color: '#fff', fontWeight: 600 },
+  planFeatures: { listStyle: 'none', marginBottom: 24, padding: 0 },
+  planFeature: { display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#e2e8f0', marginBottom: 10 },
+  planFeatureNot: { display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#64748b', marginBottom: 10 },
+  featureCheck: { color: '#10b981', fontWeight: 700 },
+  featureX: { color: '#64748b' },
   planCta: {
-    width: '100%',
-    padding: '14px 24px',
-    border: '1px solid',
-    borderRadius: 12,
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 700,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  
-  showMoreBtn: {
-    display: 'block',
-    margin: '32px auto 0',
-    padding: '14px 32px',
-    background: 'transparent',
-    border: '1px solid rgba(99, 102, 241, 0.3)',
-    borderRadius: 12,
-    color: '#6366f1',
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  
-  // Add-ons
-  addonsSection: {
-    marginBottom: 48,
-  },
-  
-  sectionTitle: {
-    fontSize: 28,
-    fontWeight: 700,
-    textAlign: 'center',
-    marginBottom: 32,
-  },
-  
-  addonsGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: 12,
-  },
-  
-  addonCard: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 12,
-    padding: '16px 20px',
-    transition: 'all 0.2s',
-  },
-  
-  addonInfo: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 2,
-  },
-  
-  addonName: {
-    fontSize: 14,
-    fontWeight: 600,
-    color: '#fff',
-  },
-  
-  addonDesc: {
-    fontSize: 12,
-    color: '#64748b',
-  },
-  
-  addonPrice: {
-    fontSize: 16,
-    fontWeight: 700,
-    color: '#10b981',
+    width: '100%', padding: '14px 24px', border: 'none', borderRadius: 12,
+    color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer',
   },
   
   // Features
-  featuresSection: {
-    marginBottom: 48,
-  },
-  
+  featuresSection: { marginBottom: 48 },
   featuresGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-    gap: 16,
+    display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16,
   },
-  
   featureItem: {
-    background: 'rgba(99, 102, 241, 0.08)',
-    border: '1px solid rgba(99, 102, 241, 0.15)',
-    borderRadius: 12,
-    padding: '18px 22px',
-    fontSize: 14,
-    color: '#e2e8f0',
-    fontWeight: 500,
-  },
-  
-  // Guarantees
-  guaranteeSection: {
-    marginBottom: 48,
-  },
-  
-  guaranteeGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-    gap: 20,
-  },
-  
-  guaranteeCard: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 20,
-    padding: 28,
-    textAlign: 'center',
-    transition: 'all 0.2s',
-  },
-  
-  guaranteeIcon: {
-    fontSize: 40,
-    marginBottom: 16,
-    display: 'block',
-  },
-  
-  guaranteeTitle: {
-    fontSize: 18,
-    fontWeight: 700,
-    marginBottom: 10,
-  },
-  
-  guaranteeDesc: {
-    fontSize: 14,
-    color: '#94a3b8',
-    lineHeight: 1.6,
+    background: 'rgba(99, 102, 241, 0.08)', border: '1px solid rgba(99, 102, 241, 0.15)',
+    borderRadius: 12, padding: '18px 22px', fontSize: 14, color: '#e2e8f0', fontWeight: 500,
   },
   
   // FAQ
-  faqSection: {
-    marginBottom: 48,
-    maxWidth: 800,
-    margin: '0 auto 48px',
-  },
-  
-  faqList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-  },
-  
+  faqSection: { marginBottom: 48, maxWidth: 800, margin: '0 auto 48px' },
+  faqList: { display: 'flex', flexDirection: 'column', gap: 12 },
   faqItem: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14,
-    overflow: 'hidden',
+    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 14, overflow: 'hidden',
   },
-  
   faqQuestion: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '18px 22px',
-    fontSize: 15,
-    fontWeight: 600,
-    color: '#fff',
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    textAlign: 'left',
+    width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    padding: '18px 22px', fontSize: 15, fontWeight: 600, color: '#fff',
+    background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left',
   },
-  
-  faqIcon: {
-    fontSize: 10,
-    color: '#6366f1',
-    transition: 'transform 0.3s ease',
-  },
-  
+  faqIcon: { fontSize: 10, color: '#6366f1', transition: 'transform 0.3s ease' },
   faqAnswer: {
-    fontSize: 14,
-    color: '#94a3b8',
-    lineHeight: 1.7,
-    background: 'rgba(99, 102, 241, 0.05)',
-    overflow: 'hidden',
-    transition: 'all 0.3s ease',
+    fontSize: 14, color: '#94a3b8', lineHeight: 1.7,
+    background: 'rgba(99, 102, 241, 0.05)', overflow: 'hidden', transition: 'all 0.3s ease',
   },
   
   // CTA
   ctaSection: {
     textAlign: 'center',
-    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15))',
-    border: '1px solid rgba(99, 102, 241, 0.25)',
-    borderRadius: 28,
-    padding: 56,
-    marginBottom: 48,
+    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.15))',
+    border: '1px solid rgba(16, 185, 129, 0.25)',
+    borderRadius: 28, padding: 56, marginBottom: 48,
   },
-  
-  ctaTitle: {
-    fontSize: 36,
-    fontWeight: 700,
-    marginBottom: 14,
-  },
-  
-  ctaSubtitle: {
-    fontSize: 18,
-    color: '#94a3b8',
-    marginBottom: 28,
-  },
-  
+  ctaTitle: { fontSize: 36, fontWeight: 700, marginBottom: 14 },
+  ctaSubtitle: { fontSize: 18, color: '#94a3b8', marginBottom: 28 },
   ctaButton: {
     padding: '18px 48px',
-    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-    border: 'none',
-    borderRadius: 14,
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 700,
-    cursor: 'pointer',
-    boxShadow: '0 8px 30px rgba(99, 102, 241, 0.4)',
-    transition: 'all 0.2s',
-  },
-  
-  // Footer
-  footer: {
-    borderTop: '1px solid rgba(255,255,255,0.08)',
-    paddingTop: 32,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-  
-  footerText: {
-    fontSize: 13,
-    color: '#64748b',
-  },
-  
-  footerLinks: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-  },
-  
-  footerLink: {
-    fontSize: 13,
-    color: '#64748b',
-    textDecoration: 'none',
-    transition: 'color 0.2s',
-  },
-  
-  footerDivider: {
-    color: '#334155',
+    background: 'linear-gradient(135deg, #10b981, #34d399)',
+    border: 'none', borderRadius: 14, color: '#fff',
+    fontSize: 18, fontWeight: 700, cursor: 'pointer',
+    boxShadow: '0 8px 30px rgba(16, 185, 129, 0.4)',
   },
 };

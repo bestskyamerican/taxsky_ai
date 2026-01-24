@@ -1,0 +1,1284 @@
+// ============================================================
+// TAXSKY AI ONBOARDING v3.0 - CHAT-FIRST EXPERIENCE
+// ============================================================
+// MAJOR UPDATE: Chat is now on the FIRST PAGE!
+// - Users can start chatting immediately (no login wall)
+// - Google login appears inline when needed (SSN entry)
+// - Single-page experience: Hero + Live Chat + Features
+// - Mobile-optimized with chat as primary focus
+// ============================================================
+
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
+const PYTHON_API = import.meta.env.VITE_PYTHON_API || "http://localhost:5002";
+
+// ============================================================
+// TAXSKY AI LOGO COMPONENT
+// ============================================================
+const TaxSkyLogo = ({ size = "default" }) => {
+  const sizes = {
+    small: { width: 140, height: 40, iconScale: 0.7 },
+    default: { width: 180, height: 50, iconScale: 0.9 },
+    large: { width: 240, height: 68, iconScale: 1.2 },
+  };
+  const s = sizes[size] || sizes.default;
+  
+  return (
+    <svg width={s.width} height={s.height} viewBox="0 0 200 56" fill="none">
+      <defs>
+        <linearGradient id="hexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#6366f1"/>
+          <stop offset="100%" stopColor="#8b5cf6"/>
+        </linearGradient>
+        <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6"/>
+          <stop offset="100%" stopColor="#06b6d4"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <polygon points="28,8 42,2 56,8 56,24 42,30 28,24" fill="url(#hexGrad)" opacity="0.25"/>
+      <polygon points="23,14 37,8 51,14 51,30 37,36 23,30" fill="url(#hexGrad)" opacity="0.5"/>
+      <polygon points="26,20 39,14 52,20 52,34 39,42 26,34" fill="url(#hexGrad)" filter="url(#glow)"/>
+      <path d="M39 24 L39 34 M35 27 Q39 24 43 27 Q39 30 35 33 Q39 36 43 33" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+      <text x="62" y="34" fontFamily="'Sora', sans-serif" fontSize="24" fontWeight="700" fill="white">Tax</text>
+      <text x="102" y="34" fontFamily="'Sora', sans-serif" fontSize="24" fontWeight="700" fill="url(#textGrad)">Sky</text>
+      <text x="148" y="34" fontFamily="'Sora', sans-serif" fontSize="14" fontWeight="600" fill="#a78bfa">AI</text>
+    </svg>
+  );
+};
+
+// ============================================================
+// LANGUAGES & STATES DATA
+// ============================================================
+const LANGUAGES = [
+  { code: "en", name: "English", flag: "🇺🇸" },
+  { code: "vi", name: "Tiếng Việt", flag: "🇻🇳" },
+  { code: "es", name: "Español", flag: "🇲🇽" },
+  { code: "zh", name: "中文", flag: "🇨🇳" },
+  { code: "ko", name: "한국어", flag: "🇰🇷" },
+];
+
+const ALL_STATES = [
+  { code: "CA", name: "California", level: "full" },
+  { code: "TX", name: "Texas", level: "no_tax" },
+  { code: "FL", name: "Florida", level: "no_tax" },
+  { code: "NY", name: "New York", level: "full" },
+  { code: "WA", name: "Washington", level: "no_tax" },
+  { code: "NV", name: "Nevada", level: "no_tax" },
+  { code: "IL", name: "Illinois", level: "flat" },
+  { code: "PA", name: "Pennsylvania", level: "flat" },
+  { code: "AZ", name: "Arizona", level: "flat" },
+  { code: "GA", name: "Georgia", level: "full" },
+  { code: "NC", name: "North Carolina", level: "flat" },
+  { code: "NJ", name: "New Jersey", level: "full" },
+  { code: "VA", name: "Virginia", level: "full" },
+  { code: "MA", name: "Massachusetts", level: "flat" },
+  { code: "CO", name: "Colorado", level: "flat" },
+  { code: "TN", name: "Tennessee", level: "no_tax" },
+  { code: "OH", name: "Ohio", level: "coming_soon" },
+  { code: "MI", name: "Michigan", level: "flat" },
+  { code: "IN", name: "Indiana", level: "flat" },
+  { code: "MO", name: "Missouri", level: "coming_soon" },
+];
+
+// ============================================================
+// TRANSLATIONS
+// ============================================================
+const translations = {
+  en: {
+    hero: {
+      badge: "🎉 Tax Season 2025",
+      title: "File Your Taxes",
+      titleHighlight: "Just by Chatting",
+      subtitle: "No forms. No uploads. Just tell me about yourself and I'll handle your taxes.",
+    },
+    chat: {
+      placeholder: "Tell me about your income, job, family...",
+      thinking: "Thinking...",
+      welcome: "Hi! 👋 I'm your TaxSky AI assistant. Let's get you the biggest refund possible! Tell me about your work situation - are you employed, self-employed, or both?",
+      loginPrompt: "To continue and protect your information, please sign in:",
+      tryExample: "Try: \"I made $65,000 and have 2 kids\"",
+    },
+    cta: {
+      google: "Continue with Google",
+      startFree: "Start Free",
+      calculating: "Calculating...",
+    },
+    stats: {
+      users: "50K+",
+      usersLabel: "Filers",
+      refund: "$3,247",
+      refundLabel: "Avg Refund",
+      time: "15 min",
+      timeLabel: "Avg Time",
+      rating: "4.9★",
+      ratingLabel: "Rating",
+    },
+    features: [
+      { icon: "💬", title: "Chat to File", desc: "Just answer simple questions" },
+      { icon: "🔐", title: "Bank Security", desc: "256-bit encryption" },
+      { icon: "💰", title: "Max Refund", desc: "Guaranteed or money back" },
+      { icon: "🌐", title: "5+ Languages", desc: "File in your language" },
+    ],
+    trust: ["IRS Authorized", "SOC 2 Certified", "256-bit SSL"],
+  },
+  vi: {
+    hero: {
+      badge: "🎉 Mùa Thuế 2025",
+      title: "Khai Thuế",
+      titleHighlight: "Chỉ Bằng Chat",
+      subtitle: "Không cần form. Không cần tải lên. Chỉ cần kể về bạn.",
+    },
+    chat: {
+      placeholder: "Kể về thu nhập, công việc, gia đình...",
+      thinking: "Đang suy nghĩ...",
+      welcome: "Xin chào! 👋 Tôi là trợ lý AI TaxSky. Hãy để tôi giúp bạn hoàn thuế nhiều nhất! Bạn làm công việc gì?",
+      loginPrompt: "Để tiếp tục và bảo vệ thông tin, vui lòng đăng nhập:",
+      tryExample: "Thử: \"Tôi kiếm $65,000 và có 2 con\"",
+    },
+    cta: {
+      google: "Tiếp tục với Google",
+      startFree: "Bắt Đầu Miễn Phí",
+      calculating: "Đang tính...",
+    },
+    stats: {
+      users: "50K+",
+      usersLabel: "Người dùng",
+      refund: "$3,247",
+      refundLabel: "Hoàn TB",
+      time: "15 phút",
+      timeLabel: "Thời gian",
+      rating: "4.9★",
+      ratingLabel: "Đánh giá",
+    },
+    features: [
+      { icon: "💬", title: "Chat Để Khai", desc: "Trả lời câu hỏi đơn giản" },
+      { icon: "🔐", title: "Bảo Mật", desc: "Mã hóa 256-bit" },
+      { icon: "💰", title: "Hoàn Tối Đa", desc: "Đảm bảo hoặc hoàn tiền" },
+      { icon: "🌐", title: "5+ Ngôn Ngữ", desc: "Khai bằng tiếng của bạn" },
+    ],
+    trust: ["IRS Ủy Quyền", "SOC 2", "256-bit SSL"],
+  },
+  es: {
+    hero: {
+      badge: "🎉 Temporada 2025",
+      title: "Declara Impuestos",
+      titleHighlight: "Solo Chateando",
+      subtitle: "Sin formularios. Sin cargas. Solo cuéntame sobre ti.",
+    },
+    chat: {
+      placeholder: "Cuéntame sobre tus ingresos, trabajo, familia...",
+      thinking: "Pensando...",
+      welcome: "¡Hola! 👋 Soy tu asistente TaxSky AI. ¡Vamos a conseguirte el mejor reembolso! ¿Cuál es tu situación laboral?",
+      loginPrompt: "Para continuar y proteger tu información, inicia sesión:",
+      tryExample: "Prueba: \"Gané $65,000 y tengo 2 hijos\"",
+    },
+    cta: {
+      google: "Continuar con Google",
+      startFree: "Empezar Gratis",
+      calculating: "Calculando...",
+    },
+    stats: {
+      users: "50K+",
+      usersLabel: "Usuarios",
+      refund: "$3,247",
+      refundLabel: "Reembolso",
+      time: "15 min",
+      timeLabel: "Tiempo",
+      rating: "4.9★",
+      ratingLabel: "Rating",
+    },
+    features: [
+      { icon: "💬", title: "Chat para Declarar", desc: "Responde preguntas simples" },
+      { icon: "🔐", title: "Seguridad", desc: "Encriptación 256-bit" },
+      { icon: "💰", title: "Máximo Reembolso", desc: "Garantizado" },
+      { icon: "🌐", title: "5+ Idiomas", desc: "Declara en tu idioma" },
+    ],
+    trust: ["IRS Autorizado", "SOC 2", "256-bit SSL"],
+  },
+  zh: {
+    hero: {
+      badge: "🎉 2025报税季",
+      title: "报税",
+      titleHighlight: "只需聊天",
+      subtitle: "无需表格。无需上传。只需告诉我您的情况。",
+    },
+    chat: {
+      placeholder: "告诉我您的收入、工作、家庭...",
+      thinking: "思考中...",
+      welcome: "您好！👋 我是TaxSky AI助手。让我帮您获得最大退税！您的工作情况如何？",
+      loginPrompt: "为了继续并保护您的信息，请登录：",
+      tryExample: "试试: \"我赚了$65,000，有2个孩子\"",
+    },
+    cta: {
+      google: "用Google继续",
+      startFree: "免费开始",
+      calculating: "计算中...",
+    },
+    stats: {
+      users: "50K+",
+      usersLabel: "用户",
+      refund: "$3,247",
+      refundLabel: "平均退税",
+      time: "15分钟",
+      timeLabel: "平均时间",
+      rating: "4.9★",
+      ratingLabel: "评分",
+    },
+    features: [
+      { icon: "💬", title: "聊天报税", desc: "回答简单问题" },
+      { icon: "🔐", title: "银行级安全", desc: "256位加密" },
+      { icon: "💰", title: "最大退税", desc: "保证或退款" },
+      { icon: "🌐", title: "5+语言", desc: "用您的语言" },
+    ],
+    trust: ["IRS授权", "SOC 2认证", "256位SSL"],
+  },
+  ko: {
+    hero: {
+      badge: "🎉 2025 세금 시즌",
+      title: "세금 신고",
+      titleHighlight: "채팅만으로",
+      subtitle: "양식 없음. 업로드 없음. 그냥 대화하세요.",
+    },
+    chat: {
+      placeholder: "소득, 직업, 가족에 대해 알려주세요...",
+      thinking: "생각 중...",
+      welcome: "안녕하세요! 👋 TaxSky AI 어시스턴트입니다. 최대 환급을 받으세요! 어떤 일을 하시나요?",
+      loginPrompt: "계속하려면 로그인하세요:",
+      tryExample: "시도: \"$65,000 벌었고 아이 2명\"",
+    },
+    cta: {
+      google: "Google로 계속",
+      startFree: "무료 시작",
+      calculating: "계산 중...",
+    },
+    stats: {
+      users: "50K+",
+      usersLabel: "사용자",
+      refund: "$3,247",
+      refundLabel: "평균 환급",
+      time: "15분",
+      timeLabel: "평균 시간",
+      rating: "4.9★",
+      ratingLabel: "평점",
+    },
+    features: [
+      { icon: "💬", title: "채팅 신고", desc: "간단한 질문에 답하기" },
+      { icon: "🔐", title: "은행급 보안", desc: "256비트 암호화" },
+      { icon: "💰", title: "최대 환급", desc: "보장 또는 환불" },
+      { icon: "🌐", title: "5+ 언어", desc: "모국어로 신고" },
+    ],
+    trust: ["IRS 승인", "SOC 2 인증", "256비트 SSL"],
+  },
+};
+
+// ============================================================
+// MAIN COMPONENT - CHAT-FIRST ONBOARDING
+// ============================================================
+export default function Onboarding() {
+  const navigate = useNavigate();
+  const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
+  
+  // Core state
+  const [language, setLanguage] = useState("en");
+  const [userState, setUserState] = useState("CA");
+  const [mounted, setMounted] = useState(false);
+  
+  // Chat state
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [estimatedRefund, setEstimatedRefund] = useState(null);
+  
+  // Chat interaction count (show login after 3 messages)
+  const [messageCount, setMessageCount] = useState(0);
+  
+  const t = translations[language];
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Load saved preferences
+    const savedLang = localStorage.getItem("taxsky_language");
+    if (savedLang && translations[savedLang]) setLanguage(savedLang);
+    
+    const savedState = localStorage.getItem("taxsky_state");
+    if (savedState) setUserState(savedState);
+    
+    // Check if already logged in
+    const token = localStorage.getItem("taxsky_token");
+    if (token) setIsLoggedIn(true);
+    
+    // Add welcome message after mount
+    setTimeout(() => {
+      setMessages([{ type: "ai", text: t.chat.welcome, id: Date.now() }]);
+    }, 500);
+  }, []);
+
+  // Update welcome message when language changes
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].type === "ai") {
+      setMessages([{ type: "ai", text: t.chat.welcome, id: Date.now() }]);
+    }
+  }, [language]);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
+
+  // Simulate AI response (replace with real API call)
+  const getAIResponse = async (userMessage) => {
+    // Simple demo responses - replace with actual API
+    const lowerMsg = userMessage.toLowerCase();
+    
+    await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
+    
+    if (lowerMsg.includes("kid") || lowerMsg.includes("child") || lowerMsg.includes("con")) {
+      const kids = lowerMsg.match(/\d+/)?.[0] || "2";
+      return {
+        text: `Great! With ${kids} dependent${kids > 1 ? 's' : ''}, you may qualify for up to $${parseInt(kids) * 2000} in Child Tax Credits! 🎉 What about your work situation - are you employed by a company, self-employed, or both?`,
+        refund: parseInt(kids) * 2000
+      };
+    }
+    
+    if (lowerMsg.includes("$") || lowerMsg.includes("made") || lowerMsg.includes("earn") || lowerMsg.includes("income") || lowerMsg.includes("kiếm")) {
+      const income = lowerMsg.match(/\$?([\d,]+)/)?.[1]?.replace(/,/g, '') || "50000";
+      const refund = Math.round(parseInt(income) * 0.06);
+      return {
+        text: `Based on $${parseInt(income).toLocaleString()} income, I'm estimating around $${refund.toLocaleString()} refund so far. Do you have any dependents (children, elderly parents)?`,
+        refund: refund
+      };
+    }
+    
+    if (lowerMsg.includes("home") || lowerMsg.includes("remote") || lowerMsg.includes("wfh")) {
+      return {
+        text: "Working from home? You might qualify for the Home Office Deduction - that could add $500-$1,500 to your refund! Do you use a dedicated space for work?",
+        refund: 800
+      };
+    }
+    
+    if (lowerMsg.includes("w-2") || lowerMsg.includes("w2") || lowerMsg.includes("employed")) {
+      return {
+        text: "Perfect, W-2 employment is straightforward! I'll need a few details: What was your total income for 2024? And do you have any dependents?",
+        refund: 0
+      };
+    }
+    
+    if (lowerMsg.includes("1099") || lowerMsg.includes("self") || lowerMsg.includes("freelance") || lowerMsg.includes("gig")) {
+      return {
+        text: "Self-employed income has great deduction opportunities! We can deduct business expenses, home office, equipment, and more. What type of work do you do?",
+        refund: 0
+      };
+    }
+    
+    return {
+      text: "Got it! To calculate your best refund, tell me: What was your approximate income in 2024? And do you have any dependents (kids, elderly parents)?",
+      refund: 0
+    };
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isTyping) return;
+    
+    const userMessage = inputValue.trim();
+    setInputValue("");
+    setMessageCount(prev => prev + 1);
+    
+    // Add user message
+    setMessages(prev => [...prev, { type: "user", text: userMessage, id: Date.now() }]);
+    
+    // Show typing indicator
+    setIsTyping(true);
+    
+    // Check if we should prompt for login (after 3 messages and not logged in)
+    if (messageCount >= 2 && !isLoggedIn) {
+      await new Promise(r => setTimeout(r, 1500));
+      setIsTyping(false);
+      setShowLoginPrompt(true);
+      return;
+    }
+    
+    // Get AI response
+    try {
+      const response = await getAIResponse(userMessage);
+      setIsTyping(false);
+      
+      setMessages(prev => [...prev, { type: "ai", text: response.text, id: Date.now() }]);
+      
+      if (response.refund > 0) {
+        setEstimatedRefund(prev => (prev || 0) + response.refund);
+      }
+    } catch (err) {
+      setIsTyping(false);
+      setMessages(prev => [...prev, { 
+        type: "ai", 
+        text: "Sorry, I had trouble processing that. Could you try again?", 
+        id: Date.now() 
+      }]);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    // Save preferences before redirect
+    localStorage.setItem("taxsky_language", language);
+    localStorage.setItem("taxsky_state", userState);
+    
+    // Redirect to Google OAuth (replace with your OAuth endpoint)
+    window.location.href = `${PYTHON_API}/auth/google`;
+  };
+
+  const handleContinueAsGuest = () => {
+    setShowLoginPrompt(false);
+    setIsLoggedIn(true); // Demo: allow continuing
+    localStorage.setItem("taxsky_guest", "true");
+    
+    // Continue the conversation
+    setMessages(prev => [...prev, { 
+      type: "ai", 
+      text: "No problem! Let's continue. You can sign in later to save your progress. Now, what was your total income for 2024?", 
+      id: Date.now() 
+    }]);
+  };
+
+  return (
+    <div style={styles.page}>
+      {/* Background Effects */}
+      <div style={styles.bgGradient} />
+      <div style={styles.bgGrid} />
+      
+      <div style={{
+        ...styles.container,
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? 'none' : 'translateY(20px)',
+      }}>
+        
+        {/* Compact Header */}
+        <header style={styles.header}>
+          <TaxSkyLogo size="small" />
+          <div style={styles.headerRight}>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              style={styles.langSelect}
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>{l.flag} {l.code.toUpperCase()}</option>
+              ))}
+            </select>
+          </div>
+        </header>
+
+        {/* Main Layout: Hero Left + Chat Right */}
+        <div style={styles.mainGrid} className="main-grid">
+          
+          {/* Left: Compact Hero */}
+          <div style={styles.heroSection} className="hero-section">
+            <div style={styles.badge}>{t.hero.badge}</div>
+            <h1 style={styles.heroTitle}>
+              {t.hero.title}
+              <span style={styles.heroHighlight}> {t.hero.titleHighlight}</span>
+            </h1>
+            <p style={styles.heroSubtitle}>{t.hero.subtitle}</p>
+            
+            {/* Mini Stats */}
+            <div style={styles.statsRow}>
+              {Object.entries(t.stats).filter(([k]) => !k.includes('Label')).map(([key, value]) => (
+                <div key={key} style={styles.statItem}>
+                  <span style={styles.statValue}>{value}</span>
+                  <span style={styles.statLabel}>{t.stats[key + 'Label']}</span>
+                </div>
+              ))}
+            </div>
+            
+            {/* Trust Badges */}
+            <div style={styles.trustRow}>
+              {t.trust.map((item, i) => (
+                <span key={i} style={styles.trustBadge}>✓ {item}</span>
+              ))}
+            </div>
+
+            {/* Features - Desktop Only */}
+            <div style={styles.featuresGrid} className="features-desktop">
+              {t.features.map((f, i) => (
+                <div key={i} style={styles.featureItem}>
+                  <span style={styles.featureIcon}>{f.icon}</span>
+                  <div>
+                    <div style={styles.featureTitle}>{f.title}</div>
+                    <div style={styles.featureDesc}>{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Live Chat Interface */}
+          <div style={styles.chatSection} className="chat-section">
+            <div style={styles.chatCard}>
+              {/* Chat Header */}
+              <div style={styles.chatHeader}>
+                <div style={styles.chatHeaderLeft}>
+                  <div style={styles.chatAvatar}>🤖</div>
+                  <div>
+                    <div style={styles.chatName}>TaxSky AI</div>
+                    <div style={styles.chatStatus}>
+                      <span style={styles.onlineDot} />
+                      Online • Ready to help
+                    </div>
+                  </div>
+                </div>
+                {estimatedRefund && (
+                  <div style={styles.refundBadge}>
+                    <span style={styles.refundLabel}>Est. Refund</span>
+                    <span style={styles.refundAmount}>${estimatedRefund.toLocaleString()}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Messages */}
+              <div ref={chatContainerRef} style={styles.chatMessages}>
+                {messages.map((msg) => (
+                  <div 
+                    key={msg.id} 
+                    style={{
+                      ...styles.messageRow,
+                      justifyContent: msg.type === 'user' ? 'flex-end' : 'flex-start'
+                    }}
+                  >
+                    {msg.type === 'ai' && <div style={styles.aiAvatar}>🤖</div>}
+                    <div style={{
+                      ...styles.messageBubble,
+                      ...(msg.type === 'user' ? styles.userBubble : styles.aiBubble)
+                    }}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Typing Indicator */}
+                {isTyping && (
+                  <div style={styles.messageRow}>
+                    <div style={styles.aiAvatar}>🤖</div>
+                    <div style={{...styles.messageBubble, ...styles.aiBubble}}>
+                      <div style={styles.typingDots}>
+                        <span style={{...styles.dot, animationDelay: '0s'}} />
+                        <span style={{...styles.dot, animationDelay: '0.2s'}} />
+                        <span style={{...styles.dot, animationDelay: '0.4s'}} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Login Prompt */}
+                {showLoginPrompt && (
+                  <div style={styles.loginPromptCard}>
+                    <div style={styles.loginPromptIcon}>🔐</div>
+                    <p style={styles.loginPromptText}>{t.chat.loginPrompt}</p>
+                    <button onClick={handleGoogleLogin} style={styles.googleBtn}>
+                      <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                      </svg>
+                      {t.cta.google}
+                    </button>
+                    <button onClick={handleContinueAsGuest} style={styles.guestBtn}>
+                      Continue as Guest
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Chat Input */}
+              <div style={styles.chatInputArea}>
+                {!showLoginPrompt && (
+                  <>
+                    <div style={styles.suggestionHint}>{t.chat.tryExample}</div>
+                    <div style={styles.inputRow}>
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder={t.chat.placeholder}
+                        style={styles.chatInput}
+                        disabled={isTyping}
+                      />
+                      <button 
+                        onClick={handleSendMessage}
+                        disabled={!inputValue.trim() || isTyping}
+                        style={{
+                          ...styles.sendBtn,
+                          opacity: inputValue.trim() && !isTyping ? 1 : 0.5
+                        }}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* State Selector (compact) */}
+            <div style={styles.stateSelector}>
+              <span style={styles.stateLabel}>📍 Your State:</span>
+              <select
+                value={userState}
+                onChange={(e) => setUserState(e.target.value)}
+                style={styles.stateSelect}
+              >
+                {ALL_STATES.map(s => (
+                  <option key={s.code} value={s.code}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Features (shown below chat on mobile) */}
+        <div style={styles.mobileFeatures} className="features-mobile">
+          {t.features.map((f, i) => (
+            <div key={i} style={styles.mobileFeatureItem}>
+              <span style={styles.mobileFeatureIcon}>{f.icon}</span>
+              <span style={styles.mobileFeatureText}>{f.title}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <footer style={styles.footer}>
+          <p style={styles.footerText}>© 2025 TaxSky AI Inc. • IRS Authorized E-File Provider</p>
+          <div style={styles.footerLinks}>
+            <a href="/privacy" style={styles.footerLink}>Privacy</a>
+            <a href="/terms" style={styles.footerLink}>Terms</a>
+            <a href="/help" style={styles.footerLink}>Help</a>
+          </div>
+        </footer>
+      </div>
+
+      {/* Global Styles */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+          font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-4px); }
+        }
+        
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 1; }
+        }
+        
+        /* Main Grid - Desktop */
+        @media (min-width: 900px) {
+          .main-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 480px !important;
+            gap: 48px !important;
+            align-items: start !important;
+          }
+          .hero-section {
+            padding-top: 40px !important;
+          }
+          .features-mobile {
+            display: none !important;
+          }
+          .features-desktop {
+            display: grid !important;
+          }
+        }
+        
+        /* Mobile */
+        @media (max-width: 899px) {
+          .main-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 24px !important;
+          }
+          .hero-section {
+            text-align: center !important;
+            padding: 0 !important;
+          }
+          .chat-section {
+            order: -1 !important;
+          }
+          .features-desktop {
+            display: none !important;
+          }
+          .features-mobile {
+            display: flex !important;
+          }
+        }
+        
+        ::selection {
+          background: #6366f1;
+          color: white;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ============================================================
+// STYLES
+// ============================================================
+const styles = {
+  page: {
+    minHeight: '100vh',
+    background: '#07070a',
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  
+  bgGradient: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: `
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(139, 92, 246, 0.12) 0%, transparent 50%)
+    `,
+    pointerEvents: 'none',
+  },
+  
+  bgGrid: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: `
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
+    `,
+    backgroundSize: '60px 60px',
+    pointerEvents: 'none',
+  },
+  
+  container: {
+    position: 'relative',
+    maxWidth: 1200,
+    margin: '0 auto',
+    padding: '16px 24px 32px',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'all 0.6s ease',
+  },
+  
+  // Header
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '8px 0 24px',
+  },
+  
+  headerRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+  },
+  
+  langSelect: {
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 8,
+    padding: '8px 12px',
+    color: '#fff',
+    fontSize: 13,
+    cursor: 'pointer',
+    outline: 'none',
+  },
+  
+  // Main Grid
+  mainGrid: {
+    flex: 1,
+    display: 'grid',
+    gap: 48,
+    alignItems: 'start',
+  },
+  
+  // Hero Section
+  heroSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+  },
+  
+  badge: {
+    display: 'inline-block',
+    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15))',
+    border: '1px solid rgba(99, 102, 241, 0.3)',
+    borderRadius: 20,
+    padding: '6px 14px',
+    fontSize: 13,
+    fontWeight: 600,
+    color: '#a5b4fc',
+    width: 'fit-content',
+  },
+  
+  heroTitle: {
+    fontFamily: "'Sora', sans-serif",
+    fontSize: 42,
+    fontWeight: 700,
+    color: '#fff',
+    lineHeight: 1.15,
+    letterSpacing: '-0.02em',
+  },
+  
+  heroHighlight: {
+    background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  },
+  
+  heroSubtitle: {
+    fontSize: 17,
+    color: '#94a3b8',
+    lineHeight: 1.6,
+    maxWidth: 440,
+  },
+  
+  // Stats
+  statsRow: {
+    display: 'flex',
+    gap: 24,
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  
+  statItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+  },
+  
+  statValue: {
+    fontSize: 20,
+    fontWeight: 700,
+    color: '#fff',
+  },
+  
+  statLabel: {
+    fontSize: 12,
+    color: '#64748b',
+  },
+  
+  // Trust Badges
+  trustRow: {
+    display: 'flex',
+    gap: 12,
+    flexWrap: 'wrap',
+  },
+  
+  trustBadge: {
+    fontSize: 11,
+    color: '#10b981',
+    background: 'rgba(16, 185, 129, 0.1)',
+    border: '1px solid rgba(16, 185, 129, 0.2)',
+    padding: '5px 10px',
+    borderRadius: 6,
+  },
+  
+  // Features Grid (Desktop)
+  featuresGrid: {
+    display: 'none', // Shown via CSS media query
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: 16,
+    marginTop: 24,
+  },
+  
+  featureItem: {
+    display: 'flex',
+    gap: 12,
+    padding: 16,
+    background: 'rgba(255,255,255,0.02)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 12,
+  },
+  
+  featureIcon: {
+    fontSize: 24,
+  },
+  
+  featureTitle: {
+    fontSize: 14,
+    fontWeight: 600,
+    color: '#fff',
+    marginBottom: 2,
+  },
+  
+  featureDesc: {
+    fontSize: 12,
+    color: '#64748b',
+  },
+  
+  // Chat Section
+  chatSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+  },
+  
+  chatCard: {
+    background: 'linear-gradient(180deg, rgba(15, 15, 25, 0.9), rgba(10, 10, 18, 0.95))',
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 20,
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    height: 520,
+    boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+  },
+  
+  chatHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '16px 20px',
+    borderBottom: '1px solid rgba(255,255,255,0.06)',
+    background: 'rgba(99, 102, 241, 0.05)',
+  },
+  
+  chatHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+  },
+  
+  chatAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 20,
+  },
+  
+  chatName: {
+    fontSize: 15,
+    fontWeight: 600,
+    color: '#fff',
+  },
+  
+  chatStatus: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    fontSize: 12,
+    color: '#10b981',
+  },
+  
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    background: '#10b981',
+  },
+  
+  refundBadge: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    padding: '8px 14px',
+    background: 'rgba(16, 185, 129, 0.1)',
+    border: '1px solid rgba(16, 185, 129, 0.2)',
+    borderRadius: 12,
+  },
+  
+  refundLabel: {
+    fontSize: 10,
+    color: '#10b981',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+  },
+  
+  refundAmount: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: '#10b981',
+  },
+  
+  // Chat Messages
+  chatMessages: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16,
+  },
+  
+  messageRow: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    gap: 10,
+    animation: 'fadeIn 0.3s ease',
+  },
+  
+  aiAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 14,
+    flexShrink: 0,
+  },
+  
+  messageBubble: {
+    maxWidth: '80%',
+    padding: '12px 16px',
+    borderRadius: 16,
+    fontSize: 14,
+    lineHeight: 1.5,
+  },
+  
+  aiBubble: {
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    color: '#e2e8f0',
+    borderBottomLeftRadius: 4,
+  },
+  
+  userBubble: {
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    color: '#fff',
+    borderBottomRightRadius: 4,
+  },
+  
+  // Typing Indicator
+  typingDots: {
+    display: 'flex',
+    gap: 4,
+    padding: '4px 0',
+  },
+  
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: '50%',
+    background: '#6366f1',
+    animation: 'bounce 1s infinite',
+  },
+  
+  // Login Prompt
+  loginPromptCard: {
+    background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.08))',
+    border: '1px solid rgba(99, 102, 241, 0.2)',
+    borderRadius: 16,
+    padding: 24,
+    textAlign: 'center',
+    animation: 'fadeIn 0.4s ease',
+  },
+  
+  loginPromptIcon: {
+    fontSize: 32,
+    marginBottom: 12,
+  },
+  
+  loginPromptText: {
+    fontSize: 14,
+    color: '#94a3b8',
+    marginBottom: 20,
+  },
+  
+  googleBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    width: '100%',
+    padding: '14px 20px',
+    background: '#fff',
+    border: 'none',
+    borderRadius: 12,
+    fontSize: 15,
+    fontWeight: 600,
+    color: '#1f2937',
+    cursor: 'pointer',
+    marginBottom: 12,
+    transition: 'transform 0.2s',
+  },
+  
+  guestBtn: {
+    background: 'transparent',
+    border: '1px solid rgba(255,255,255,0.15)',
+    borderRadius: 10,
+    padding: '10px 16px',
+    fontSize: 13,
+    color: '#94a3b8',
+    cursor: 'pointer',
+  },
+  
+  // Chat Input
+  chatInputArea: {
+    padding: '12px 16px 16px',
+    borderTop: '1px solid rgba(255,255,255,0.06)',
+  },
+  
+  suggestionHint: {
+    fontSize: 11,
+    color: '#64748b',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  
+  inputRow: {
+    display: 'flex',
+    gap: 10,
+  },
+  
+  chatInput: {
+    flex: 1,
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 12,
+    padding: '14px 18px',
+    fontSize: 15,
+    color: '#fff',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+  },
+  
+  sendBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+    border: 'none',
+    color: '#fff',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'transform 0.2s, opacity 0.2s',
+  },
+  
+  // State Selector
+  stateSelector: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    padding: '10px 16px',
+    background: 'rgba(255,255,255,0.02)',
+    border: '1px solid rgba(255,255,255,0.06)',
+    borderRadius: 12,
+  },
+  
+  stateLabel: {
+    fontSize: 13,
+    color: '#64748b',
+  },
+  
+  stateSelect: {
+    flex: 1,
+    background: 'transparent',
+    border: 'none',
+    fontSize: 14,
+    fontWeight: 500,
+    color: '#fff',
+    cursor: 'pointer',
+    outline: 'none',
+  },
+  
+  // Mobile Features
+  mobileFeatures: {
+    display: 'none', // Shown via CSS media query
+    justifyContent: 'space-around',
+    padding: '20px 0',
+    borderTop: '1px solid rgba(255,255,255,0.06)',
+    marginTop: 8,
+    flexWrap: 'wrap',
+    gap: 16,
+  },
+  
+  mobileFeatureItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+  },
+  
+  mobileFeatureIcon: {
+    fontSize: 16,
+  },
+  
+  mobileFeatureText: {
+    fontSize: 12,
+    color: '#94a3b8',
+    fontWeight: 500,
+  },
+  
+  // Footer
+  footer: {
+    marginTop: 'auto',
+    paddingTop: 32,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 16,
+    borderTop: '1px solid rgba(255,255,255,0.04)',
+  },
+  
+  footerText: {
+    fontSize: 12,
+    color: '#475569',
+  },
+  
+  footerLinks: {
+    display: 'flex',
+    gap: 20,
+  },
+  
+  footerLink: {
+    fontSize: 12,
+    color: '#64748b',
+    textDecoration: 'none',
+  },
+};

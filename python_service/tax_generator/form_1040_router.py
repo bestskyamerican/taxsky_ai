@@ -1,8 +1,10 @@
 """
 =============================================================
-FEDERAL FORM 1040 PDF ROUTER - v16.0 (FILLABLE FIELDS)
+FEDERAL FORM 1040 PDF ROUTER - v16.1 (FIXED LINE 15)
 =============================================================
-✅ FIXED: Uses actual PDF form fields instead of text overlay
+✅ FIXED: Line 15 taxable income now checks tax_and_credits first
+✅ FIXED: Auto-calculates Line 15 if not provided
+✅ Uses actual PDF form fields instead of text overlay
 ✅ Works with 2025 editable PDF that has fillable form fields
 ✅ SSN masking for preview mode
 ✅ Full SSN for official submission
@@ -43,9 +45,15 @@ class Dependent(BaseModel):
     first_name: Optional[str] = ""
     last_name: Optional[str] = ""
     ssn: Optional[str] = ""
-    relationship: Optional[str] = ""
+    relationship: Optional[str] = "child"
     age: Optional[int] = 0
     date_of_birth: Optional[str] = ""
+    months_lived: Optional[int] = 12
+    is_student: Optional[bool] = False
+    is_disabled: Optional[bool] = False
+    
+    class Config:
+        extra = "allow"  # Allow extra fields from frontend
 
 
 class Request1040(BaseModel):
@@ -168,6 +176,59 @@ FIELD_MAP = {
     # Bank info for direct deposit
     "routing": "topmostSubform[0].Page2[0].f2_32[0]",    # Y=504 Routing number
     "account": "topmostSubform[0].Page2[0].f2_33[0]",    # Y=516 Account number
+    
+    # === DEPENDENTS SECTION (Page 1) ===
+    # Row 1 = First Name, Row 2 = Last Name, Row 3 = SSN, Row 4 = Relationship
+    # Dependent 1 (Column 1)
+    "dep1_first_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_31[0]",
+    "dep1_last_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row2[0].f1_35[0]",
+    "dep1_ssn": "topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_39[0]",
+    "dep1_relationship": "topmostSubform[0].Page1[0].Table_Dependents[0].Row4[0].f1_43[0]",
+    "dep1_lived_with_yes": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent1[0].c1_12[0]",
+    "dep1_lived_in_us": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent1[0].c1_13[0]",
+    "dep1_fulltime_student": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent1[0].c1_20[0]",
+    "dep1_disabled": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent1[0].c1_21[0]",
+    "dep1_child_tax_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent1[0].c1_28[0]",
+    "dep1_other_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent1[0].c1_28[1]",
+    
+    # Dependent 2 (Column 2)
+    "dep2_first_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_32[0]",
+    "dep2_last_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row2[0].f1_36[0]",
+    "dep2_ssn": "topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_40[0]",
+    "dep2_relationship": "topmostSubform[0].Page1[0].Table_Dependents[0].Row4[0].f1_44[0]",
+    "dep2_lived_with_yes": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent2[0].c1_14[0]",
+    "dep2_lived_in_us": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent2[0].c1_15[0]",
+    "dep2_fulltime_student": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent2[0].c1_22[0]",
+    "dep2_disabled": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent2[0].c1_23[0]",
+    "dep2_child_tax_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent2[0].c1_29[0]",
+    "dep2_other_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent2[0].c1_29[1]",
+    
+    # Dependent 3 (Column 3)
+    "dep3_first_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_33[0]",
+    "dep3_last_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row2[0].f1_37[0]",
+    "dep3_ssn": "topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_41[0]",
+    "dep3_relationship": "topmostSubform[0].Page1[0].Table_Dependents[0].Row4[0].f1_45[0]",
+    "dep3_lived_with_yes": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent3[0].c1_16[0]",
+    "dep3_lived_in_us": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent3[0].c1_17[0]",
+    "dep3_fulltime_student": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent3[0].c1_24[0]",
+    "dep3_disabled": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent3[0].c1_25[0]",
+    "dep3_child_tax_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent3[0].c1_30[0]",
+    "dep3_other_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent3[0].c1_30[1]",
+    
+    # Dependent 4 (Column 4)
+    "dep4_first_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_34[0]",
+    "dep4_last_name": "topmostSubform[0].Page1[0].Table_Dependents[0].Row2[0].f1_38[0]",
+    "dep4_ssn": "topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_42[0]",
+    "dep4_relationship": "topmostSubform[0].Page1[0].Table_Dependents[0].Row4[0].f1_46[0]",
+    "dep4_lived_with_yes": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent4[0].c1_18[0]",
+    "dep4_lived_in_us": "topmostSubform[0].Page1[0].Table_Dependents[0].Row5[0].Dependent4[0].c1_19[0]",
+    "dep4_fulltime_student": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent4[0].c1_26[0]",
+    "dep4_disabled": "topmostSubform[0].Page1[0].Table_Dependents[0].Row6[0].Dependent4[0].c1_27[0]",
+    "dep4_child_tax_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent4[0].c1_31[0]",
+    "dep4_other_credit": "topmostSubform[0].Page1[0].Table_Dependents[0].Row7[0].Dependent4[0].c1_31[1]",
+    
+    # More than 4 dependents checkbox
+    "more_than_4_dependents": "topmostSubform[0].Page1[0].Dependents_ReadOrder[0].c1_11[0]",
 }
 
 
@@ -282,6 +343,77 @@ async def generate_1040(data: Request1040):
         # === DIGITAL ASSETS (default No) ===
         field_values[FIELD_MAP["digital_no"]] = "/1"
         
+        # === DEPENDENTS ===
+        if dependents and len(dependents) > 0:
+            print(f"\n  === DEPENDENTS ({len(dependents)} total) ===")
+            
+            # Helper to calculate age from date of birth
+            def calculate_age(dob_str):
+                if not dob_str:
+                    return None
+                try:
+                    from datetime import datetime
+                    dob = datetime.strptime(dob_str, "%Y-%m-%d")
+                    today = datetime(2025, 12, 31)  # Tax year end
+                    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                    return age
+                except:
+                    return None
+            
+            # Fill up to 4 dependents (IRS form limit)
+            for i, dep in enumerate(dependents[:4]):
+                dep_num = i + 1
+                prefix = f"dep{dep_num}"
+                
+                # Get dependent info
+                first_name = dep.first_name if hasattr(dep, 'first_name') else dep.get('first_name', '')
+                last_name = dep.last_name if hasattr(dep, 'last_name') else dep.get('last_name', '')
+                ssn = dep.ssn if hasattr(dep, 'ssn') else dep.get('ssn', '')
+                relationship = dep.relationship if hasattr(dep, 'relationship') else dep.get('relationship', 'child')
+                dob = dep.date_of_birth if hasattr(dep, 'date_of_birth') else dep.get('date_of_birth', '')
+                age = dep.age if hasattr(dep, 'age') else dep.get('age', 0)
+                
+                # Calculate age if DOB provided but age not
+                if dob and not age:
+                    age = calculate_age(dob) or 0
+                
+                # Fill name fields
+                if first_name:
+                    field_values[FIELD_MAP[f"{prefix}_first_name"]] = first_name.upper()
+                if last_name:
+                    field_values[FIELD_MAP[f"{prefix}_last_name"]] = last_name.upper()
+                
+                # Fill SSN (masked or full based on setting)
+                if ssn:
+                    field_values[FIELD_MAP[f"{prefix}_ssn"]] = mask_ssn(ssn, show_ssn)
+                
+                # Fill relationship
+                if relationship:
+                    # Capitalize relationship for display
+                    rel_display = relationship.replace('_', ' ').title()
+                    field_values[FIELD_MAP[f"{prefix}_relationship"]] = rel_display
+                
+                # Check "lived with you more than half of year" - default to Yes
+                field_values[FIELD_MAP[f"{prefix}_lived_with_yes"]] = "/1"
+                
+                # Check "And in the U.S." - default to Yes
+                field_values[FIELD_MAP[f"{prefix}_lived_in_us"]] = "/1"
+                
+                # Determine if Child Tax Credit or Credit for Other Dependents
+                # Child Tax Credit: child under 17 at end of tax year
+                if age is not None and age < 17 and relationship in ['child', 'stepchild', 'foster_child', 'grandchild', 'sibling']:
+                    field_values[FIELD_MAP[f"{prefix}_child_tax_credit"]] = "/1"
+                    print(f"  ✅ Dependent {dep_num}: {first_name} {last_name} (Age {age}) - Child Tax Credit")
+                else:
+                    # Credit for other dependents (age 17+ or other relationship)
+                    field_values[FIELD_MAP[f"{prefix}_other_credit"]] = "/1"
+                    print(f"  ✅ Dependent {dep_num}: {first_name} {last_name} (Age {age or 'N/A'}) - Other Dependent Credit")
+            
+            # If more than 4 dependents, check the "more than 4" box
+            if len(dependents) > 4:
+                field_values[FIELD_MAP["more_than_4_dependents"]] = "/1"
+                print(f"  ⚠️ More than 4 dependents - additional schedule required")
+        
         # === INCOME DATA ===
         income = form1040.get("income", {})
         adj = form1040.get("adjustments", {})
@@ -325,7 +457,11 @@ async def generate_1040(data: Request1040):
             print(f"  ✅ Line 14 (Total Deductions): {fmt_money(total_deductions)}")
         
         # Line 15 - Taxable income
-        taxable = ded.get("line_15_taxable_income", 0)
+        # Check tax_and_credits first (where frontend sends it), then deductions, then calculate
+        taxable = tax.get("line_15_taxable_income") or ded.get("line_15_taxable_income", 0)
+        if not taxable and adj.get("line_11_agi") and total_deductions:
+            # Calculate: AGI - Total Deductions
+            taxable = max(0, adj["line_11_agi"] - total_deductions)
         field_values[FIELD_MAP["line_15"]] = fmt_money(taxable)
         print(f"  ✅ Line 15 (Taxable): {fmt_money(taxable)}")
         
@@ -500,7 +636,7 @@ async def get_fields():
     return {
         "form": "IRS Form 1040",
         "year": 2025,
-        "version": "16.0",
+        "version": "16.1",
         "engine": "pypdf (fillable form fields)",
         "note": "Uses actual PDF form fields instead of text overlay"
     }
@@ -511,7 +647,62 @@ async def test():
     template = os.path.join(TEMPLATES_DIR, "Form1040_2025_EDITABLE.pdf")
     return {
         "status": "ok",
-        "version": "16.0",
+        "version": "16.1",
         "template": template,
         "template_exists": os.path.exists(template)
+    }
+
+
+# ============================================================
+# VALIDATE ENDPOINT - Check for missing required fields
+# ============================================================
+class ValidateRequest(BaseModel):
+    session_id: Optional[str] = ""
+    personal: Optional[Dict[str, Any]] = {}
+    dependents: Optional[List[Dict[str, Any]]] = []
+    form1040: Optional[Dict[str, Any]] = {}
+
+@form_1040_router.post("/1040/validate")
+async def validate_1040(data: ValidateRequest):
+    """
+    Validate Form 1040 data before submission.
+    Returns list of missing required fields.
+    """
+    missing = []
+    personal = data.personal or {}
+    form1040 = data.form1040 or {}
+    
+    # Required personal fields
+    required_personal = [
+        ("first_name", "First Name"),
+        ("last_name", "Last Name"),
+        ("ssn", "Social Security Number"),
+        ("address", "Street Address"),
+        ("city", "City"),
+        ("state", "State"),
+        ("zip", "ZIP Code"),
+    ]
+    
+    for field, label in required_personal:
+        value = personal.get(field, "")
+        if not value or str(value).strip() == "":
+            missing.append({"field": field, "label": label, "section": "personal"})
+    
+    # Check spouse info if married filing jointly
+    filing_status = personal.get("filing_status", "single")
+    if filing_status == "married_filing_jointly":
+        spouse_fields = [
+            ("spouse_first_name", "Spouse First Name"),
+            ("spouse_last_name", "Spouse Last Name"),
+            ("spouse_ssn", "Spouse SSN"),
+        ]
+        for field, label in spouse_fields:
+            value = personal.get(field, "")
+            if not value or str(value).strip() == "":
+                missing.append({"field": field, "label": label, "section": "personal"})
+    
+    return {
+        "valid": len(missing) == 0,
+        "missing": missing,
+        "message": "All required fields present" if len(missing) == 0 else f"Missing {len(missing)} required field(s)"
     }
