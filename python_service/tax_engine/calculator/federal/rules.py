@@ -1,320 +1,326 @@
-# tax_engine/federal/rules.py
+# tax_engine/api/rules_api.py
 # ============================================================
-# FEDERAL TAX RULES 2025 (IRS-COMPLIANT)
-# Source: IRS Rev. Proc. 2024-40 + One Big Beautiful Bill Act (OBBBA)
-# Last Updated: January 2026
+# API ENDPOINT FOR TAX RULES
+# AI can fetch rules from this endpoint
 # ============================================================
 
-TAX_YEAR = 2025
+from flask import Blueprint, jsonify, request
+from tax_engine.federal.rules import (
+    TAX_YEAR,
+    STANDARD_DEDUCTIONS,
+    ADDITIONAL_STANDARD_DEDUCTION,
+    SENIOR_BONUS_DEDUCTION,
+    TAX_BRACKETS,
+    LTCG_BRACKETS,
+    SOCIAL_SECURITY,
+    MEDICARE,
+    SELF_EMPLOYMENT,
+    CHILD_TAX_CREDIT,
+    EITC,
+    IRA_LIMITS,
+    HSA_LIMITS,
+    STUDENT_LOAN_INTEREST,
+    NO_TAX_ON_TIPS,
+    NO_TAX_ON_OVERTIME,
+    CAR_LOAN_INTEREST_DEDUCTION,
+    AMT,
+    OTHER_PARAMETERS
+)
+
+rules_bp = Blueprint('rules', __name__)
 
 # ============================================================
-# STANDARD DEDUCTIONS (2025 - UPDATED per OBBBA)
-# Source: https://www.irs.gov/forms-pubs/how-to-update-withholding-to-account-for-tax-law-changes-for-2025
+# GET ALL RULES
 # ============================================================
-STANDARD_DEDUCTIONS = {
-    "single": 15750,
-    "married_filing_jointly": 31500,
-    "married_filing_separately": 15750,
-    "head_of_household": 23625,
-    "qualifying_surviving_spouse": 31500
-}
-
-# Additional amount for age 65+ or blind (per condition)
-# Source: IRS Publication 505
-ADDITIONAL_STANDARD_DEDUCTION = {
-    "single": 2000,
-    "head_of_household": 2000,
-    "married_filing_jointly": 1600,
-    "married_filing_separately": 1600,
-    "qualifying_surviving_spouse": 1600
-}
-
-# Enhanced Senior Deduction (NEW in 2025 via OBBBA)
-# Up to $6,000 additional deduction for seniors 65+ with income below threshold
-# Phase out: Reduced by $0.06 for every $1 MAGI exceeds threshold
-SENIOR_BONUS_DEDUCTION = {
-    "amount": 6000,
-    "magi_threshold": {
-        "single": 75000,
-        "head_of_household": 75000,
-        "married_filing_jointly": 150000,
-        "qualifying_surviving_spouse": 150000
-    },
-    "phase_out_rate": 0.06  # $0.06 reduction per $1 over threshold
-}
+@rules_bp.route('/rules', methods=['GET'])
+def get_all_rules():
+    """Return all tax rules for 2025"""
+    return jsonify({
+        "success": True,
+        "tax_year": TAX_YEAR,
+        "rules": {
+            "standard_deductions": STANDARD_DEDUCTIONS,
+            "additional_standard_deduction": ADDITIONAL_STANDARD_DEDUCTION,
+            "senior_bonus_deduction": SENIOR_BONUS_DEDUCTION,
+            "child_tax_credit": CHILD_TAX_CREDIT,
+            "ira_limits": IRA_LIMITS,
+            "hsa_limits": HSA_LIMITS,
+            "student_loan_interest": STUDENT_LOAN_INTEREST,
+            "self_employment": SELF_EMPLOYMENT,
+            "social_security": SOCIAL_SECURITY,
+            "medicare": MEDICARE,
+            "other": OTHER_PARAMETERS
+        }
+    })
 
 # ============================================================
-# TAX BRACKETS (2025 - CORRECT per Rev. Proc. 2024-40)
+# GET SPECIFIC RULE BY CATEGORY
 # ============================================================
-TAX_BRACKETS = {
-    "single": [
-        (11925, 0.10),
-        (48475, 0.12),
-        (103350, 0.22),
-        (197300, 0.24),
-        (250525, 0.32),
-        (626350, 0.35),
-        (float("inf"), 0.37)
-    ],
-    "married_filing_jointly": [
-        (23850, 0.10),
-        (96950, 0.12),
-        (206700, 0.22),
-        (394600, 0.24),
-        (501050, 0.32),
-        (751600, 0.35),
-        (float("inf"), 0.37)
-    ],
-    "married_filing_separately": [
-        (11925, 0.10),
-        (48475, 0.12),
-        (103350, 0.22),
-        (197300, 0.24),
-        (250525, 0.32),
-        (375800, 0.35),
-        (float("inf"), 0.37)
-    ],
-    "head_of_household": [
-        (17000, 0.10),
-        (64850, 0.12),
-        (103350, 0.22),
-        (197300, 0.24),
-        (250500, 0.32),
-        (626350, 0.35),
-        (float("inf"), 0.37)
-    ],
-    "qualifying_surviving_spouse": [
-        (23850, 0.10),
-        (96950, 0.12),
-        (206700, 0.22),
-        (394600, 0.24),
-        (501050, 0.32),
-        (751600, 0.35),
-        (float("inf"), 0.37)
-    ]
-}
-
-# ============================================================
-# LONG-TERM CAPITAL GAINS BRACKETS (2025)
-# ============================================================
-LTCG_BRACKETS = {
-    "single": [
-        (47025, 0.0),
-        (518900, 0.15),
-        (float("inf"), 0.20)
-    ],
-    "married_filing_jointly": [
-        (94050, 0.0),
-        (583750, 0.15),
-        (float("inf"), 0.20)
-    ],
-    "married_filing_separately": [
-        (47025, 0.0),
-        (291850, 0.15),
-        (float("inf"), 0.20)
-    ],
-    "head_of_household": [
-        (63000, 0.0),
-        (551350, 0.15),
-        (float("inf"), 0.20)
-    ],
-    "qualifying_surviving_spouse": [
-        (94050, 0.0),
-        (583750, 0.15),
-        (float("inf"), 0.20)
-    ]
-}
-
-# ============================================================
-# SOCIAL SECURITY (2025)
-# ============================================================
-SOCIAL_SECURITY = {
-    "tax_rate": 0.062,
-    "wage_base": 176100,
-    "max_tax": 10918.20
-}
-
-# ============================================================
-# MEDICARE (2025)
-# ============================================================
-MEDICARE = {
-    "tax_rate": 0.0145,
-    "additional_rate": 0.009,
-    "additional_threshold": {
-        "single": 200000,
-        "married_filing_jointly": 250000,
-        "married_filing_separately": 125000,
-        "head_of_household": 200000,
-        "qualifying_surviving_spouse": 250000
+@rules_bp.route('/rules/<category>', methods=['GET'])
+def get_rule_category(category):
+    """Return specific rule category"""
+    
+    rules_map = {
+        "standard_deduction": STANDARD_DEDUCTIONS,
+        "additional_deduction": ADDITIONAL_STANDARD_DEDUCTION,
+        "senior_deduction": SENIOR_BONUS_DEDUCTION,
+        "tax_brackets": TAX_BRACKETS,
+        "capital_gains": LTCG_BRACKETS,
+        "social_security": SOCIAL_SECURITY,
+        "medicare": MEDICARE,
+        "self_employment": SELF_EMPLOYMENT,
+        "child_tax_credit": CHILD_TAX_CREDIT,
+        "eitc": EITC,
+        "ira": IRA_LIMITS,
+        "hsa": HSA_LIMITS,
+        "student_loan": STUDENT_LOAN_INTEREST,
+        "tips": NO_TAX_ON_TIPS,
+        "overtime": NO_TAX_ON_OVERTIME,
+        "car_loan": CAR_LOAN_INTEREST_DEDUCTION,
+        "amt": AMT,
+        "other": OTHER_PARAMETERS
     }
-}
+    
+    if category not in rules_map:
+        return jsonify({
+            "success": False,
+            "error": f"Unknown category: {category}",
+            "available": list(rules_map.keys())
+        }), 404
+    
+    return jsonify({
+        "success": True,
+        "tax_year": TAX_YEAR,
+        "category": category,
+        "rules": rules_map[category]
+    })
 
 # ============================================================
-# SELF-EMPLOYMENT (2025)
+# GET LIMITS FOR PERSON (based on age, filing status)
 # ============================================================
-SELF_EMPLOYMENT = {
-    "tax_rate": 0.153,
-    "ss_rate": 0.124,
-    "medicare_rate": 0.029,
-    "income_multiplier": 0.9235,
-    "deduction_rate": 0.5,
-    "minimum_income": 400
-}
-
-# ============================================================
-# CHILD TAX CREDIT (2025 - UPDATED per OBBBA)
-# Source: IRS.gov/credits-deductions/individuals/child-tax-credit
-# ============================================================
-CHILD_TAX_CREDIT = {
-    "amount": 2200,  # ✅ UPDATED: Increased from $2,000 to $2,200 per OBBBA
-    "refundable_max": 1700,  # ✅ ACTC max refundable per qualifying child
-    "age_limit": 17,
-    "other_dependent": 500,  # ODC - Other Dependent Credit
-    "phase_out": {
-        "single": 200000,
-        "married_filing_jointly": 400000,
-        "married_filing_separately": 200000,
-        "head_of_household": 200000,
-        "qualifying_surviving_spouse": 400000
-    },
-    "phase_out_rate": 50,  # $50 reduction per $1,000 over threshold
-    "refundability_threshold": 2500,  # Earned income threshold for ACTC
-    "refundability_rate": 0.15  # 15% of earned income over threshold
-}
-
-# ============================================================
-# EARNED INCOME TAX CREDIT (2025)
-# Source: IRS Rev. Proc. 2024-40
-# ============================================================
-EITC = {
-    0: {
-        "max_credit": 649,
-        "earned_income_amount": 8260,
-        "phase_out_begin_single": 10330,
-        "phase_out_begin_mfj": 17730,
-        "phase_out_end_single": 19104,
-        "phase_out_end_mfj": 26214
-    },
-    1: {
-        "max_credit": 4328,
-        "earned_income_amount": 12730,
-        "phase_out_begin_single": 23350,
-        "phase_out_begin_mfj": 30480,
-        "phase_out_end_single": 50434,
-        "phase_out_end_mfj": 57554
-    },
-    2: {
-        "max_credit": 7152,
-        "earned_income_amount": 17880,
-        "phase_out_begin_single": 23350,
-        "phase_out_begin_mfj": 30480,
-        "phase_out_end_single": 57310,
-        "phase_out_end_mfj": 64430
-    },
-    3: {
-        "max_credit": 8046,
-        "earned_income_amount": 17880,
-        "phase_out_begin_single": 23350,
-        "phase_out_begin_mfj": 30480,
-        "phase_out_end_single": 61555,
-        "phase_out_end_mfj": 68675
-    },
-    "investment_income_limit": 11600
-}
-
-# ============================================================
-# IRA CONTRIBUTION LIMITS (2025)
-# ============================================================
-IRA_LIMITS = {
-    "contribution_limit": 7000,
-    "catch_up_50_plus": 1000,  # Additional for age 50+
-    "total_limit_50_plus": 8000
-}
-
-# ============================================================
-# HSA CONTRIBUTION LIMITS (2025)
-# ============================================================
-HSA_LIMITS = {
-    "self_only": 4300,
-    "family": 8550,
-    "catch_up_55_plus": 1000
-}
-
-# ============================================================
-# STUDENT LOAN INTEREST DEDUCTION (2025)
-# ============================================================
-STUDENT_LOAN_INTEREST = {
-    "max_deduction": 2500,
-    "phase_out_begin": {
-        "single": 80000,
-        "married_filing_jointly": 165000
-    },
-    "phase_out_end": {
-        "single": 95000,
-        "married_filing_jointly": 195000
+@rules_bp.route('/rules/limits', methods=['POST'])
+def get_personal_limits():
+    """
+    Get personalized limits based on age and filing status.
+    
+    Request body:
+    {
+        "age": 54,
+        "filing_status": "married_filing_jointly",
+        "hsa_coverage": "family"  // optional
     }
-}
+    """
+    data = request.get_json() or {}
+    age = data.get('age', 0)
+    filing_status = data.get('filing_status', 'single')
+    hsa_coverage = data.get('hsa_coverage', 'self_only')
+    
+    # Calculate IRA limit
+    ira_limit = IRA_LIMITS['contribution_limit']
+    if age >= 50:
+        ira_limit += IRA_LIMITS['catch_up_50_plus']
+    
+    # Calculate 401(k) limit
+    k401_base = OTHER_PARAMETERS['401k_contribution_limit']
+    k401_catchup = OTHER_PARAMETERS['401k_catch_up_50_plus']
+    
+    if age >= 60 and age <= 63:
+        # SUPER catch-up (150% of regular catch-up)
+        k401_limit = k401_base + 11250  # $34,750
+        k401_note = "Super catch-up (age 60-63)"
+    elif age >= 50:
+        k401_limit = k401_base + k401_catchup  # $31,000
+        k401_note = "Regular catch-up (age 50+)"
+    else:
+        k401_limit = k401_base  # $23,500
+        k401_note = "Standard limit (under 50)"
+    
+    # Calculate HSA limit
+    hsa_base = HSA_LIMITS.get(hsa_coverage, HSA_LIMITS['self_only'])
+    hsa_limit = hsa_base
+    if age >= 55:
+        hsa_limit += HSA_LIMITS['catch_up_55_plus']
+    
+    # Get standard deduction
+    std_deduction = STANDARD_DEDUCTIONS.get(filing_status, 15750)
+    additional_deduction = 0
+    
+    if age >= 65:
+        additional_deduction = ADDITIONAL_STANDARD_DEDUCTION.get(filing_status, 1600)
+        # Could also qualify for senior bonus deduction
+    
+    # Get CTC phase-out
+    ctc_phase_out = CHILD_TAX_CREDIT['phase_out'].get(filing_status, 200000)
+    
+    return jsonify({
+        "success": True,
+        "tax_year": TAX_YEAR,
+        "age": age,
+        "filing_status": filing_status,
+        "limits": {
+            "ira": {
+                "limit": ira_limit,
+                "catch_up_eligible": age >= 50,
+                "note": f"${ira_limit:,} ({'+$1,000 catch-up' if age >= 50 else 'standard'})"
+            },
+            "401k": {
+                "limit": k401_limit,
+                "note": k401_note
+            },
+            "hsa": {
+                "limit": hsa_limit,
+                "coverage": hsa_coverage,
+                "catch_up_eligible": age >= 55,
+                "note": f"${hsa_limit:,} ({hsa_coverage}{', +$1,000 catch-up' if age >= 55 else ''})"
+            },
+            "standard_deduction": {
+                "base": std_deduction,
+                "additional": additional_deduction,
+                "total": std_deduction + additional_deduction,
+                "note": f"${std_deduction:,}{f' + ${additional_deduction:,} (65+)' if additional_deduction else ''}"
+            },
+            "child_tax_credit": {
+                "amount": CHILD_TAX_CREDIT['amount'],
+                "phase_out_threshold": ctc_phase_out,
+                "refundable_max": CHILD_TAX_CREDIT['refundable_max']
+            }
+        },
+        "tips": {
+            "ira": f"You can contribute up to ${ira_limit:,} to an IRA this year.",
+            "401k": f"Your 401(k) limit is ${k401_limit:,} ({k401_note}).",
+            "hsa": f"HSA limit: ${hsa_limit:,} for {hsa_coverage} coverage."
+        }
+    })
 
 # ============================================================
-# NEW 2025 DEDUCTIONS (OBBBA)
+# GET CHILD CREDIT INFO
 # ============================================================
-
-# No Tax on Tips (NEW in 2025)
-NO_TAX_ON_TIPS = {
-    "max_deduction": 25000,  # $25,000 MFJ, $12,500 other statuses
-    "single_limit": 12500,
-    "mfj_limit": 25000,
-    "requires_ssn": True
-}
-
-# No Tax on Overtime (NEW in 2025)
-NO_TAX_ON_OVERTIME = {
-    "max_deduction": 25000,  # $25,000 MFJ, $12,500 other statuses
-    "single_limit": 12500,
-    "mfj_limit": 25000
-}
-
-# No Tax on Car Loan Interest (NEW in 2025)
-CAR_LOAN_INTEREST_DEDUCTION = {
-    "max_deduction": 10000,
-    "vehicle_weight_limit": 14000,  # Gross vehicle weight < 14,000 lbs
-    "requires_us_assembly": True,
-    "new_vehicles_only": True
-}
-
-# ============================================================
-# ALTERNATIVE MINIMUM TAX (2025)
-# ============================================================
-AMT = {
-    "exemption": {
-        "single": 88100,
-        "married_filing_jointly": 137000,
-        "married_filing_separately": 68500,
-        "head_of_household": 88100
-    },
-    "phase_out_threshold": {
-        "single": 626350,
-        "married_filing_jointly": 1252700,
-        "married_filing_separately": 626350,
-        "head_of_household": 626350
-    },
-    "rates": [
-        (232600, 0.26),  # 26% on first $232,600 (MFJ: $465,200)
-        (float("inf"), 0.28)  # 28% on remainder
-    ]
-}
+@rules_bp.route('/rules/child-credit', methods=['POST'])
+def get_child_credit():
+    """
+    Calculate child tax credit based on dependent age.
+    
+    Request body:
+    {
+        "age": 15,
+        "name": "Tommy"  // optional
+    }
+    """
+    data = request.get_json() or {}
+    age = data.get('age', 0)
+    name = data.get('name', 'Child')
+    
+    if age < CHILD_TAX_CREDIT['age_limit']:
+        return jsonify({
+            "success": True,
+            "name": name,
+            "age": age,
+            "qualifies_ctc": True,
+            "credit_type": "Child Tax Credit",
+            "credit_amount": CHILD_TAX_CREDIT['amount'],
+            "refundable_max": CHILD_TAX_CREDIT['refundable_max'],
+            "message": f"{name} (age {age}) qualifies for ${CHILD_TAX_CREDIT['amount']:,} Child Tax Credit! Up to ${CHILD_TAX_CREDIT['refundable_max']:,} is refundable."
+        })
+    else:
+        return jsonify({
+            "success": True,
+            "name": name,
+            "age": age,
+            "qualifies_ctc": False,
+            "credit_type": "Other Dependent Credit",
+            "credit_amount": CHILD_TAX_CREDIT['other_dependent'],
+            "refundable_max": 0,
+            "message": f"{name} (age {age}) qualifies for ${CHILD_TAX_CREDIT['other_dependent']} Other Dependent Credit (not refundable)."
+        })
 
 # ============================================================
-# OTHER TAX PARAMETERS (2025)
+# AI EDUCATION PROMPT - Get tax tips for conversation
 # ============================================================
-OTHER_PARAMETERS = {
-    "qualified_business_income_deduction": 0.20,  # 20% QBI deduction
-    "estate_tax_exclusion": 13990000,
-    "gift_tax_exclusion": 19000,
-    "401k_contribution_limit": 23500,
-    "401k_catch_up_50_plus": 7500,
-    "foreign_earned_income_exclusion": 130000,
-    "health_fsa_limit": 3400,
-    "health_fsa_carryover": 680,
-    "transportation_fringe": 325  # per month
-}
+@rules_bp.route('/rules/ai-tips', methods=['POST'])
+def get_ai_tips():
+    """
+    Get tax education tips for AI to use in conversation.
+    
+    Request body:
+    {
+        "topic": "ira",  // or "401k", "hsa", "ctc", "deductions"
+        "age": 54,
+        "filing_status": "married_filing_jointly"
+    }
+    """
+    data = request.get_json() or {}
+    topic = data.get('topic', '').lower()
+    age = data.get('age', 0)
+    filing_status = data.get('filing_status', 'single')
+    
+    tips = []
+    
+    if topic in ['ira', 'retirement', 'all']:
+        ira_limit = IRA_LIMITS['contribution_limit'] + (IRA_LIMITS['catch_up_50_plus'] if age >= 50 else 0)
+        tips.append({
+            "topic": "IRA",
+            "tip": f"Your 2025 IRA contribution limit is ${ira_limit:,}.",
+            "detail": "Traditional IRA contributions may be tax-deductible. Roth IRA contributions aren't deductible but grow tax-free." if age < 50 else f"Since you're {age}, you get an extra $1,000 catch-up contribution!"
+        })
+    
+    if topic in ['401k', 'retirement', 'all']:
+        if age >= 60 and age <= 63:
+            k401_limit = 34750
+            note = "You qualify for the SUPER catch-up contribution!"
+        elif age >= 50:
+            k401_limit = 31000
+            note = "You qualify for catch-up contributions."
+        else:
+            k401_limit = 23500
+            note = "Standard contribution limit."
+        
+        tips.append({
+            "topic": "401(k)",
+            "tip": f"Your 2025 401(k) limit is ${k401_limit:,}.",
+            "detail": note
+        })
+    
+    if topic in ['hsa', 'health', 'all']:
+        hsa_self = HSA_LIMITS['self_only'] + (HSA_LIMITS['catch_up_55_plus'] if age >= 55 else 0)
+        hsa_family = HSA_LIMITS['family'] + (HSA_LIMITS['catch_up_55_plus'] if age >= 55 else 0)
+        tips.append({
+            "topic": "HSA",
+            "tip": f"2025 HSA limits: ${hsa_self:,} (self) or ${hsa_family:,} (family).",
+            "detail": "HSA contributions are triple tax-advantaged: tax-deductible, grow tax-free, and withdrawals for medical expenses are tax-free!" + (" You get an extra $1,000 catch-up since you're 55+!" if age >= 55 else "")
+        })
+    
+    if topic in ['ctc', 'children', 'dependents', 'all']:
+        tips.append({
+            "topic": "Child Tax Credit",
+            "tip": f"2025 CTC: ${CHILD_TAX_CREDIT['amount']:,} per child under 17.",
+            "detail": f"Up to ${CHILD_TAX_CREDIT['refundable_max']:,} is refundable. Children 17+ qualify for ${CHILD_TAX_CREDIT['other_dependent']} Other Dependent Credit."
+        })
+    
+    if topic in ['deductions', 'standard', 'all']:
+        std_ded = STANDARD_DEDUCTIONS.get(filing_status, 15750)
+        tips.append({
+            "topic": "Standard Deduction",
+            "tip": f"2025 standard deduction for {filing_status.replace('_', ' ')}: ${std_ded:,}.",
+            "detail": "If you're 65+, you get an additional $1,600-$2,000 deduction, plus up to $6,000 senior bonus deduction!" if age >= 65 else "Consider itemizing if your deductions exceed this amount."
+        })
+    
+    if topic in ['tips', 'new', 'obbba', 'all']:
+        tips.append({
+            "topic": "No Tax on Tips (NEW!)",
+            "tip": f"NEW in 2025: Up to ${NO_TAX_ON_TIPS['mfj_limit']:,} in tips may be tax-free!",
+            "detail": "Service industry workers can deduct tips from taxable income."
+        })
+        tips.append({
+            "topic": "No Tax on Overtime (NEW!)",
+            "tip": f"NEW in 2025: Up to ${NO_TAX_ON_OVERTIME['mfj_limit']:,} in overtime may be tax-free!",
+            "detail": "Overtime pay can be deducted from taxable income."
+        })
+    
+    return jsonify({
+        "success": True,
+        "tax_year": TAX_YEAR,
+        "topic": topic,
+        "age": age,
+        "filing_status": filing_status,
+        "tips": tips
+    })

@@ -1,24 +1,22 @@
 """
 ================================================================================
-TAXSKY 2025 - UNIFIED TEXT EXTRACTOR v18.4-COMPLETE
+TAXSKY 2025 - VALIDATOR v20.0 - READ FROM MONGODB (NO TEXT EXTRACTION)
 ================================================================================
 File: python_tax_api/tax_engine/text_extractor.py
 
-COMPLETE VERSION - Handles ALL income types:
-  ✅ W-2 (multiple, taxpayer + spouse)
-  ✅ 1099-NEC (self-employment)
-  ✅ 1099-INT (interest income)
-  ✅ 1099-DIV (dividends, qualified dividends)
-  ✅ 1099-R (retirement/pension)
-  ✅ 1099-G (unemployment)
-  ✅ 1099-B (capital gains/losses)
-  ✅ SSA-1099 (Social Security)
-  ✅ Rental income
-  ✅ Crypto gains/losses
-  ✅ IRA contributions (taxpayer + spouse)
-  ✅ HSA contributions
-  ✅ Student loan interest
-  ✅ Dependents (children under 17, other dependents)
+v20.0 CHANGES:
+  ✅ REMOVED: TaxTextExtractor class (no more regex parsing!)
+  ✅ NEW: validate_and_calculate() reads structured data from MongoDB
+  ✅ NEW: build_from_structured_data() builds data from input_forms/answers
+  ✅ NEW: compare_calculations() compares Node.js vs Python results
+  ✅ KEPT: verify_with_rag() for IRS rule validation
+  ✅ KEPT: map_extracted_to_calculator() for calculator input
+  ✅ KEPT: build_form_1040() for Form 1040 JSON
+
+WHY THIS CHANGE:
+  - Node.js now saves structured data directly to MongoDB during chat
+  - No need to parse chat text anymore!
+  - Python now validates and double-checks the data
 
 ================================================================================
 """
@@ -84,11 +82,12 @@ try:
 except:
     pass
 
-EXTRACTOR_VERSION = "v18.4-COMPLETE"
+EXTRACTOR_VERSION = "v20.0-VALIDATOR"
 
-print(f"📌 Text Extractor Config:")
+print(f"📌 Tax Validator Config:")
 print(f"   NODE_API_URL: {NODE_API_URL}")
 print(f"   DATA_DIR: {DATA_DIR}")
+print(f"   Version: {EXTRACTOR_VERSION}")
 
 # ============================================================
 # 2025 TAX CONSTANTS
@@ -107,627 +106,265 @@ HSA_LIMIT_INDIVIDUAL = 4300
 HSA_LIMIT_FAMILY = 8550
 STUDENT_LOAN_MAX = 2500
 
-STATE_MAP = {
-    "california": "CA", "texas": "TX", "florida": "FL", "new york": "NY",
-    "illinois": "IL", "pennsylvania": "PA", "ohio": "OH", "georgia": "GA",
-    "north carolina": "NC", "michigan": "MI", "new jersey": "NJ",
-    "virginia": "VA", "washington": "WA", "arizona": "AZ", "massachusetts": "MA",
-    "tennessee": "TN", "indiana": "IN", "missouri": "MO", "maryland": "MD",
-    "wisconsin": "WI", "colorado": "CO", "minnesota": "MN", "south carolina": "SC",
-    "alabama": "AL", "louisiana": "LA", "kentucky": "KY", "oregon": "OR",
-    "oklahoma": "OK", "connecticut": "CT", "utah": "UT", "iowa": "IA",
-    "nevada": "NV", "arkansas": "AR", "mississippi": "MS", "kansas": "KS",
-    "new mexico": "NM", "nebraska": "NE", "idaho": "ID", "west virginia": "WV",
-    "hawaii": "HI", "new hampshire": "NH", "maine": "ME", "montana": "MT",
-    "rhode island": "RI", "delaware": "DE", "south dakota": "SD",
-    "north dakota": "ND", "alaska": "AK", "vermont": "VT", "wyoming": "WY",
-}
+# ============================================================
+# ✅ NEW: BUILD DATA FROM MONGODB STRUCTURED FIELDS
+# ============================================================
 
-FILING_STATUS_MAP = {
-    "single": "single",
-    "married filing jointly": "married_filing_jointly",
-    "married jointly": "married_filing_jointly",
-    "mfj": "married_filing_jointly",
-    "married filing separately": "married_filing_separately",
-    "mfs": "married_filing_separately",
-    "head of household": "head_of_household",
-    "hoh": "head_of_household",
-    "qualifying surviving spouse": "qualifying_surviving_spouse",
-    "qualifying widow": "qualifying_surviving_spouse",
-}
+def build_from_structured_data(session: Dict) -> Dict[str, Any]:
+    """
+    Build extracted data from MongoDB structured fields.
+    NO text parsing needed - reads directly from:
+    - session.input_forms.w2[]
+    - session.answers{}
+    - session.filing_status
+    - session.address.state
+    """
+    answers = session.get("answers", {})
+    input_forms = session.get("input_forms", {})
+    w2s = input_forms.get("w2", [])
+    totals = session.get("totals", {})
+    
+    # Sum W-2 data from input_forms.w2[]
+    taxpayer_wages = sum(w.get("box_1_wages", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    spouse_wages = sum(w.get("box_1_wages", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    taxpayer_fed = sum(w.get("box_2_federal_withheld", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    spouse_fed = sum(w.get("box_2_federal_withheld", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    taxpayer_state = sum(w.get("box_17_state_withheld", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    spouse_state = sum(w.get("box_17_state_withheld", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    
+    # Check for 401(k) from W-2 box 13
+    has_retirement = any(w.get("box_13_retirement", False) for w in w2s)
+    if not has_retirement:
+        has_retirement = answers.get("taxpayer_has_401k", False) or answers.get("has_retirement_plan", False)
+    
+    # Get state from address or answers
+    state = session.get("address", {}).get("state", "") or answers.get("state", "")
+    
+    # Get filing status
+    filing_status = session.get("filing_status") or answers.get("filing_status", "single")
+    
+    # Count dependents
+    dependents = session.get("dependents", [])
+    children_under_17 = sum(1 for d in dependents if d.get("qualifies_ctc", False) or (d.get("age") and d.get("age") < 17))
+    other_dependents = sum(1 for d in dependents if d.get("qualifies_odc", False) or (d.get("age") and d.get("age") >= 17))
+    
+    # If no dependents array, check answers
+    if not dependents:
+        children_under_17 = int(answers.get("qualifying_children_under_17", 0) or 0)
+        other_dependents = int(answers.get("other_dependents", 0) or 0)
+    
+    extracted = {
+        # Filing info
+        "filing_status": filing_status,
+        "state": state,
+        
+        # Personal info (from answers)
+        "taxpayer_age": int(answers.get("taxpayer_age", 0) or 0),
+        "spouse_age": int(answers.get("spouse_age", 0) or 0),
+        "taxpayer_dob": answers.get("taxpayer_dob"),
+        "spouse_dob": answers.get("spouse_dob"),
+        
+        # W-2 Income (from input_forms.w2[])
+        "taxpayer_wages": taxpayer_wages,
+        "spouse_wages": spouse_wages,
+        "total_wages": taxpayer_wages + spouse_wages,
+        "taxpayer_federal_withheld": taxpayer_fed,
+        "spouse_federal_withheld": spouse_fed,
+        "total_federal_withheld": taxpayer_fed + spouse_fed,
+        "taxpayer_state_withheld": taxpayer_state,
+        "spouse_state_withheld": spouse_state,
+        "total_state_withheld": taxpayer_state + spouse_state,
+        
+        # 401(k) / Retirement Plan
+        "has_retirement_plan": has_retirement,
+        
+        # Other income (from answers or input_forms)
+        "interest_income": int(answers.get("interest_income", 0) or 0),
+        "dividend_income": int(answers.get("dividend_income", 0) or 0),
+        "qualified_dividends": int(answers.get("qualified_dividends", 0) or 0),
+        "self_employment_income": int(answers.get("self_employment_income", 0) or 0),
+        "pension_income": int(answers.get("pension_income", 0) or 0),
+        "social_security": int(answers.get("social_security", 0) or 0),
+        "unemployment_income": int(answers.get("unemployment_income", 0) or 0),
+        "rental_income": int(answers.get("rental_income", 0) or 0),
+        "long_term_gains": int(answers.get("long_term_gains", 0) or 0),
+        "short_term_gains": int(answers.get("short_term_gains", 0) or 0),
+        
+        # Adjustments (from answers)
+        "taxpayer_ira": int(answers.get("taxpayer_ira", 0) or 0),
+        "spouse_ira": int(answers.get("spouse_ira", 0) or 0),
+        "hsa": int(answers.get("hsa", 0) or answers.get("hsa_contribution", 0) or 0),
+        "student_loan_interest": int(answers.get("student_loan_interest", 0) or 0),
+        
+        # Dependents
+        "has_dependents": len(dependents) > 0 or children_under_17 > 0 or other_dependents > 0,
+        "qualifying_children_under_17": children_under_17,
+        "other_dependents": other_dependents,
+        
+        # Estimated payments
+        "estimated_payments": int(answers.get("estimated_payments", 0) or 0),
+        
+        # Deduction type
+        "deduction_type": answers.get("deduction_type", "standard"),
+    }
+    
+    return extracted
 
 
 # ============================================================
-# HELPER FUNCTIONS
+# ✅ RAG VALIDATION (IRS RULES)
 # ============================================================
 
-def parse_amount(text: str) -> int:
-    """Parse dollar amount from text, returns integer."""
-    if not text:
-        return 0
-    cleaned = re.sub(r'[$,]', '', str(text))
-    match = re.search(r'-?\d+\.?\d*', cleaned)
-    return int(float(match.group())) if match else 0
-
-def parse_float(text: str) -> float:
-    """Parse dollar amount from text, returns float."""
-    if not text:
-        return 0.0
-    cleaned = re.sub(r'[$,]', '', str(text))
-    match = re.search(r'-?\d+\.?\d*', cleaned)
-    return float(match.group()) if match else 0.0
-
-def parse_date(text: str) -> Optional[str]:
-    if not text:
-        return None
-    match = re.search(r'(\d{1,2})[/\-](\d{1,2})[/\-](\d{4})', text)
-    if match:
-        return f"{match.group(1).zfill(2)}/{match.group(2).zfill(2)}/{match.group(3)}"
-    return None
-
-def calculate_age(dob: str, tax_year: int = 2025) -> int:
-    if not dob:
-        return 0
-    match = re.search(r'(\d{4})', dob)
-    return tax_year - int(match.group(1)) if match else 0
-
-def normalize_filing_status(text: str) -> str:
-    if not text:
-        return "single"
-    lower = text.lower().strip()
-    for key, value in FILING_STATUS_MAP.items():
-        if key in lower:
-            return value
-    return "single"
-
-def normalize_state(text: str) -> str:
-    if not text:
-        return ""
-    text = text.strip()
-    if len(text) == 2 and text.isalpha():
-        return text.upper()
-    return STATE_MAP.get(text.lower(), text.upper()[:2] if len(text) >= 2 else "")
-
-
-# ============================================================
-# TEXT EXTRACTOR CLASS - COMPLETE VERSION
-# ============================================================
-
-class TaxTextExtractor:
-    """Extracts ALL tax data from chat messages text."""
+def verify_with_rag(extracted: Dict) -> Tuple[bool, List[str]]:
+    """
+    Validate extracted data against IRS 2025 rules.
+    Returns: (is_valid, list_of_errors)
+    """
+    errors = []
     
-    def __init__(self, messages: List[Dict], answers: Dict = None):
-        self.messages = messages or []
-        self.answers = answers or {}
-        self.extracted = {}
-        self.errors = []
+    taxpayer_age = extracted.get("taxpayer_age", 0) or 0
+    spouse_age = extracted.get("spouse_age", 0) or 0
+    filing_status = extracted.get("filing_status", "single")
     
-    def find_final_summary(self) -> str:
-        """Find the final summary message from assistant.
-        Handles both sender/text and role/content field formats.
-        """
-        for msg in reversed(self.messages):
-            sender = msg.get("sender") or msg.get("role")
-            if sender == "assistant":
-                text = msg.get("text") or msg.get("content", "")
-                if any(indicator in text.lower() for indicator in [
-                    "complete summary",
-                    "here's your complete summary",
-                    "is everything correct",
-                    "here is your summary",
-                ]) or "═══" in text or "════" in text:
-                    if len(text) > 200:
-                        return text
-        
-        # Fallback: combine all assistant messages
-        return "\n".join(
-            msg.get("text") or msg.get("content", "")
-            for msg in self.messages 
-            if (msg.get("sender") or msg.get("role")) == "assistant"
-        )
+    # ═══════════════════════════════════════════════════════════
+    # RULE 1: IRA Contribution Limits (2025)
+    # ═══════════════════════════════════════════════════════════
+    taxpayer_ira = extracted.get("taxpayer_ira", 0) or 0
+    taxpayer_limit = IRA_LIMIT_50_PLUS if taxpayer_age >= 50 else IRA_LIMIT_UNDER_50
     
-    def extract_all(self) -> Dict[str, Any]:
-        """Extract ALL tax data from chat text."""
-        print(f"\n{'='*60}")
-        print(f"🔍 PYTHON TEXT EXTRACTOR {EXTRACTOR_VERSION}")
-        print(f"{'='*60}")
-        print(f"📝 Total messages: {len(self.messages)}")
-        
-        summary = self.find_final_summary()
-        print(f"📋 Summary length: {len(summary)} chars")
-        
-        if len(summary) < 100:
-            print(f"⚠️ WARNING: Summary too short!")
-        
-        # Extract all data
-        self._extract_filing_status(summary)
-        self._extract_state(summary)
-        self._extract_taxpayer_info(summary)
-        self._extract_spouse_info(summary)
-        self._extract_dependents(summary)
-        
-        # Income
-        self._extract_w2_income(summary)
-        self._extract_1099_nec(summary)
-        self._extract_1099_int(summary)
-        self._extract_1099_div(summary)
-        self._extract_1099_r(summary)
-        self._extract_1099_g(summary)
-        self._extract_1099_b(summary)
-        self._extract_ssa_1099(summary)
-        self._extract_rental_income(summary)
-        self._extract_crypto(summary)
-        
-        # Adjustments
-        self._extract_ira(summary)
-        self._extract_hsa(summary)
-        self._extract_student_loan(summary)
-        self._extract_deduction_type(summary)
-        
-        # Fill from answers if missing
-        self._fill_from_answers()
-        
-        print(f"\n✅ Extracted {len(self.extracted)} fields")
-        return self.extracted
+    if taxpayer_ira > taxpayer_limit:
+        errors.append(f"Taxpayer IRA ${taxpayer_ira:,} exceeds {'50+' if taxpayer_age >= 50 else 'under-50'} limit ${taxpayer_limit:,}")
     
-    # ────────────────────────────────────────────────────────
-    # PERSONAL INFO
-    # ────────────────────────────────────────────────────────
+    spouse_ira = extracted.get("spouse_ira", 0) or 0
+    if spouse_ira > 0 and spouse_age > 0:
+        spouse_limit = IRA_LIMIT_50_PLUS if spouse_age >= 50 else IRA_LIMIT_UNDER_50
+        if spouse_ira > spouse_limit:
+            errors.append(f"Spouse IRA ${spouse_ira:,} exceeds {'50+' if spouse_age >= 50 else 'under-50'} limit ${spouse_limit:,}")
     
-    def _extract_filing_status(self, text: str):
-        patterns = [
-            r"•\s*Filing Status[:\s]+([A-Za-z\s]+?)(?:\s{2,}|\n|$)",
-            r"•\s*Filing[:\s]+([A-Za-z\s]+?)(?:\s{2,}|\n|$)",
-            r"Filing[:\s]+\*?\*?([A-Za-z\s]+?)(?:\*\*|\n|$)",
-        ]
-        for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                status = normalize_filing_status(match.group(1).strip())
-                self.extracted["filing_status"] = status
-                print(f"   ✅ filing_status: {status}")
-                return
-        self.extracted["filing_status"] = "single"
+    # ═══════════════════════════════════════════════════════════
+    # RULE 2: IRA Deductibility Warning (if has 401k)
+    # ═══════════════════════════════════════════════════════════
+    has_401k = extracted.get("has_retirement_plan", False)
+    if has_401k and taxpayer_ira > 0:
+        agi = extracted.get("total_wages", 0) + extracted.get("interest_income", 0)
+        
+        # 2025 phase-out limits (approximate)
+        if filing_status == "married_filing_jointly":
+            if agi > 143000:
+                errors.append(f"IRA may not be fully deductible (MFJ AGI ${agi:,} > $143,000 with 401k)")
+        elif filing_status == "single":
+            if agi > 87000:
+                errors.append(f"IRA may not be fully deductible (Single AGI ${agi:,} > $87,000 with 401k)")
     
-    def _extract_state(self, text: str):
-        patterns = [
-            r"•\s*(?:Residence\s+)?State[:\s]+([A-Z]{2})",
-            r"State[:\s]+\*?\*?([A-Za-z\s]+?)(?:\*\*|\n|$)",
-        ]
-        for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                state = normalize_state(match.group(1).strip())
-                if state and len(state) == 2:
-                    self.extracted["state"] = state
-                    print(f"   ✅ state: {state}")
-                    return
+    # ═══════════════════════════════════════════════════════════
+    # RULE 3: HSA Limits (2025)
+    # ═══════════════════════════════════════════════════════════
+    hsa = extracted.get("hsa", 0) or 0
+    if hsa > HSA_LIMIT_FAMILY:
+        errors.append(f"HSA ${hsa:,} exceeds family limit ${HSA_LIMIT_FAMILY:,}")
+    elif hsa > HSA_LIMIT_INDIVIDUAL:
+        # Just a warning - might be family coverage
+        pass
     
-    def _extract_taxpayer_info(self, text: str):
-        patterns = [
-            r"•\s*Taxpayer DOB[:\s]+(\d{1,2}/\d{1,2}/\d{4})\s*\(Age\s*(\d+)",
-            r"•\s*You[:\s]+(\d{1,2}/\d{1,2}/\d{4})\s*\(Age\s*(\d+)",
-            r"You[:\s]+[A-Za-z]+\s+\d{1,2},?\s+\d{4}\s*\(Age\s*(\d+)",
-        ]
-        for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                if len(match.groups()) >= 2:
-                    dob = parse_date(match.group(1))
-                    if dob:
-                        self.extracted["taxpayer_dob"] = dob
-                        self.extracted["taxpayer_age"] = int(match.group(2))
-                        print(f"   ✅ taxpayer_dob: {dob}, age: {match.group(2)}")
-                        return
-                else:
-                    self.extracted["taxpayer_age"] = int(match.group(1))
-                    print(f"   ✅ taxpayer_age: {match.group(1)}")
-                    return
+    # ═══════════════════════════════════════════════════════════
+    # RULE 4: Student Loan Interest Max ($2,500)
+    # ═══════════════════════════════════════════════════════════
+    sli = extracted.get("student_loan_interest", 0) or 0
+    if sli > STUDENT_LOAN_MAX:
+        errors.append(f"Student loan interest ${sli:,} exceeds max ${STUDENT_LOAN_MAX:,}")
     
-    def _extract_spouse_info(self, text: str):
-        # Spouse name
-        name_patterns = [
-            r"•\s*Spouse(?:\s+Name)?[:\s]+([A-Za-z\s]+?)(?:,|\s{2,}|\n|$)",
-            r"Spouse[:\s]+([A-Za-z\s]+?),\s*\d{1,2}/\d{1,2}/\d{4}",
-        ]
-        for pattern in name_patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                name = match.group(1).strip()
-                if name and len(name) > 1 and not name.lower().startswith("dob"):
-                    self.extracted["spouse_name"] = name
-                    print(f"   ✅ spouse_name: {name}")
-                    break
-        
-        # Spouse DOB/Age
-        dob_patterns = [
-            r"•\s*Spouse DOB[:\s]+(\d{1,2}/\d{1,2}/\d{4})\s*\(Age\s*(\d+)",
-            r"Spouse[:\s]+[A-Za-z\s]+,\s*(\d{1,2}/\d{1,2}/\d{4})\s*\(Age\s*(\d+)",
-        ]
-        for pattern in dob_patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                self.extracted["spouse_dob"] = parse_date(match.group(1))
-                self.extracted["spouse_age"] = int(match.group(2))
-                print(f"   ✅ spouse_dob: {match.group(1)}, age: {match.group(2)}")
-                return
+    # ═══════════════════════════════════════════════════════════
+    # RULE 5: Filing Status Consistency
+    # ═══════════════════════════════════════════════════════════
+    has_spouse_data = spouse_age > 0 or extracted.get("spouse_wages", 0) > 0
     
-    def _extract_dependents(self, text: str):
-        # Check for "No dependents"
-        if re.search(r"•?\s*No dependents|None|0 dependents", text, re.IGNORECASE):
-            self.extracted["has_dependents"] = False
-            self.extracted["qualifying_children_under_17"] = 0
-            self.extracted["other_dependents"] = 0
-            print(f"   ✅ dependents: None")
-            return
-        
-        # Count dependents by type
-        children = 0
-        others = 0
-        
-        # Pattern: "Name - Age X → $2,000 Child Tax Credit"
-        for match in re.findall(
-            r"([A-Za-z\s]+)\s*[-–]\s*Age\s*(\d+)\s*→?\s*\$?[\d,]+\s*(Child Tax Credit|Other Dependent)",
-            text, re.IGNORECASE
-        ):
-            age = int(match[1])
-            credit_type = match[2].lower()
-            if "child tax credit" in credit_type and age <= 16:
-                children += 1
-            else:
-                others += 1
-        
-        # Also check for explicit counts
-        child_count = re.search(r"(\d+)\s*(?:qualifying\s+)?child(?:ren)?(?:\s+under\s+17)?", text, re.IGNORECASE)
-        if child_count:
-            children = max(children, int(child_count.group(1)))
-        
-        other_count = re.search(r"(\d+)\s*other\s+dependent", text, re.IGNORECASE)
-        if other_count:
-            others = max(others, int(other_count.group(1)))
-        
-        self.extracted["has_dependents"] = children > 0 or others > 0
-        self.extracted["qualifying_children_under_17"] = children
-        self.extracted["other_dependents"] = others
-        
-        if children > 0 or others > 0:
-            print(f"   ✅ dependents: {children} children, {others} other")
+    if filing_status == "single" and has_spouse_data:
+        errors.append("Filing as Single but spouse data exists - verify filing status")
     
-    # ────────────────────────────────────────────────────────
-    # W-2 INCOME
-    # ────────────────────────────────────────────────────────
+    if filing_status == "married_filing_jointly" and not has_spouse_data:
+        # Not necessarily an error, spouse might not work
+        pass
     
-    def _extract_w2_income(self, text: str):
-        # Taxpayer W-2s
-        tp_wages = sum(parse_amount(m.group(1)) for m in re.finditer(
-            r"•\s*Taxpayer W-2 #\d+\s+Wages[:\s]+\$?([\d,]+)", text, re.IGNORECASE))
-        tp_fed = sum(parse_amount(m.group(1)) for m in re.finditer(
-            r"•\s*Taxpayer W-2 #\d+\s+Federal Withheld[:\s]+\$?([\d,]+)", text, re.IGNORECASE))
-        tp_state = sum(parse_amount(m.group(1)) for m in re.finditer(
-            r"•\s*Taxpayer W-2 #\d+\s+State Withheld[:\s]+\$?([\d,]+)", text, re.IGNORECASE))
-        
-        # Alternative patterns
-        if tp_wages == 0:
-            alt = re.search(r"(?:Your|Taxpayer)\s+W-2.*?Wages[:\s]+\$?([\d,]+)", text, re.IGNORECASE | re.DOTALL)
-            if alt:
-                tp_wages = parse_amount(alt.group(1))
-        
-        if tp_wages > 0:
-            self.extracted["taxpayer_wages"] = tp_wages
-            self.extracted["taxpayer_federal_withheld"] = tp_fed
-            self.extracted["taxpayer_state_withheld"] = tp_state
-            print(f"   ✅ taxpayer_wages: ${tp_wages:,}")
-            print(f"   ✅ taxpayer_federal_withheld: ${tp_fed:,}")
-        
-        # Spouse W-2s
-        sp_wages = sum(parse_amount(m.group(1)) for m in re.finditer(
-            r"•\s*Spouse W-2 #\d+\s+Wages[:\s]+\$?([\d,]+)", text, re.IGNORECASE))
-        sp_fed = sum(parse_amount(m.group(1)) for m in re.finditer(
-            r"•\s*Spouse W-2 #\d+\s+Federal Withheld[:\s]+\$?([\d,]+)", text, re.IGNORECASE))
-        sp_state = sum(parse_amount(m.group(1)) for m in re.finditer(
-            r"•\s*Spouse W-2 #\d+\s+State Withheld[:\s]+\$?([\d,]+)", text, re.IGNORECASE))
-        
-        if sp_wages > 0:
-            self.extracted["spouse_wages"] = sp_wages
-            self.extracted["spouse_federal_withheld"] = sp_fed
-            self.extracted["spouse_state_withheld"] = sp_state
-            print(f"   ✅ spouse_wages: ${sp_wages:,}")
-            print(f"   ✅ spouse_federal_withheld: ${sp_fed:,}")
+    # ═══════════════════════════════════════════════════════════
+    # RULE 6: Child Tax Credit Age Check
+    # ═══════════════════════════════════════════════════════════
+    # Children must be under 17 at end of tax year for CTC
+    # (This is validated when dependents are entered)
     
-    # ────────────────────────────────────────────────────────
-    # 1099-NEC (Self-Employment)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_1099_nec(self, text: str):
-        total = 0
-        # Pattern: Taxpayer 1099-NEC #1: $12,000
-        for m in re.finditer(r"•\s*(?:Taxpayer|Spouse)\s+1099-NEC\s*#?\d*[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total += parse_amount(m.group(1))
-        
-        # Alternative: 1099-NEC Income: $12,000
-        if total == 0:
-            alt = re.search(r"1099-NEC\s+(?:Income)?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-            if alt:
-                total = parse_amount(alt.group(1))
-        
-        if total > 0:
-            self.extracted["self_employment_income"] = total
-            print(f"   ✅ self_employment_income (1099-NEC): ${total:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # 1099-INT (Interest)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_1099_int(self, text: str):
-        total = 0
-        for m in re.finditer(r"•\s*(?:Taxpayer|Spouse)\s+1099-INT\s*#?\d*[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total += parse_amount(m.group(1))
-        
-        if total == 0:
-            alt = re.search(r"(?:Interest\s+Income|1099-INT)[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-            if alt:
-                total = parse_amount(alt.group(1))
-        
-        if total > 0:
-            self.extracted["interest_income"] = total
-            print(f"   ✅ interest_income (1099-INT): ${total:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # 1099-DIV (Dividends)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_1099_div(self, text: str):
-        total_ordinary = 0
-        total_qualified = 0
-        
-        for m in re.finditer(r"•\s*(?:Taxpayer|Spouse)\s+1099-DIV\s*#?\d*[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total_ordinary += parse_amount(m.group(1))
-        
-        # Check for qualified dividends separately
-        qual_match = re.search(r"Qualified\s+Dividends?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if qual_match:
-            total_qualified = parse_amount(qual_match.group(1))
-        
-        if total_ordinary > 0:
-            self.extracted["dividend_income"] = total_ordinary
-            print(f"   ✅ dividend_income (1099-DIV): ${total_ordinary:,}")
-        
-        if total_qualified > 0:
-            self.extracted["qualified_dividends"] = total_qualified
-            print(f"   ✅ qualified_dividends: ${total_qualified:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # 1099-R (Retirement/Pension)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_1099_r(self, text: str):
-        total = 0
-        taxable = 0
-        
-        for m in re.finditer(r"•\s*(?:Taxpayer|Spouse)\s+1099-R\s*#?\d*[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total += parse_amount(m.group(1))
-        
-        # Check for taxable amount
-        taxable_match = re.search(r"1099-R.*?Taxable[:\s]+\$?([\d,]+)", text, re.IGNORECASE | re.DOTALL)
-        if taxable_match:
-            taxable = parse_amount(taxable_match.group(1))
-        
-        if total == 0:
-            alt = re.search(r"(?:Pension|Retirement|IRA\s+Distribution)[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-            if alt:
-                total = parse_amount(alt.group(1))
-        
-        if total > 0:
-            self.extracted["pension_income"] = total
-            self.extracted["taxable_pension"] = taxable if taxable > 0 else total
-            print(f"   ✅ pension_income (1099-R): ${total:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # 1099-G (Unemployment)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_1099_g(self, text: str):
-        total = 0
-        for m in re.finditer(r"•\s*(?:Taxpayer|Spouse)\s+1099-G\s*#?\d*[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total += parse_amount(m.group(1))
-        
-        if total == 0:
-            alt = re.search(r"(?:Unemployment|1099-G)[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-            if alt:
-                total = parse_amount(alt.group(1))
-        
-        if total > 0:
-            self.extracted["unemployment_income"] = total
-            print(f"   ✅ unemployment_income (1099-G): ${total:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # 1099-B (Capital Gains/Losses)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_1099_b(self, text: str):
-        long_term = 0
-        short_term = 0
-        
-        # Long-term gains
-        lt_match = re.search(r"Long[- ]?Term\s+(?:Capital\s+)?Gains?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if lt_match:
-            long_term = parse_amount(lt_match.group(1))
-        
-        # Long-term losses (negative)
-        lt_loss = re.search(r"Long[- ]?Term\s+(?:Capital\s+)?Loss(?:es)?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if lt_loss:
-            long_term = -parse_amount(lt_loss.group(1))
-        
-        # Short-term gains
-        st_match = re.search(r"Short[- ]?Term\s+(?:Capital\s+)?Gains?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if st_match:
-            short_term = parse_amount(st_match.group(1))
-        
-        # Short-term losses
-        st_loss = re.search(r"Short[- ]?Term\s+(?:Capital\s+)?Loss(?:es)?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if st_loss:
-            short_term = -parse_amount(st_loss.group(1))
-        
-        # Generic capital gains
-        if long_term == 0 and short_term == 0:
-            cg = re.search(r"Capital\s+Gains?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-            if cg:
-                long_term = parse_amount(cg.group(1))
-        
-        if long_term != 0:
-            self.extracted["long_term_gains"] = long_term
-            print(f"   ✅ long_term_gains: ${long_term:,}")
-        
-        if short_term != 0:
-            self.extracted["short_term_gains"] = short_term
-            print(f"   ✅ short_term_gains: ${short_term:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # SSA-1099 (Social Security)
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_ssa_1099(self, text: str):
-        total = 0
-        
-        # Pattern: SSA-1099: $24,000
-        ssa = re.search(r"(?:SSA-1099|Social\s+Security)[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if ssa:
-            total = parse_amount(ssa.group(1))
-        
-        # Also check for Taxpayer/Spouse SSA
-        for m in re.finditer(r"•\s*(?:Taxpayer|Spouse)\s+SSA-1099[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total += parse_amount(m.group(1))
-        
-        if total > 0:
-            self.extracted["social_security"] = total
-            print(f"   ✅ social_security (SSA-1099): ${total:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # RENTAL INCOME
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_rental_income(self, text: str):
-        total_income = 0
-        total_expenses = 0
-        
-        # Rental income
-        for m in re.finditer(r"Rental\s+(?:Property\s+)?#?\d*\s*Income[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total_income += parse_amount(m.group(1))
-        
-        # Rental expenses
-        for m in re.finditer(r"Rental\s+(?:Property\s+)?#?\d*\s*Expenses?[:\s]+\$?([\d,]+)", text, re.IGNORECASE):
-            total_expenses += parse_amount(m.group(1))
-        
-        # Alternative: Net Rental Income
-        if total_income == 0:
-            net = re.search(r"(?:Net\s+)?Rental\s+Income[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-            if net:
-                total_income = parse_amount(net.group(1))
-        
-        if total_income > 0:
-            self.extracted["rental_income"] = total_income
-            self.extracted["rental_expenses"] = total_expenses
-            self.extracted["net_rental_income"] = total_income - total_expenses
-            print(f"   ✅ rental_income: ${total_income:,}, expenses: ${total_expenses:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # CRYPTO
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_crypto(self, text: str):
-        gains = 0
-        
-        crypto = re.search(r"Crypto(?:currency)?\s+(?:Gains?|Income)[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if crypto:
-            gains = parse_amount(crypto.group(1))
-        
-        # Check for losses
-        crypto_loss = re.search(r"Crypto(?:currency)?\s+Loss(?:es)?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if crypto_loss:
-            gains = -parse_amount(crypto_loss.group(1))
-        
-        if gains != 0:
-            self.extracted["crypto_gains"] = gains
-            print(f"   ✅ crypto_gains: ${gains:,}")
-    
-    # ────────────────────────────────────────────────────────
-    # ADJUSTMENTS
-    # ────────────────────────────────────────────────────────
-    
-    def _extract_ira(self, text: str):
-        # Taxpayer IRA
-        tp_ira = re.search(r"•\s*(?:Taxpayer|Your)\s*IRA[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if tp_ira:
-            self.extracted["taxpayer_ira"] = parse_amount(tp_ira.group(1))
-            print(f"   ✅ taxpayer_ira: ${self.extracted['taxpayer_ira']:,}")
-        
-        # Spouse IRA
-        sp_ira = re.search(r"•\s*Spouse(?:'s)?\s*IRA[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if sp_ira:
-            self.extracted["spouse_ira"] = parse_amount(sp_ira.group(1))
-            print(f"   ✅ spouse_ira: ${self.extracted['spouse_ira']:,}")
-    
-    def _extract_hsa(self, text: str):
-        hsa = re.search(r"•?\s*HSA(?:\s+Contribution)?[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if hsa:
-            amount = parse_amount(hsa.group(1))
-            self.extracted["hsa"] = amount
-            if amount > 0:
-                print(f"   ✅ hsa: ${amount:,}")
-    
-    def _extract_student_loan(self, text: str):
-        sli = re.search(r"Student\s+Loan\s+Interest[:\s]+\$?([\d,]+)", text, re.IGNORECASE)
-        if sli:
-            amount = parse_amount(sli.group(1))
-            self.extracted["student_loan_interest"] = amount
-            if amount > 0:
-                print(f"   ✅ student_loan_interest: ${amount:,}")
-    
-    def _extract_deduction_type(self, text: str):
-        if re.search(r"(?:Deduction|Deduct)[:\s]+\*?\*?(?:Standard|Std)", text, re.IGNORECASE):
-            self.extracted["deduction_type"] = "standard"
-        elif re.search(r"(?:Deduction|Deduct)[:\s]+\*?\*?Itemize", text, re.IGNORECASE):
-            self.extracted["deduction_type"] = "itemized"
-        else:
-            self.extracted["deduction_type"] = "standard"
-    
-    def _fill_from_answers(self):
-        """Fill missing fields from answers dict (fallback)."""
-        field_mapping = {
-            "filing_status": "filing_status",
-            "state": "state",
-            "taxpayer_wages": "taxpayer_wages",
-            "spouse_wages": "spouse_wages",
-            "taxpayer_federal_withheld": "taxpayer_federal_withheld",
-            "spouse_federal_withheld": "spouse_federal_withheld",
-            "taxpayer_ira": "taxpayer_ira",
-            "spouse_ira": "spouse_ira",
-        }
-        
-        for ext_field, ans_field in field_mapping.items():
-            if ext_field not in self.extracted and ans_field in self.answers:
-                val = self.answers[ans_field]
-                if val:
-                    self.extracted[ext_field] = val
-                    print(f"   📥 Fallback {ext_field}: {val}")
+    return len(errors) == 0, errors
 
 
 # ============================================================
-# MAPPING TO CALCULATOR
+# ✅ COMPARE NODE.JS VS PYTHON CALCULATIONS
+# ============================================================
+
+def compare_calculations(node_totals: Dict, python_result: Dict) -> List[str]:
+    """
+    Compare Node.js totals vs Python calculation.
+    Returns list of discrepancy warnings.
+    """
+    warnings = []
+    
+    comparisons = [
+        ("wages", "wages", "Total Wages"),
+        ("agi", "agi", "AGI"),
+        ("federal_tax", "tax_after_credits", "Federal Tax"),
+        ("taxable_income", "taxable_income", "Taxable Income"),
+        ("refund", "refund", "Refund"),
+        ("amount_owed", "amount_owed", "Amount Owed"),
+    ]
+    
+    for node_key, python_key, label in comparisons:
+        node_val = float(node_totals.get(node_key, 0) or 0)
+        python_val = float(python_result.get(python_key, 0) or 0)
+        
+        # Allow $1 rounding difference
+        if abs(node_val - python_val) > 1:
+            warnings.append(f"{label} mismatch: Node=${node_val:,.0f} vs Python=${python_val:,.0f}")
+            print(f"   ⚠️ {label}: Node=${node_val:,.0f} vs Python=${python_val:,.0f}")
+    
+    if not warnings:
+        print(f"   ✅ Node.js and Python calculations match!")
+    
+    return warnings
+
+
+# ============================================================
+# ✅ MAPPING TO CALCULATOR
 # ============================================================
 
 def map_extracted_to_calculator(extracted: Dict) -> Dict:
-    """Map extracted data to calculator input format."""
+    """
+    Map extracted/validated data to calculator input format.
+    """
     return {
+        # Filing info
         "filing_status": extracted.get("filing_status", "single"),
+        "state": extracted.get("state", ""),
+        
+        # Ages
         "taxpayer_age": extracted.get("taxpayer_age", 0) or 0,
         "spouse_age": extracted.get("spouse_age", 0) or 0,
+        "taxpayer_dob": extracted.get("taxpayer_dob", ""),
+        "spouse_dob": extracted.get("spouse_dob", ""),
+        
+        # 401(k) status for IRA deductibility
+        "has_retirement_plan": extracted.get("has_retirement_plan", False),
         
         # W-2 Wages
-        "wages": extracted.get("taxpayer_wages", 0) or 0,
+        "wages": extracted.get("total_wages", 0) or 0,
+        "taxpayer_wages": extracted.get("taxpayer_wages", 0) or 0,
         "spouse_wages": extracted.get("spouse_wages", 0) or 0,
-        "federal_withholding": extracted.get("taxpayer_federal_withheld", 0) or 0,
+        
+        # Federal Withholding
+        "federal_withholding": extracted.get("total_federal_withheld", 0) or 0,
+        "taxpayer_federal_withheld": extracted.get("taxpayer_federal_withheld", 0) or 0,
         "spouse_federal_withheld": extracted.get("spouse_federal_withheld", 0) or 0,
+        
+        # State Withholding
+        "state_withholding": extracted.get("total_state_withheld", 0) or 0,
+        "taxpayer_state_withheld": extracted.get("taxpayer_state_withheld", 0) or 0,
+        "spouse_state_withheld": extracted.get("spouse_state_withheld", 0) or 0,
         
         # Other Income
         "interest_income": extracted.get("interest_income", 0) or 0,
@@ -739,63 +376,33 @@ def map_extracted_to_calculator(extracted: Dict) -> Dict:
         "social_security": extracted.get("social_security", 0) or 0,
         "self_employment_income": extracted.get("self_employment_income", 0) or 0,
         "unemployment_income": extracted.get("unemployment_income", 0) or 0,
-        "rental_income": extracted.get("net_rental_income", 0) or extracted.get("rental_income", 0) or 0,
-        "crypto_gains": extracted.get("crypto_gains", 0) or 0,
+        "rental_income": extracted.get("rental_income", 0) or 0,
         
-        # Adjustments
+        # Adjustments - IRA
         "ira_contributions": extracted.get("taxpayer_ira", 0) or 0,
-        "spouse_ira_contribution": extracted.get("spouse_ira", 0) or 0,
+        "taxpayer_ira": extracted.get("taxpayer_ira", 0) or 0,
+        "spouse_ira": extracted.get("spouse_ira", 0) or 0,
+        
+        # Other Adjustments
         "hsa_contributions": extracted.get("hsa", 0) or 0,
+        "hsa": extracted.get("hsa", 0) or 0,
         "student_loan_interest": extracted.get("student_loan_interest", 0) or 0,
         
         # Dependents
         "qualifying_children_under_17": extracted.get("qualifying_children_under_17", 0) or 0,
         "other_dependents": extracted.get("other_dependents", 0) or 0,
+        
+        # Estimated payments
+        "estimated_payments": extracted.get("estimated_payments", 0) or 0,
     }
 
 
 # ============================================================
-# RAG VALIDATION
-# ============================================================
-
-def verify_with_rag(extracted: Dict) -> Tuple[bool, List[str]]:
-    """Validate extracted data against IRS 2025 rules."""
-    errors = []
-    
-    taxpayer_age = extracted.get("taxpayer_age", 0) or 0
-    spouse_age = extracted.get("spouse_age", 0) or 0
-    taxpayer_ira = extracted.get("taxpayer_ira", 0) or 0
-    spouse_ira = extracted.get("spouse_ira", 0) or 0
-    
-    # IRA limits
-    taxpayer_ira_limit = IRA_LIMIT_50_PLUS if taxpayer_age >= 50 else IRA_LIMIT_UNDER_50
-    spouse_ira_limit = IRA_LIMIT_50_PLUS if spouse_age >= 50 else IRA_LIMIT_UNDER_50
-    
-    if taxpayer_ira > taxpayer_ira_limit:
-        errors.append(f"Taxpayer IRA ${taxpayer_ira:,} exceeds limit ${taxpayer_ira_limit:,}")
-    
-    if spouse_ira > spouse_ira_limit and spouse_age > 0:
-        errors.append(f"Spouse IRA ${spouse_ira:,} exceeds limit ${spouse_ira_limit:,}")
-    
-    # HSA limit
-    hsa = extracted.get("hsa", 0) or 0
-    if hsa > HSA_LIMIT_FAMILY:
-        errors.append(f"HSA ${hsa:,} exceeds family limit ${HSA_LIMIT_FAMILY:,}")
-    
-    # Student loan limit
-    sli = extracted.get("student_loan_interest", 0) or 0
-    if sli > STUDENT_LOAN_MAX:
-        errors.append(f"Student loan interest ${sli:,} exceeds limit ${STUDENT_LOAN_MAX:,}")
-    
-    return len(errors) == 0, errors
-
-
-# ============================================================
-# FORM 1040 BUILDER
+# ✅ BUILD FORM 1040 JSON
 # ============================================================
 
 def build_form_1040(extracted: Dict, tax_result: Dict, tax_year: int = 2025) -> Dict[str, Any]:
-    """Build complete Form 1040 JSON."""
+    """Build complete Form 1040 JSON from validated data."""
     total_wages = tax_result.get("wages", 0)
     
     return {
@@ -803,6 +410,7 @@ def build_form_1040(extracted: Dict, tax_result: Dict, tax_year: int = 2025) -> 
             "tax_year": tax_year,
             "filing_status": extracted.get("filing_status", "single"),
             "state": extracted.get("state", ""),
+            "has_retirement_plan": extracted.get("has_retirement_plan", False),
         },
         "income": {
             "line_1a_w2_wages": total_wages,
@@ -820,6 +428,11 @@ def build_form_1040(extracted: Dict, tax_result: Dict, tax_year: int = 2025) -> 
         "adjustments": {
             "line_10_schedule_1_adjustments": tax_result.get("adjustments", 0),
             "line_11_agi": tax_result.get("agi", 0),
+            "ira_contributed": tax_result.get("taxpayer_ira_contributed", 0) + tax_result.get("spouse_ira_contributed", 0),
+            "ira_deductible": tax_result.get("ira_deduction", 0),
+            "taxpayer_ira_contributed": tax_result.get("taxpayer_ira_contributed", 0),
+            "taxpayer_ira_deductible": tax_result.get("taxpayer_ira_deductible", 0),
+            "taxpayer_ira_reason": tax_result.get("taxpayer_ira_reason", ""),
         },
         "deductions": {
             "line_12_deduction": tax_result.get("standard_deduction", 0),
@@ -836,100 +449,80 @@ def build_form_1040(extracted: Dict, tax_result: Dict, tax_year: int = 2025) -> 
         "payments": {
             "line_25a_w2_withholding": tax_result.get("withholding", 0),
             "line_25d_total_withholding": tax_result.get("withholding", 0),
-            "line_27_eic": tax_result.get("eitc", 0),
-            "line_28_actc": tax_result.get("ctc_refundable", 0),
+            "line_26_estimated_payments": tax_result.get("estimated_payments", 0),
             "line_33_total_payments": tax_result.get("total_payments", 0),
         },
-        "refund_or_owe": {
+        "refund_owed": {
             "line_34_overpaid": tax_result.get("refund", 0),
-            "line_35_refund": tax_result.get("refund", 0),
+            "line_35a_refund": tax_result.get("refund", 0),
             "line_37_amount_owed": tax_result.get("amount_owed", 0),
-            "line_37_amount_owe": tax_result.get("amount_owed", 0),
         },
-        "_income_details": {
+        "w2_breakdown": {
             "taxpayer_wages": extracted.get("taxpayer_wages", 0),
             "spouse_wages": extracted.get("spouse_wages", 0),
-            "taxpayer_federal_withheld": extracted.get("taxpayer_federal_withheld", 0),
-            "spouse_federal_withheld": extracted.get("spouse_federal_withheld", 0),
-            "taxpayer_ira": extracted.get("taxpayer_ira", 0),
-            "spouse_ira": extracted.get("spouse_ira", 0),
-            "interest_income": extracted.get("interest_income", 0),
-            "dividend_income": extracted.get("dividend_income", 0),
-            "capital_gains": extracted.get("long_term_gains", 0),
-            "social_security": extracted.get("social_security", 0),
-            "self_employment": extracted.get("self_employment_income", 0),
+            "taxpayer_withheld": extracted.get("taxpayer_federal_withheld", 0),
+            "spouse_withheld": extracted.get("spouse_federal_withheld", 0),
         },
         "_metadata": {
             "extractor_version": EXTRACTOR_VERSION,
             "extracted_at": datetime.now(timezone.utc).isoformat(),
+            "validated": True,
         }
     }
 
 
 # ============================================================
-# SAVE TO MONGODB
+# ✅ SAVE VALIDATION RESULTS TO MONGODB
 # ============================================================
 
-def save_results_to_mongodb(user_id: str, tax_year: int, extracted: Dict, tax_result: Dict, form1040: Dict) -> bool:
-    """Save extracted results back to MongoDB."""
+def save_validation_results(user_id: str, tax_year: int, extracted: Dict, 
+                           tax_result: Dict, form1040: Dict, 
+                           is_valid: bool, all_warnings: List[str]) -> bool:
+    """Save validation results back to MongoDB."""
     if not MONGODB_SAVE_AVAILABLE or not update_session_in_db:
         print("   ⚠️ Cannot save to MongoDB - mongodb_client not available")
         return False
     
     try:
         update_data = {
-            "extracted": extracted,
-            "taxCalculation": tax_result,
+            # Validation status
+            "ragVerified": is_valid and len(all_warnings) == 0,
+            "validationErrors": all_warnings,
+            "status": "validated" if is_valid else "needs_review",
+            
+            # Python calculation results
+            "pythonCalculation": tax_result,
             "form1040": form1040,
             
-            # Key fields for Dashboard
-            "taxpayer_wages": extracted.get("taxpayer_wages", 0),
-            "spouse_wages": extracted.get("spouse_wages", 0),
-            "total_wages": tax_result.get("wages", 0),
-            "taxpayer_federal_withheld": extracted.get("taxpayer_federal_withheld", 0),
-            "spouse_federal_withheld": extracted.get("spouse_federal_withheld", 0),
-            "total_withheld": tax_result.get("withholding", 0),
-            "taxpayer_state_withheld": extracted.get("taxpayer_state_withheld", 0),
-            "spouse_state_withheld": extracted.get("spouse_state_withheld", 0),
-            "taxpayer_ira": extracted.get("taxpayer_ira", 0),
-            "spouse_ira": extracted.get("spouse_ira", 0),
-            "ira_contributions": tax_result.get("ira_deduction", 0),
-            "hsa": extracted.get("hsa", 0),
-            "filing_status": extracted.get("filing_status", "single"),
-            "state": extracted.get("state", ""),
-            
-            # All income types
-            "interest_income": extracted.get("interest_income", 0),
-            "dividend_income": extracted.get("dividend_income", 0),
-            "capital_gains": extracted.get("long_term_gains", 0),
-            "social_security": extracted.get("social_security", 0),
-            "self_employment_income": extracted.get("self_employment_income", 0),
-            "pension_income": extracted.get("pension_income", 0),
-            "unemployment_income": extracted.get("unemployment_income", 0),
-            "rental_income": extracted.get("rental_income", 0),
-            
-            # Tax calculation
-            "agi": tax_result.get("agi", 0),
-            "federal_agi": tax_result.get("agi", 0),
-            "taxable_income": tax_result.get("taxable_income", 0),
-            "total_tax": tax_result.get("tax_after_credits", 0),
-            "refund": tax_result.get("refund", 0),
-            "amount_owed": tax_result.get("amount_owed", 0),
+            # Key tax values (for dashboard)
+            "taxCalculation": {
+                "filing_status": extracted.get("filing_status"),
+                "state": extracted.get("state"),
+                "wages": tax_result.get("wages", 0),
+                "agi": tax_result.get("agi", 0),
+                "taxable_income": tax_result.get("taxable_income", 0),
+                "total_tax": tax_result.get("tax_after_credits", 0),
+                "withholding": tax_result.get("withholding", 0),
+                "refund": tax_result.get("refund", 0),
+                "amount_owed": tax_result.get("amount_owed", 0),
+                # W-2 breakdown
+                "_taxpayer_wages": extracted.get("taxpayer_wages", 0),
+                "_spouse_wages": extracted.get("spouse_wages", 0),
+            },
             
             # Metadata
-            "ragVerified": True,
-            "extractedAt": datetime.now(timezone.utc),
-            "extractorVersion": EXTRACTOR_VERSION,
-            "status": "extracted",
+            "validatedAt": datetime.now(timezone.utc),
+            "validatorVersion": EXTRACTOR_VERSION,
         }
         
         success = update_session_in_db(user_id, tax_year, update_data)
         
         if success:
-            print(f"   ✅ Saved to MongoDB!")
-            print(f"      Total wages: ${tax_result.get('wages', 0):,.0f}")
+            print(f"   ✅ Validation results saved to MongoDB!")
             print(f"      AGI: ${tax_result.get('agi', 0):,.0f}")
-            print(f"      Amount owed: ${tax_result.get('amount_owed', 0):,.0f}")
+            print(f"      Tax: ${tax_result.get('tax_after_credits', 0):,.0f}")
+            print(f"      Refund: ${tax_result.get('refund', 0):,.0f}")
+            print(f"      Owed: ${tax_result.get('amount_owed', 0):,.0f}")
         
         return success
         
@@ -939,60 +532,131 @@ def save_results_to_mongodb(user_id: str, tax_year: int, extracted: Dict, tax_re
 
 
 # ============================================================
-# MAIN ENTRY POINTS
+# ✅ MAIN ENTRY POINT: VALIDATE AND CALCULATE
 # ============================================================
 
-def process_session(user_id: str, tax_year: int = 2025, messages: List = None, answers: Dict = None) -> Dict[str, Any]:
-    """Process a user's tax session."""
+def validate_and_calculate(user_id: str, tax_year: int, session: Dict) -> Dict[str, Any]:
+    """
+    Main entry point: Validate structured data from MongoDB and recalculate.
+    
+    This replaces the old text extraction flow!
+    
+    Args:
+        user_id: User ID
+        tax_year: Tax year (default 2025)
+        session: MongoDB session document with input_forms, answers, totals
+    
+    Returns:
+        Result dict with validation status, extracted data, tax calculation
+    """
     print(f"\n{'='*60}")
-    print(f"🚀 TAXSKY PYTHON EXTRACTOR {EXTRACTOR_VERSION}")
+    print(f"🔍 TAXSKY PYTHON VALIDATOR {EXTRACTOR_VERSION}")
     print(f"{'='*60}")
     print(f"👤 User: {user_id}")
+    print(f"📅 Tax Year: {tax_year}")
     
-    if not messages:
-        return {"success": False, "error": "No messages provided"}
+    # 1. Read STRUCTURED data from MongoDB (NOT messages!)
+    answers = session.get("answers", {})
+    input_forms = session.get("input_forms", {})
+    totals = session.get("totals", {})
     
-    extractor = TaxTextExtractor(messages, answers or {})
-    extracted = extractor.extract_all()
+    print(f"\n📋 Data from MongoDB:")
+    print(f"   Answers: {len(answers)} fields")
+    print(f"   W-2s: {len(input_forms.get('w2', []))}")
+    print(f"   Filing Status: {session.get('filing_status', 'unknown')}")
     
+    # 2. Build extracted data from structured fields
+    extracted = build_from_structured_data(session)
+    
+    print(f"\n📊 Extracted Data:")
+    print(f"   Filing Status: {extracted.get('filing_status')}")
+    print(f"   State: {extracted.get('state')}")
+    print(f"   Taxpayer Wages: ${extracted.get('taxpayer_wages', 0):,}")
+    print(f"   Spouse Wages: ${extracted.get('spouse_wages', 0):,}")
+    print(f"   Total Wages: ${extracted.get('total_wages', 0):,}")
+    print(f"   Federal Withheld: ${extracted.get('total_federal_withheld', 0):,}")
+    print(f"   Has 401(k): {extracted.get('has_retirement_plan')}")
+    print(f"   Taxpayer IRA: ${extracted.get('taxpayer_ira', 0):,}")
+    print(f"   Children under 17: {extracted.get('qualifying_children_under_17', 0)}")
+    
+    # 3. RAG Validation (IRS rules)
     is_valid, rag_errors = verify_with_rag(extracted)
     print(f"\n📋 RAG Validation: {'✅ PASSED' if is_valid else '⚠️ WARNINGS'}")
     for err in rag_errors:
         print(f"   ⚠️ {err}")
     
+    # 4. Map to calculator input
     calc_input = map_extracted_to_calculator(extracted)
     
+    # 5. Calculate with Python
     tax_result = {}
     if CALCULATOR_AVAILABLE and calculate_tax:
+        print(f"\n📤 Sending to Calculator...")
         tax_result = calculate_tax(calc_input)
-        print(f"\n📊 Tax Calculation:")
+        print(f"\n📊 Python Tax Calculation:")
         print(f"   Total Wages: ${tax_result.get('wages', 0):,.0f}")
         print(f"   AGI: ${tax_result.get('agi', 0):,.0f}")
+        print(f"   Taxable Income: ${tax_result.get('taxable_income', 0):,.0f}")
+        print(f"   Tax: ${tax_result.get('tax_after_credits', 0):,.0f}")
+        print(f"   Withholding: ${tax_result.get('withholding', 0):,.0f}")
         print(f"   Refund: ${tax_result.get('refund', 0):,.0f}")
         print(f"   Owed: ${tax_result.get('amount_owed', 0):,.0f}")
+    else:
+        print(f"\n⚠️ Calculator not available!")
     
+    # 6. Compare Node.js vs Python
+    print(f"\n🔄 Comparing Node.js vs Python:")
+    comparison_warnings = compare_calculations(totals, tax_result)
+    all_warnings = rag_errors + comparison_warnings
+    
+    # 7. Build Form 1040 JSON
     form1040 = build_form_1040(extracted, tax_result, tax_year)
     
-    # Save to MongoDB
-    print(f"\n💾 Saving to MongoDB...")
-    save_results_to_mongodb(user_id, tax_year, extracted, tax_result, form1040)
+    # 8. Save to MongoDB
+    print(f"\n💾 Saving validation results to MongoDB...")
+    save_validation_results(user_id, tax_year, extracted, tax_result, form1040, is_valid, all_warnings)
+    
+    print(f"\n{'='*60}")
+    print(f"✅ VALIDATION COMPLETE")
+    print(f"{'='*60}\n")
     
     return {
         "success": True,
         "user_id": user_id,
         "tax_year": tax_year,
+        "rag_verified": is_valid and len(comparison_warnings) == 0,
+        "validation_errors": all_warnings,
         "extracted": extracted,
         "calculator_input": calc_input,
         "tax_result": tax_result,
         "form1040": form1040,
-        "rag_verified": is_valid,
-        "validation_errors": rag_errors,
     }
 
 
-def handle_extract_request(user_id: str, tax_year: int = 2025, messages: List = None, answers: Dict = None) -> Dict[str, Any]:
-    """Handle extraction request from API router."""
-    return process_session(user_id, tax_year, messages, answers)
+# ============================================================
+# ✅ BACKWARD COMPATIBLE: handle_extract_request
+# ============================================================
+
+def handle_extract_request(user_id: str, tax_year: int = 2025, 
+                          messages: List = None, answers: Dict = None,
+                          session: Dict = None) -> Dict[str, Any]:
+    """
+    Handle extraction/validation request from API router.
+    
+    NEW (v20.0): If session provided → use structured validation
+    OLD (legacy): If only messages provided → error (no longer supported)
+    """
+    # NEW: If session provided, use structured validation
+    if session:
+        return validate_and_calculate(user_id, tax_year, session)
+    
+    # OLD: Text extraction no longer supported
+    return {
+        "success": False,
+        "error": "Text extraction removed in v20.0. Please provide session data.",
+        "user_id": user_id,
+        "tax_year": tax_year,
+    }
 
 
 # ============================================================
@@ -1007,6 +671,7 @@ def load_form1040_json(user_id: str, tax_year: int = 2025) -> Optional[Dict]:
             return json.load(f)
     return None
 
+
 def save_form1040_json(user_id: str, form1040: Dict, tax_year: int = 2025) -> str:
     """Save Form 1040 JSON to file."""
     filepath = DATA_DIR / f"{user_id}_1040_{tax_year}.json"
@@ -1020,5 +685,11 @@ def save_form1040_json(user_id: str, form1040: Dict, tax_year: int = 2025) -> st
 # ============================================================
 
 if __name__ == "__main__":
-    print(f"Text Extractor {EXTRACTOR_VERSION} loaded")
-    print(f"Supports: W-2, 1099-NEC, 1099-INT, 1099-DIV, 1099-R, 1099-G, 1099-B, SSA-1099, Rental, Crypto")
+    print(f"\n{'='*60}")
+    print(f"TaxSky Validator {EXTRACTOR_VERSION}")
+    print(f"{'='*60}")
+    print(f"✅ NO TEXT EXTRACTION - Reads structured data from MongoDB")
+    print(f"✅ RAG Validation: IRS 2025 rules")
+    print(f"✅ Calculator: Federal tax calculation")
+    print(f"✅ Comparison: Node.js vs Python results")
+    print(f"{'='*60}\n")

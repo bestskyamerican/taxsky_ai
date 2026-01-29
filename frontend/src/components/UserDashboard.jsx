@@ -1,11 +1,14 @@
 // ============================================================
-// USER DASHBOARD - v4.5 WITH FIXED STATE PDF GENERATION
+// USER DASHBOARD - v4.8 OBBB DEDUCTIONS SUPPORT
 // ============================================================
-// ✅ v4.2: Primary data source is Python API (not Node.js)
-// ✅ v4.2: Shows data even if Node.js fails
-// ✅ v4.3: Tax History tab shows chat history & uploaded docs
-// ✅ v4.4: FIXED federalWithholding passed to SubmitFlow
+// ✅ v4.8: Added OBBB Deductions display (Tips, Overtime, Car Loan, Senior)
+// ✅ v4.7: FIXED! Net result = federal + state (shows correct total)
+//          Federal owe $3,992 + State refund $3,831 = Net OWE $161
+// ✅ v4.6: FIXED! Build form1040 from Node.js totals (from save_data())
 // ✅ v4.5: FIXED CA540 data structure (federal/state keys)
+// ✅ v4.4: FIXED federalWithholding passed to SubmitFlow
+// ✅ v4.3: Tax History tab shows chat history & uploaded docs
+// ✅ v4.2: Primary data source is Python API (not Node.js)
 // Supports: English (en), Vietnamese (vi), Spanish (es)
 // ============================================================
 
@@ -42,6 +45,7 @@ const translations = {
     federal: "🇺🇸 Federal", fileNow: "📋 File Now", totalIncome: "Total Income", withheld: "Withheld",
     federalBreakdown: "🇺🇸 Federal Tax Breakdown", w2Wages: "W-2 Wages", standardDeduction: "Standard Deduction",
     taxableIncome: "Taxable Income", federalTax: "Federal Tax", netRefund: "Net Refund", netOwed: "Net Owed",
+    obbbDeductions: "OBBB Deductions",
     downloadForms: "📥 Download Tax Forms", form1040: "Form 1040", form1040Desc: "U.S. Individual Income Tax Return",
     downloadPdf: "Download PDF", settingsTitle: "⚙️ Settings", language: "Language", languageDesc: "Select your preferred language",
     loading: "Loading...", errorNoUserId: "⚠️ Please login again", noDataYet: "Complete the tax interview to see your results",
@@ -119,44 +123,50 @@ export default function UserDashboard() {
   const handleLogout = () => { localStorage.removeItem("taxsky_token"); localStorage.removeItem("taxsky_user"); window.location.href = "/"; };
 
   // ✅ CALCULATE STATE TAX
-  const calculateStateTax = useCallback(async (stateCode) => {
-    if (!taxData?.agi || taxData.agi <= 0) return;
-    setStateLoading(true);
-    console.log(`[DASHBOARD] 🔄 Calculating ${stateCode}...`);
+const calculateStateTax = useCallback(async (stateCode) => {
+  if (!taxData?.agi || taxData.agi <= 0) return;
+  setStateLoading(true);
+  console.log(`[DASHBOARD] 🔄 Calculating ${stateCode}...`);
+  
+  try {
+    const answers = userData?.answers || {};
+    const res = await fetch(`${PYTHON_API}/calculate/state/${stateCode}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filing_status: userData?.filing_status || "single",
+        federal_agi: taxData.agi, agi: taxData.agi, wages: taxData.wages || 0,
+        earned_income: taxData.wages || 0, state_withholding: taxData.stateWithholding || taxData.caWithholding || 0,
+        is_renter: answers.is_renter || false, num_children: answers.qualifying_children_under_17 || 0,
+        has_child_under_6: answers.has_child_under_6 || false, is_nyc: answers.is_nyc || false,
+      }),
+    });
+    const result = await res.json();
+    const stateResult = result.state || result;  // ✅ FIX: Extract state object
+    console.log(`[DASHBOARD] ✅ ${stateCode}:`, stateResult);
     
-    try {
-      const answers = userData?.answers || {};
-      const res = await fetch(`${PYTHON_API}/calculate/state`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          state: stateCode, filing_status: userData?.filing_status || "single",
-          federal_agi: taxData.agi, agi: taxData.agi, wages: taxData.wages || 0,
-          earned_income: taxData.wages || 0, state_withholding: taxData.caWithholding || 0,
-          is_renter: answers.is_renter || false, num_children: answers.qualifying_children_under_17 || 0,
-          has_child_under_6: answers.has_child_under_6 || false, is_nyc: answers.is_nyc || false,
-        }),
-      });
-      const result = await res.json();
-      console.log(`[DASHBOARD] ✅ ${stateCode}:`, result);
-      
-      setTaxData(prev => ({
-        ...prev,
-        state: stateCode, stateName: result.state_name || stateCode,
-        hasStateTax: result.has_income_tax !== false, supportLevel: result.support_level || "unknown",
-        caAgi: result.ca_agi || result.nj_agi || result.ny_agi || result.il_income || result.federal_agi || prev.agi,
-        caStdDeduction: result.standard_deduction || result.exemptions || 0,
-        caTaxableIncome: result.taxable_income || 0, caTax: result.total_tax || result.base_tax || 0,
-        calEitc: result.caleitc || 0, yctc: result.yctc || 0, ilEic: result.il_eic || 0,
-        caWithholding: result.withholding || prev.caWithholding || 0,
-        stateRefund: result.refund || 0, stateOwed: result.amount_owed || 0,
-        effectiveRate: result.effective_rate || 0, taxRate: result.tax_rate || null,
-        totalRefund: (prev.federalRefund || 0) + (result.refund || 0),
-        totalOwed: (prev.federalOwed || 0) + (result.amount_owed || 0),
-      }));
-    } catch (err) { console.error(`[DASHBOARD] ❌ Error:`, err); }
-    finally { setStateLoading(false); }
-  }, [taxData?.agi, taxData?.wages, userData]);
+    setTaxData(prev => ({
+      ...prev,
+      state: stateCode, 
+      stateName: stateResult.state_name || stateCode,
+      hasStateTax: stateResult.has_income_tax !== false, 
+      supportLevel: stateResult.support_level || "unknown",
+      caAgi: stateResult.ca_agi || stateResult.federal_agi || prev.agi,
+      caStdDeduction: stateResult.standard_deduction || 0,
+      caTaxableIncome: stateResult.taxable_income || 0, 
+      caTax: stateResult.total_tax || 0,
+      calEitc: stateResult.caleitc || 0, 
+      yctc: stateResult.yctc || 0,
+      caWithholding: stateResult.withholding || prev.caWithholding || 0,
+      stateRefund: stateResult.refund || 0, 
+      stateOwed: stateResult.amount_owed || 0,
+      effectiveRate: stateResult.effective_rate || 0,
+      totalRefund: (prev.federalRefund || 0) + (stateResult.refund || 0),
+      totalOwed: (prev.federalOwed || 0) + (stateResult.amount_owed || 0),
+    }));
+  } catch (err) { console.error(`[DASHBOARD] ❌ Error:`, err); }
+  finally { setStateLoading(false); }
+}, [taxData?.agi, taxData?.wages, userData]);
 
   // Auto-calculate on state change
   useEffect(() => {
@@ -177,8 +187,8 @@ export default function UserDashboard() {
     try {
       setLoading(true);
       
-      // ✅ Step 1: Get session data from Node.js (answers, messages)
-      let result = { success: false, answers: {} };
+      // ✅ Step 1: Get session data from Node.js (answers, messages, totals, form1040)
+      let result = { success: false, answers: {}, totals: {}, form1040: {} };
       try {
         const res = await fetch(`${API_BASE}/api/ai/data/${userId}?taxYear=${selectedYear}`, {
           headers: { "Authorization": `Bearer ${getToken()}` }
@@ -189,18 +199,76 @@ export default function UserDashboard() {
         console.log("[DASHBOARD] ⚠️ Node.js API error:", nodeErr);
       }
       
-      // ✅ Step 2: Get form1040 from Python API (extracted tax data) - THIS IS THE PRIMARY SOURCE!
-      let form1040 = null;
-      try {
-        const pythonRes = await fetch(`${PYTHON_API}/api/extract/json/${userId}?tax_year=${selectedYear}`);
-        const pythonData = await pythonRes.json();
-        if (pythonData.success && pythonData.form1040) {
-          form1040 = pythonData.form1040;
-          console.log("[DASHBOARD] ✅ Got form1040 from Python API:", form1040);
+      // ✅ v4.6: PRIORITY 1 - Use Node.js totals/form1040 directly (from save_data())
+      const answers = result.answers || {};
+      const totals = result.totals || {};
+      let form1040 = result.form1040 || null;
+      
+      console.log("[DASHBOARD] 📊 Node.js totals:", totals);
+      console.log("[DASHBOARD] 📊 Node.js form1040:", form1040);
+      
+      // ✅ If Node.js has totals but no form1040.income, build form1040 from totals
+      if (totals.wages > 0 && (!form1040?.income?.line_1_wages)) {
+        console.log("[DASHBOARD] 🔧 Building form1040 from totals...");
+        form1040 = {
+          header: {
+            tax_year: 2025,
+            filing_status: answers.filing_status || totals.filing_status || 'single',
+            state: answers.state || 'CA'
+          },
+          income: {
+            line_1_wages: totals.wages || 0,
+            line_1a_w2_wages: totals.wages || 0,
+            line_1z_total_wages: totals.wages || 0,
+            line_9_total_income: totals.total_income || totals.wages || 0
+          },
+          adjustments: {
+            line_10_schedule_1_adjustments: totals.total_adjustments || 0,
+            line_11_agi: totals.agi || (totals.wages - (totals.total_adjustments || 0))
+          },
+          deductions: {
+            line_12_deduction: totals.standard_deduction || 30000,
+            line_12_standard_deduction: totals.standard_deduction || 30000,
+            line_15_taxable_income: totals.taxable_income || 0
+          },
+          tax_and_credits: {
+            line_15_taxable_income: totals.taxable_income || 0,
+            line_16_tax: totals.federal_tax || 0,
+            line_24_total_tax: totals.federal_tax || 0
+          },
+          payments: {
+            line_25a_w2_withholding: totals.federal_withheld || 0,
+            line_25d_total_withholding: totals.federal_withheld || 0
+          },
+          refund_or_owe: {
+            line_35_refund: totals.refund || 0,
+            line_37_amount_owe: totals.amount_owed || 0
+          },
+          state_tax: {
+            state: answers.state || 'CA',
+            state_withholding: totals.state_withheld || 0
+          },
+          summary: {
+            total_income: totals.total_income || totals.wages || 0,
+            agi: totals.agi || 0,
+            taxable_income: totals.taxable_income || 0
+          }
+        };
+        console.log("[DASHBOARD] ✅ Built form1040 from totals:", form1040);
+      }
+      
+      // ✅ Step 2: Fallback to Python API only if Node.js has no data
+      if (!form1040?.income?.line_1_wages && (!totals.wages || totals.wages === 0)) {
+        try {
+          const pythonRes = await fetch(`${PYTHON_API}/api/extract/json/${userId}?tax_year=${selectedYear}`);
+          const pythonData = await pythonRes.json();
+          if (pythonData.success && pythonData.form1040) {
+            form1040 = pythonData.form1040;
+            console.log("[DASHBOARD] ✅ Got form1040 from Python API:", form1040);
+          }
+        } catch (pythonErr) {
+          console.log("[DASHBOARD] ⚠️ Python API not available:", pythonErr);
         }
-      } catch (pythonErr) {
-        console.log("[DASHBOARD] ⚠️ Python API not available:", pythonErr);
-        form1040 = result.form1040 || null;  // Fallback to Node.js
       }
       
       // ✅ If we have form1040 from Python, use it (even if Node.js failed)
@@ -259,6 +327,8 @@ export default function UserDashboard() {
           totalAdjustments: adjustments.line_10_schedule_1_adjustments || 0, 
           agi: federalAgi,
           standardDeduction: deductions.line_12_deduction || deductions.line_12_standard_deduction || 0, 
+          // ✅ v4.8: OBBB Deductions (Tips, Overtime, Car Loan, Senior)
+          totalObbbDeduction: form1040.obbb?.total_obbb_deduction || deductions.obbb_total_deduction || result.totals?.obbb_total_deduction || 0,
           taxableIncome: deductions.line_15_taxable_income || taxCredits.line_15_taxable_income || 0,
           federalTax: taxCredits.line_16_tax || taxCredits.line_24_total_tax || 0, 
           // ✅ FIXED: Add federalWithholding (SubmitFlow expects this field name)
@@ -444,6 +514,13 @@ export default function UserDashboard() {
 
   const totalRefund = (taxData?.federalRefund || 0) + (taxData?.stateRefund || 0);
   const totalOwed = (taxData?.federalOwed || 0) + (taxData?.stateOwed || 0);
+  
+  // ✅ v4.7 FIX: Calculate NET result (refund minus owed)
+  // Example: Federal owes $3,992, State refund $3,831 = NET OWE $161
+  const netResult = (taxData?.federalRefund || 0) - (taxData?.federalOwed || 0) 
+                  + (taxData?.stateRefund || 0) - (taxData?.stateOwed || 0);
+  const isNetRefund = netResult > 0;
+  const netAmount = Math.abs(netResult);
 
   // ✅ DOWNLOAD BUTTON COMPONENT
   const DownloadButton = ({ onClick, label, locked, type = "federal" }) => (
@@ -539,10 +616,17 @@ export default function UserDashboard() {
               <>
                 {/* Summary */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-                  <div style={{ background: totalRefund > 0 ? 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,95,70,0.2))' : 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(127,29,29,0.2))', border: `1px solid ${totalRefund > 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '16px', padding: '24px' }}>
-                    <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '8px' }}>{totalRefund > 0 ? t.estimatedRefund : t.estimatedOwed}</p>
-                    <p style={{ fontSize: '36px', fontWeight: 700, color: totalRefund > 0 ? '#10b981' : '#ef4444' }}>{fmt(totalRefund > 0 ? totalRefund : totalOwed)}</p>
-                    <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}><span style={{ fontSize: '14px', color: '#94a3b8' }}>{t.federal}: {fmt(taxData?.federalRefund || -taxData?.federalOwed)}</span><span style={{ fontSize: '14px', color: '#94a3b8' }}>{t.state}: {fmt(taxData?.stateRefund || -taxData?.stateOwed)}</span></div>
+                  <div style={{ background: isNetRefund ? 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,95,70,0.2))' : 'linear-gradient(135deg, rgba(239,68,68,0.2), rgba(127,29,29,0.2))', border: `1px solid ${isNetRefund ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '16px', padding: '24px' }}>
+                    <p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '8px' }}>{isNetRefund ? t.estimatedRefund : t.estimatedOwed}</p>
+                    <p style={{ fontSize: '36px', fontWeight: 700, color: isNetRefund ? '#10b981' : '#ef4444' }}>{fmt(netAmount)}</p>
+                    <div style={{ display: 'flex', gap: '16px', marginTop: '12px', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '14px', color: taxData?.federalRefund > 0 ? '#10b981' : '#ef4444' }}>
+                        {t.federal}: {taxData?.federalRefund > 0 ? '+' : '-'}{fmt(taxData?.federalRefund || taxData?.federalOwed)}
+                      </span>
+                      <span style={{ fontSize: '14px', color: taxData?.stateRefund > 0 ? '#10b981' : '#ef4444' }}>
+                        {t.state}: {taxData?.stateRefund > 0 ? '+' : '-'}{fmt(taxData?.stateRefund || taxData?.stateOwed)}
+                      </span>
+                    </div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}><p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '8px' }}>{t.totalIncome}</p><p style={{ fontSize: '28px', fontWeight: 700, color: '#fff' }}>{fmt(taxData?.totalIncome)}</p></div>
                   <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '24px' }}><p style={{ color: '#94a3b8', fontSize: '14px', marginBottom: '8px' }}>{t.withheld}</p><p style={{ fontSize: '28px', fontWeight: 700, color: '#fff' }}>{fmt(taxData?.withholding)}</p></div>
@@ -559,6 +643,16 @@ export default function UserDashboard() {
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#94a3b8' }}>{t.adjustments}</span><span style={{ color: '#ef4444' }}>-{fmt(taxData?.totalAdjustments)}</span></div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px' }}><span style={{ color: '#94a3b8' }}>AGI</span><span style={{ color: '#fff', fontWeight: 600 }}>{fmt(taxData?.agi)}</span></div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#94a3b8' }}>{t.standardDeduction}</span><span style={{ color: '#ef4444' }}>-{fmt(taxData?.standardDeduction)}</span></div>
+                      {/* ✅ v4.8: OBBB Deductions (Tips, Overtime, Car Loan, Senior) */}
+                      {taxData?.totalObbbDeduction > 0 && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {t.obbbDeductions || 'OBBB Deductions'}
+                            <span style={{ fontSize: '10px', padding: '2px 6px', background: 'rgba(16,185,129,0.2)', borderRadius: '4px', color: '#10b981' }}>NEW</span>
+                          </span>
+                          <span style={{ color: '#10b981' }}>-{fmt(taxData?.totalObbbDeduction)}</span>
+                        </div>
+                      )}
                       <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px' }}><span style={{ color: '#94a3b8' }}>{t.taxableIncome}</span><span style={{ color: '#fff', fontWeight: 600 }}>{fmt(taxData?.taxableIncome)}</span></div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#94a3b8' }}>{t.federalTax}</span><span style={{ color: '#ef4444' }}>{fmt(taxData?.federalTax)}</span></div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#94a3b8' }}>{t.withheld}</span><span style={{ color: '#10b981' }}>+{fmt(taxData?.withholding)}</span></div>

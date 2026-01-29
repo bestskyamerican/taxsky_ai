@@ -1,9 +1,10 @@
 """
 =============================================================
-CALIFORNIA FORM 540 PDF ROUTER - v4.0 (2024/2025 Compatible)
+CALIFORNIA FORM 540 PDF ROUTER - v4.1 (2024/2025 Compatible)
 POST /generate/ca540  → Generate CA 540 PDF
 GET  /generate/ca540/fields → Show field mapping
 =============================================================
+✅ v4.1: FIXED - Correct tax calculations for Lines 48, 61-64, 72, 78
 ✅ v4.0: Supports BOTH 2024 and 2025 CA 540 templates
 ✅ Auto-detects field format (540-XXXX vs 540_form_XXXX)
 ✅ 2025 values: $153 personal exemption, $475 dependent, $5,706/$11,412 std ded
@@ -63,9 +64,15 @@ class StateCA540(BaseModel):
     total_tax: float = 0
     tax_after_credits: float = 0
     withholding: float = 0
+    estimated_payments: float = 0  # ← ADDED: Line 72
+    other_withholding: float = 0   # ← ADDED: Line 73
+    motion_picture_credit: float = 0  # ← ADDED: Line 74
     caleitc: float = 0
     yctc: float = 0
     fytc: float = 0
+    amt: float = 0                 # ← ADDED: Line 61 (Alternative Minimum Tax)
+    other_taxes: float = 0         # ← ADDED: Line 63
+    child_care_credit: float = 0   # ← ADDED: Line 40
     refund: float = 0
     amount_owed: float = 0
     model_config = ConfigDict(extra="allow")
@@ -95,10 +102,6 @@ class RequestCA540(BaseModel):
 # =============================================================
 # FIELD MAPPING - Base IDs (format varies by year)
 # =============================================================
-# The numeric part is the same, just the prefix differs:
-# 2024: "540-1003" 
-# 2025: "540_form_1003"
-
 FIELD_IDS = {
     # Page 1 - Personal Info
     "firstName": "1003",
@@ -266,7 +269,7 @@ def get_field_name(key: str, prefix: str) -> str:
 @form_ca540_router.post("/ca540")
 async def generate_form_ca540(data: RequestCA540):
     try:
-        print(f"\n🌴 === GENERATING CA FORM 540 v4.0 ===")
+        print(f"\n🌴 === GENERATING CA FORM 540 v4.1 (FIXED) ===")
         
         tax_year = data.tax_year or 2025
         show_full_ssn = data.is_official_submission or (not data.mask_ssn)
@@ -320,6 +323,7 @@ async def generate_form_ca540(data: RequestCA540):
         print(f"     Federal AGI: ${federal.get('agi', 0):,.0f}")
         print(f"     CA AGI: ${state.get('ca_agi', 0):,.0f}")
         print(f"     Withholding: ${state.get('withholding', 0):,.0f}")
+        print(f"     Estimated Payments: ${state.get('estimated_payments', 0):,.0f}")
         
         # Build values dict
         values = {}
@@ -429,54 +433,99 @@ async def generate_form_ca540(data: RequestCA540):
         print(f"  💵 CA AGI: ${ca_agi:,.0f}, Deduction: ${ca_std_ded:,.0f}, Taxable: ${ca_taxable:,.0f}")
         
         # ═══════════════════════════════════════════════════════
-        # TAX
+        # TAX CALCULATION (FIXED in v4.1)
         # ═══════════════════════════════════════════════════════
         base_tax = state.get("base_tax", 0) or state.get("total_tax", 0) or 0
-        total_tax = state.get("total_tax", base_tax) or base_tax
-        tax_after_credits = state.get("tax_after_credits", total_tax) or total_tax
         tax_after_ex = max(0, base_tax - total_exemption)
         
+        # Lines 31-35
         set_field("line31", fmt_money(base_tax))
         set_field("line32", fmt_money(total_exemption))
         set_field("line33", fmt_money(tax_after_ex))
         set_field("line35", fmt_money(tax_after_ex))
-        set_field("line47", "0")
-        set_field("line48", fmt_money(tax_after_credits))
-        set_field("line64", fmt_money(total_tax))
+        
+        # Special Credits (Lines 40-46)
+        line40_credit = state.get("child_care_credit", 0) or 0
+        set_field("line40", fmt_money(line40_credit))
+        
+        # Line 47 = Total of lines 40-46 (sum of all special credits)
+        total_special_credits = line40_credit  # Add other credits here if needed
+        set_field("line47", fmt_money(total_special_credits))
+        
+        # ✅ FIX: Line 48 = Line 35 - Line 47
+        line48_value = max(0, tax_after_ex - total_special_credits)
+        set_field("line48", fmt_money(line48_value))
+        
+        # ═══════════════════════════════════════════════════════
+        # OTHER TAXES (Lines 61-64) - FIXED in v4.1
+        # ═══════════════════════════════════════════════════════
+        # Line 61: Alternative Minimum Tax
+        line61_amt = state.get("amt", 0) or 0
+        set_field("line61", fmt_money(line61_amt))
+        
+        # ✅ FIX: Line 62: Behavioral Health Services Tax
+        # This is 1% tax ONLY on taxable income OVER $1,000,000
+        line62_bhs = 0
+        if ca_taxable > 1000000:
+            line62_bhs = int((ca_taxable - 1000000) * 0.01)
+        set_field("line62", fmt_money(line62_bhs))
+        
+        # Line 63: Other taxes
+        line63_other = state.get("other_taxes", 0) or 0
+        set_field("line63", fmt_money(line63_other))
+        
+        # ✅ FIX: Line 64 = Line 48 + Line 61 + Line 62 + Line 63
+        line64_total_tax = line48_value + line61_amt + line62_bhs + line63_other
+        set_field("line64", fmt_money(line64_total_tax))
         
         print(f"  📊 Tax: ${base_tax:,.0f}, After Exemptions: ${tax_after_ex:,.0f}")
+        print(f"  📊 Line 48: ${line48_value:,.0f}, BHS Tax (Line 62): ${line62_bhs:,.0f}")
+        print(f"  📊 Total Tax (Line 64): ${line64_total_tax:,.0f}")
         
         # ═══════════════════════════════════════════════════════
-        # PAYMENTS
+        # PAYMENTS (Lines 71-78) - FIXED in v4.1
         # ═══════════════════════════════════════════════════════
         withholding = state.get("withholding", 0) or 0
+        estimated_payments = state.get("estimated_payments", 0) or 0  # ✅ FIX: Added
+        other_withholding = state.get("other_withholding", 0) or 0    # ✅ FIX: Added
+        motion_picture = state.get("motion_picture_credit", 0) or 0   # ✅ FIX: Added
         caleitc = state.get("caleitc", 0) or 0
         yctc = state.get("yctc", 0) or 0
         fytc = state.get("fytc", 0) or 0
-        total_payments = withholding + caleitc + yctc + fytc
+        
+        # ✅ FIX: Total payments includes ALL payment lines
+        total_payments = (withholding + estimated_payments + other_withholding + 
+                         motion_picture + caleitc + yctc + fytc)
         
         set_field("line71", fmt_money(withholding))
+        set_field("line72", fmt_money(estimated_payments))  # ✅ FIX: Added
+        set_field("line73", fmt_money(other_withholding))   # ✅ FIX: Added
+        set_field("line74", fmt_money(motion_picture))      # ✅ FIX: Added
         set_field("line75", fmt_money(caleitc))
         set_field("line76", fmt_money(yctc))
         set_field("line77", fmt_money(fytc))
-        set_field("line78", fmt_money(total_payments))
+        set_field("line78", fmt_money(total_payments))      # ✅ FIX: Now includes all
+        
+        # Use Tax section
         set_field("line91", "0")
         set_field("line93", fmt_money(total_payments))
         set_field("line95", fmt_money(total_payments))
         
-        print(f"  💳 Withholding: ${withholding:,.0f}, Total Payments: ${total_payments:,.0f}")
+        print(f"  💳 Withholding: ${withholding:,.0f}, Est. Payments: ${estimated_payments:,.0f}")
+        print(f"  💳 Total Payments (Line 78): ${total_payments:,.0f}")
         
         # ═══════════════════════════════════════════════════════
-        # REFUND / OWED
+        # REFUND / OWED - FIXED in v4.1
         # ═══════════════════════════════════════════════════════
         refund = state.get("refund", 0) or 0
         amount_owed = state.get("amount_owed", 0) or 0
         
+        # ✅ FIX: Calculate using line64_total_tax (not tax_after_credits)
         if refund == 0 and amount_owed == 0:
-            if total_payments > tax_after_credits:
-                refund = total_payments - tax_after_credits
+            if total_payments > line64_total_tax:
+                refund = total_payments - line64_total_tax
             else:
-                amount_owed = tax_after_credits - total_payments
+                amount_owed = line64_total_tax - total_payments
         
         if refund > 0:
             set_field("line97", fmt_money(refund))
@@ -487,6 +536,8 @@ async def generate_form_ca540(data: RequestCA540):
             set_field("line100", fmt_money(amount_owed))
             set_field("line111", fmt_money(amount_owed))
             print(f"  💸 OWED: ${amount_owed:,.0f}")
+        else:
+            print(f"  ⚖️ BALANCED: No refund or amount owed")
         
         # ═══════════════════════════════════════════════════════
         # FILL PDF
@@ -525,7 +576,7 @@ async def generate_form_ca540(data: RequestCA540):
 
 @form_ca540_router.get("/ca540/fields")
 async def get_ca540_fields():
-    return {"form": "CA 540", "version": "4.0", "supports": ["2024", "2025"], "fields": FIELD_IDS}
+    return {"form": "CA 540", "version": "4.1", "supports": ["2024", "2025"], "fields": FIELD_IDS}
 
 
 @form_ca540_router.get("/ca540/test")
@@ -536,4 +587,4 @@ async def test_ca540():
         os.path.join(STATE_TEMPLATES_DIR, "ca540_2024.pdf"),
     ]
     found = [p for p in paths if os.path.exists(p)]
-    return {"status": "ok" if found else "no_template", "version": "4.0", "found": found}
+    return {"status": "ok" if found else "no_template", "version": "4.1", "found": found}

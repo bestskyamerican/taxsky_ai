@@ -1,7 +1,8 @@
 // ============================================================
-// TAXSKY 2025 - SMART AI CHAT INTERFACE v3.0
+// TAXSKY 2025 - SMART AI CHAT INTERFACE v4.0
 // ============================================================
-// ✅ FIXED: Correct API endpoints
+// ✅ v4.0: Calls Python API for accurate federal + state tax
+// ✅ v3.0: Correct API endpoints
 // ✅ FIXED: Check hasCompletedTax on welcome
 // ✅ FIXED: Properly loads existing session
 // ============================================================
@@ -9,6 +10,7 @@
 import React, { useState, useEffect, useRef } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const PYTHON_API = import.meta.env.VITE_PYTHON_API || "http://localhost:5002";
 
 // Get language from localStorage or default to English
 const getLanguage = () => localStorage.getItem("taxsky_language") || "en";
@@ -182,6 +184,7 @@ export default function SmartChatInterface() {
   // ✅ NEW: Completed tax state
   const [hasCompletedTax, setHasCompletedTax] = useState(false);
   const [taxData, setTaxData] = useState(null);
+  const [isCalculating, setIsCalculating] = useState(false);
   
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -212,7 +215,7 @@ export default function SmartChatInterface() {
   }, [messages]);
 
   // ============================================================
-  // ✅ FIXED: LOAD SESSION - Check for completed tax
+  // ✅ v4.0: LOAD SESSION - Fetch from Python API for accurate calculations
   // ============================================================
   useEffect(() => {
     const loadSession = async () => {
@@ -227,38 +230,124 @@ export default function SmartChatInterface() {
         
         console.log("🔍 Loading session for user:", userId);
         
-        // ✅ FIXED: Call /api/ai/welcome to check for completed tax
+        // ✅ Step 1: Call /api/ai/welcome to check status
         const response = await fetch(`${API_BASE}/api/ai/welcome`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({ 
-            userId, 
-            taxYear,
-            language 
-          })
+          body: JSON.stringify({ userId, taxYear, language })
         });
         
         const data = await response.json();
         console.log("📋 Welcome response:", data);
         
         if (data.success) {
-          // ✅ CHECK: Does user have completed tax?
           if (data.hasCompletedTax) {
-            console.log("✅ User has completed tax - showing summary");
-            setHasCompletedTax(true);
-            setTaxData(data.taxData);
-            setPhase(PHASES.COMPLETE);
+            console.log("✅ User has completed tax - fetching calculations...");
+            setIsCalculating(true);
             
-            // Show the completed tax message
+            // ✅ Step 2: Get full data from Node.js
+            let fullTaxData = data.taxData || {};
+            
+            try {
+              const dataRes = await fetch(`${API_BASE}/api/ai/data/${userId}?taxYear=${taxYear}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+              });
+              const fullData = await dataRes.json();
+              console.log("📊 Full data from Node.js:", fullData);
+              
+              if (fullData.success) {
+                const totals = fullData.totals || {};
+                const answers = fullData.answers || {};
+                
+                // Calculate totals from individual fields
+                const taxpayerWages = parseFloat(answers.taxpayer_wages) || 0;
+                const spouseWages = parseFloat(answers.spouse_wages) || 0;
+                const totalWages = totals.wages || (taxpayerWages + spouseWages);
+                
+                const taxpayerWithheld = parseFloat(answers.taxpayer_federal_withheld) || 0;
+                const spouseWithheld = parseFloat(answers.spouse_federal_withheld) || 0;
+                const totalWithheld = totals.federal_withheld || (taxpayerWithheld + spouseWithheld);
+                
+                const taxpayerStateWithheld = parseFloat(answers.taxpayer_state_withheld) || 0;
+                const spouseStateWithheld = parseFloat(answers.spouse_state_withheld) || 0;
+                const totalStateWithheld = totals.state_withheld || (taxpayerStateWithheld + spouseStateWithheld);
+                
+                const filingStatus = fullData.filing_status || answers.filing_status || 'single';
+                const state = answers.state || 'CA';
+                
+                // ✅ Use MongoDB totals directly (same as Dashboard) - NO Python call needed!
+                const federalTax = totals.federal_tax || 0;
+                const standardDeduction = filingStatus === 'married_filing_jointly' ? 31500 : 
+                                          filingStatus === 'head_of_household' ? 23850 : 15700;
+                const taxableIncome = Math.max(0, totalWages - standardDeduction);
+                const federalOwed = Math.max(0, federalTax - totalWithheld);
+                const federalRefund = Math.max(0, totalWithheld - federalTax);
+                
+                fullTaxData = {
+                  filing_status: filingStatus,
+                  state: state,
+                  total_income: totalWages,
+                  wages: totalWages,
+                  agi: totals.agi || totalWages,
+                  federal_withheld: totalWithheld,
+                  state_withheld: totalStateWithheld,
+                  federal_tax: federalTax,
+                  taxable_income: totals.taxable_income || taxableIncome,
+                  standard_deduction: totals.standard_deduction || standardDeduction,
+                  refund: federalRefund,
+                  amount_owed: federalOwed,
+                };
+                
+                console.log("🇺🇸 Federal from MongoDB:", { federalTax, totalWithheld, federalOwed, federalRefund });
+                
+                // ✅ Step 4: Call Python for state calculation
+                try {
+                  console.log(`🏛️ Calling Python for ${state} state calculation...`);
+                  const stateRes = await fetch(`${PYTHON_API}/calculate/state/${state}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      filing_status: filingStatus,
+                      federal_agi: fullTaxData.agi,
+                      wages: totalWages,
+                      state_withholding: totalStateWithheld,
+                    })
+                  });
+                  const stateResult = await stateRes.json();
+                  console.log("🏛️ State result:", stateResult);
+                  
+                  // ✅ FIX: Extract from result.state
+                  const stateData = stateResult.state || stateResult;
+                  if (stateData) {
+                    fullTaxData.state_agi = stateData.ca_agi || stateData.federal_agi || fullTaxData.agi;
+                    fullTaxData.state_tax = stateData.total_tax || 0;
+                    fullTaxData.state_deduction = stateData.standard_deduction || 0;
+                    fullTaxData.state_taxable = stateData.taxable_income || 0;
+                    fullTaxData.state_refund = stateData.refund || 0;
+                    fullTaxData.state_owed = stateData.amount_owed || 0;
+                    fullTaxData.state_withheld = stateData.withholding || totalStateWithheld;
+                  }
+                } catch (stateErr) {
+                  console.log("⚠️ Python state calc error:", stateErr);
+                }
+              }
+            } catch (dataErr) {
+              console.log("⚠️ Full data fetch error:", dataErr);
+            }
+            
+            console.log("✅ Final taxData:", fullTaxData);
+            setHasCompletedTax(true);
+            setTaxData(fullTaxData);
+            setPhase(PHASES.COMPLETE);
+            setIsCalculating(false);
             addMessage("assistant", data.message);
+            
           } else {
-            // No completed tax - show normal welcome or resume
             console.log("📝 No completed tax - normal flow");
             setHasCompletedTax(false);
-            
             if (data.message) {
               addMessage("assistant", data.message);
             } else {
@@ -495,7 +584,7 @@ export default function SmartChatInterface() {
   };
 
   // ============================================================
-  // ✅ COMPLETED TAX CARD COMPONENT
+  // ✅ v4.0: COMPLETED TAX CARD - Shows Federal + State
   // ============================================================
   const CompletedTaxCard = () => {
     if (!taxData) return null;
@@ -506,7 +595,7 @@ export default function SmartChatInterface() {
         currency: 'USD',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      }).format(amt || 0);
+      }).format(Math.abs(amt || 0));
     };
     
     const filingStatusDisplay = {
@@ -515,6 +604,11 @@ export default function SmartChatInterface() {
       'married_filing_separately': 'Married Filing Separately',
       'head_of_household': 'Head of Household',
     };
+    
+    // Calculate results
+    const federalResult = (taxData?.refund || 0) - (taxData?.amount_owed || 0);
+    const stateResult = (taxData?.state_refund || 0) - (taxData?.state_owed || 0);
+    const netResult = federalResult + stateResult;
     
     return (
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 mx-4 my-4">
@@ -526,36 +620,80 @@ export default function SmartChatInterface() {
           </h2>
         </div>
         
-        {/* Summary Grid */}
+        {/* Filing Status & Income */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="bg-slate-700/50 rounded-xl p-3">
             <span className="text-slate-400 text-sm block">Filing Status</span>
             <span className="text-white font-semibold">
-              {filingStatusDisplay[taxData?.filing_status] || taxData?.filing_status}
+              {filingStatusDisplay[taxData?.filing_status] || taxData?.filing_status || 'Single'}
             </span>
           </div>
           <div className="bg-slate-700/50 rounded-xl p-3">
             <span className="text-slate-400 text-sm block">Total Income</span>
-            <span className="text-white font-semibold">{formatMoney(taxData?.total_income)}</span>
-          </div>
-          <div className="bg-slate-700/50 rounded-xl p-3">
-            <span className="text-slate-400 text-sm block">AGI</span>
-            <span className="text-white font-semibold">{formatMoney(taxData?.agi)}</span>
-          </div>
-          <div className="bg-slate-700/50 rounded-xl p-3">
-            <span className="text-slate-400 text-sm block">Withheld</span>
-            <span className="text-white font-semibold">{formatMoney(taxData?.withholding)}</span>
+            <span className="text-white font-semibold">{formatMoney(taxData?.total_income || taxData?.wages)}</span>
           </div>
         </div>
         
-        {/* Refund or Owed */}
-        <div className={`rounded-xl p-4 mb-4 ${taxData?.refund > 0 ? 'bg-emerald-500/20 border border-emerald-500/30' : 'bg-amber-500/20 border border-amber-500/30'}`}>
+        {/* Federal Section */}
+        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-3">
+          <div className="flex items-center gap-2 mb-3">
+            <span>🇺🇸</span>
+            <span className="text-white font-semibold">Federal Tax</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <span className="text-slate-400 block">AGI</span>
+              <span className="text-white">{formatMoney(taxData?.agi)}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">Tax</span>
+              <span className="text-white">{formatMoney(taxData?.federal_tax)}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">Withheld</span>
+              <span className="text-white">{formatMoney(taxData?.federal_withheld)}</span>
+            </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-blue-500/20 flex justify-between">
+            <span className="text-white">{federalResult >= 0 ? '💰 Refund' : '💳 Owed'}</span>
+            <span className={`font-bold ${federalResult >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+              {formatMoney(Math.abs(federalResult))}
+            </span>
+          </div>
+        </div>
+        
+        {/* State Section */}
+        <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+          <div className="flex items-center gap-2 mb-3">
+            <span>🏛️</span>
+            <span className="text-white font-semibold">{taxData?.state || 'CA'} State Tax</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <span className="text-slate-400 block">State Tax</span>
+              <span className="text-white">{formatMoney(taxData?.state_tax)}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">Withheld</span>
+              <span className="text-white">{formatMoney(taxData?.state_withheld)}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">{stateResult >= 0 ? 'Refund' : 'Owed'}</span>
+              <span className={`${stateResult >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {formatMoney(Math.abs(stateResult))}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Net Total */}
+        <div className={`rounded-xl p-4 mb-4 ${netResult >= 0 ? 'bg-emerald-500/20 border border-emerald-500/30' : 'bg-amber-500/20 border border-amber-500/30'}`}>
           <div className="flex justify-between items-center">
             <span className="text-white text-lg">
-              {taxData?.refund > 0 ? '💰 Refund' : '💳 Amount Owed'}
+              {netResult >= 0 ? '💰 Total Refund' : '💳 Total Owed'}
             </span>
-            <span className={`text-2xl font-bold ${taxData?.refund > 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
-              {formatMoney(taxData?.refund > 0 ? taxData.refund : taxData?.amount_owed)}
+            <span className={`text-2xl font-bold ${netResult >= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {formatMoney(Math.abs(netResult))}
             </span>
           </div>
         </div>
@@ -683,6 +821,17 @@ export default function SmartChatInterface() {
               <div className="flex items-center gap-2">
                 <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                 <span className="text-slate-400 text-sm">{t(language, 'thinking')}</span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {isCalculating && (
+          <div className="flex justify-start">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-emerald-500 border-t-transparent rounded-full"></div>
+                <span className="text-slate-400 text-sm">Calculating your taxes...</span>
               </div>
             </div>
           </div>
