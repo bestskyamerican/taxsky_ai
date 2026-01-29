@@ -29,7 +29,7 @@ import TaxSession from '../models/TaxSession.js';
 const CONFIG = {
   model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
   promptId: process.env.OPENAI_PROMPT_ID || 'pmpt_6959ca4bb4c08194ae6c2011952c7bce06d67339e52d2b77',
-  promptVersion: process.env.OPENAI_PROMPT_VERSION || '34',
+  promptVersion: process.env.OPENAI_PROMPT_VERSION || '36',
   maxTokens: 1500,
   temperature: 0.7,
   pythonApiUrl: process.env.PYTHON_API_URL || 'http://localhost:5002'
