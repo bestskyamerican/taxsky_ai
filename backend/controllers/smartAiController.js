@@ -1,9 +1,9 @@
 /**
  * ============================================================
  * TaxSky Smart AI Controller
- * Version: 15.5 - FIX: Added OBBB deductions to manualRebuild
+ * Version: 15.5 - 36 openai- FIX: Added OBBB deductions to manualRebuild
  * ============================================================
- * 
+ * - 
  * ✅ v15.5 FIX:
  *  - Added OBBB deductions (tips, overtime, car loan, senior) to manualRebuild
  *  - OBBB now properly subtracted from taxable_income
@@ -29,7 +29,7 @@ import TaxSession from '../models/TaxSession.js';
 const CONFIG = {
   model: process.env.OPENAI_MODEL || 'gpt-4.1-mini',
   promptId: process.env.OPENAI_PROMPT_ID || 'pmpt_6959ca4bb4c08194ae6c2011952c7bce06d67339e52d2b77',
-  promptVersion: process.env.OPENAI_PROMPT_VERSION || '35',
+  promptVersion: process.env.OPENAI_PROMPT_VERSION || '36',
   maxTokens: 1500,
   temperature: 0.7,
   pythonApiUrl: process.env.PYTHON_API_URL || 'http://localhost:5002'
