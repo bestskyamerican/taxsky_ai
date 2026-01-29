@@ -3,14 +3,17 @@
 // ============================================================
 // File: backend/services/session/sessionDB.js
 //
-// ✅ v5.1 FIXED:
-//    - Fixed duplicate model error (line 136)
-//    - Added getPersonalInfo() for taxRoutes.js
-//    - Added updatePersonalInfo() for taxRoutes.js
-//    - Added getDependents() for taxRoutes.js
-//    - Added updateDependent() for taxRoutes.js
-//    - Added getIncomeSummary() for taxRoutes.js
-//    - All spouse fields properly returned
+// ✅ v5.2 FIXED:
+//    - Fixed "session.answers.set is not a function" error
+//    - Added safe helpers for Map/Object compatibility
+//    - Works with sessions created by smartAiController (Object)
+//    - Works with sessions created by sessionDB (Map)
+//
+// ✅ v5.1 (previous):
+//    - Fixed duplicate model error
+//    - Added getPersonalInfo(), updatePersonalInfo()
+//    - Added getDependents(), updateDependent()
+//    - Added getIncomeSummary()
 // ============================================================
 
 import mongoose from 'mongoose';
@@ -125,7 +128,7 @@ const taxSessionSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
     lastActivity: { type: Date, default: Date.now },
-    version: { type: String, default: '5.1' },
+    version: { type: String, default: '5.2' },
     source: { type: String, default: 'chat' }
   }
 }, { timestamps: true });
@@ -136,6 +139,52 @@ taxSessionSchema.index({ userId: 1 }, { unique: false });
 
 // ✅ FIX: Check if model exists before creating (prevents OverwriteModelError)
 const TaxSession = mongoose.models.TaxSession || mongoose.model('TaxSession', taxSessionSchema);
+
+// ============================================================
+// ✅ v5.2 FIX: SAFE HELPERS FOR MAP/OBJECT COMPATIBILITY
+// ============================================================
+
+/**
+ * Safely set a value in session.answers (works with Map or Object)
+ */
+function safeSetAnswer(session, key, value) {
+  if (!session.answers) {
+    session.answers = {};
+  }
+  
+  if (session.answers instanceof Map) {
+    session.answers.set(key, value);
+  } else {
+    session.answers[key] = value;
+  }
+}
+
+/**
+ * Safely get a value from session.answers (works with Map or Object)
+ */
+function safeGetAnswer(session, key) {
+  if (!session.answers) return undefined;
+  
+  if (session.answers instanceof Map) {
+    return session.answers.get(key);
+  } else {
+    return session.answers[key];
+  }
+}
+
+/**
+ * Safely convert session.answers to a plain Object
+ */
+function answersToObject(answers) {
+  if (!answers) return {};
+  
+  if (answers instanceof Map) {
+    return Object.fromEntries(answers);
+  } else if (typeof answers === 'object') {
+    return answers;
+  }
+  return {};
+}
 
 // ============================================================
 // FIELDS TO SYNC
@@ -279,7 +328,7 @@ function syncToNormalizedData(session, key, value) {
 }
 
 // ============================================================
-// SAVE ANSWER
+// SAVE ANSWER - ✅ v5.2 FIXED
 // ============================================================
 export async function saveAnswer(identifier, sessionIdOrKey, keyOrValue, maybeValue) {
   try {
@@ -298,7 +347,8 @@ export async function saveAnswer(identifier, sessionIdOrKey, keyOrValue, maybeVa
       value = keyOrValue;
     }
     
-    session.answers.set(key, value);
+    // ✅ v5.2 FIX: Use safe helper
+    safeSetAnswer(session, key, value);
     syncToNormalizedData(session, key, value);
     
     session.metadata = session.metadata || {};
@@ -317,7 +367,7 @@ export async function saveAnswer(identifier, sessionIdOrKey, keyOrValue, maybeVa
 }
 
 // ============================================================
-// SAVE ANSWERS (Batch)
+// SAVE ANSWERS (Batch) - ✅ v5.2 FIXED
 // ============================================================
 export async function saveAnswers(identifier, sessionIdOrAnswers, maybeAnswers) {
   try {
@@ -332,7 +382,8 @@ export async function saveAnswers(identifier, sessionIdOrAnswers, maybeAnswers) 
     }
     
     for (const [key, value] of Object.entries(answers)) {
-      session.answers.set(key, value);
+      // ✅ v5.2 FIX: Use safe helper
+      safeSetAnswer(session, key, value);
       syncToNormalizedData(session, key, value);
     }
     
@@ -352,7 +403,7 @@ export async function saveAnswers(identifier, sessionIdOrAnswers, maybeAnswers) 
 }
 
 // ============================================================
-// GET ANSWER
+// GET ANSWER - ✅ v5.2 FIXED
 // ============================================================
 export async function getAnswer(identifier, sessionIdOrKey, maybeKey) {
   try {
@@ -366,7 +417,8 @@ export async function getAnswer(identifier, sessionIdOrKey, maybeKey) {
       key = sessionIdOrKey;
     }
     
-    return session.answers.get(key);
+    // ✅ v5.2 FIX: Use safe helper
+    return safeGetAnswer(session, key);
   } catch (err) {
     console.error('[SessionDB] getAnswer error:', err);
     return null;
@@ -374,12 +426,13 @@ export async function getAnswer(identifier, sessionIdOrKey, maybeKey) {
 }
 
 // ============================================================
-// GET ALL ANSWERS
+// GET ALL ANSWERS - ✅ v5.2 FIXED
 // ============================================================
 export async function getAllAnswers(identifier, sessionId) {
   try {
     const session = await getSession(identifier, sessionId);
-    return Object.fromEntries(session.answers);
+    // ✅ v5.2 FIX: Use safe helper
+    return answersToObject(session.answers);
   } catch (err) {
     console.error('[SessionDB] getAllAnswers error:', err);
     return {};
@@ -393,13 +446,9 @@ export async function getPersonalInfo(identifier, sessionId) {
   try {
     const session = await getSession(identifier, sessionId);
     const personal = session.normalizedData?.personal || {};
-    const answers = session.answers || new Map();
     
-    // Helper to get from answers Map
-    const getAns = (key) => {
-      if (answers instanceof Map) return answers.get(key);
-      return answers[key];
-    };
+    // ✅ v5.2 FIX: Use safe helper
+    const getAns = (key) => safeGetAnswer(session, key);
     
     return {
       first_name: personal.first_name || getAns('first_name') || '',
@@ -431,7 +480,7 @@ export async function getPersonalInfo(identifier, sessionId) {
 }
 
 // ============================================================
-// ✅ UPDATE PERSONAL INFO - For taxRoutes.js
+// ✅ UPDATE PERSONAL INFO - For taxRoutes.js - ✅ v5.2 FIXED
 // ============================================================
 export async function updatePersonalInfo(identifier, sessionIdOrData, maybeData) {
   try {
@@ -452,7 +501,8 @@ export async function updatePersonalInfo(identifier, sessionIdOrData, maybeData)
     for (const [key, value] of Object.entries(data)) {
       if (personalFields.includes(key)) {
         session.normalizedData.personal[key] = value;
-        session.answers.set(key, value);
+        // ✅ v5.2 FIX: Use safe helper instead of session.answers.set()
+        safeSetAnswer(session, key, value);
       }
     }
     
@@ -521,31 +571,31 @@ export async function updateDependent(identifier, sessionIdOrIndex, indexOrData,
       ssn: data.ssn || '',
       date_of_birth: data.date_of_birth || '',
       age: age,
-      relationship: data.relationship || '',
-      qualifies_for_child_credit: age !== null && age < 17,
-      qualifies_for_other_dependent_credit: age !== null && age >= 17
+      relationship: data.relationship || 'child',
+      qualifies_for_child_credit: age < 17,
+      qualifies_for_other_dependent_credit: age >= 17
     };
     
-    if (index !== undefined && index < session.normalizedData.dependents.length) {
+    // Update or add
+    if (index < session.normalizedData.dependents.length) {
       session.normalizedData.dependents[index] = dependent;
     } else {
       session.normalizedData.dependents.push(dependent);
     }
     
-    // Update dependent counts
-    const deps = session.normalizedData.dependents;
-    session.normalizedData.dependent_count = deps.length;
-    session.normalizedData.has_dependents = deps.length > 0;
-    session.normalizedData.qualifying_children_under_17 = deps.filter(d => d.age !== null && d.age < 17).length;
-    session.normalizedData.children_under_6 = deps.filter(d => d.age !== null && d.age < 6).length;
-    session.normalizedData.other_dependents = deps.filter(d => d.age !== null && d.age >= 17).length;
+    // Update counts
+    session.normalizedData.has_dependents = session.normalizedData.dependents.length > 0;
+    session.normalizedData.dependent_count = session.normalizedData.dependents.length;
+    session.normalizedData.qualifying_children_under_17 = session.normalizedData.dependents.filter(d => d.age < 17).length;
+    session.normalizedData.children_under_6 = session.normalizedData.dependents.filter(d => d.age < 6).length;
+    session.normalizedData.other_dependents = session.normalizedData.dependents.filter(d => d.age >= 17).length;
     
     session.metadata = session.metadata || {};
     session.metadata.updatedAt = new Date();
     session.markModified('normalizedData');
     
     await session.save();
-    console.log(`✅ [SessionDB] Updated dependent: ${dependent.name}`);
+    console.log(`✅ [SessionDB] Updated dependent #${index}`);
     return dependent;
     
   } catch (err) {
@@ -580,9 +630,8 @@ export async function getIncomeSummary(identifier, sessionId) {
       ira_contributions: adjustments.ira_contributions || 0,
       spouse_ira: adjustments.spouse_ira || 0,
       hsa_contributions: adjustments.hsa_contributions || 0,
-      student_loan_interest: adjustments.student_loan_interest || 0,
-      w2s: income.w2s || [],
-      form1099s: income.form1099s || []
+      spouse_hsa: adjustments.spouse_hsa || 0,
+      student_loan_interest: adjustments.student_loan_interest || 0
     };
   } catch (err) {
     console.error('[SessionDB] getIncomeSummary error:', err);
@@ -610,9 +659,8 @@ export async function updatePhase(identifier, sessionIdOrPhase, maybePhase) {
     session.metadata.updatedAt = new Date();
     
     await session.save();
-    console.log(`✅ [SessionDB] Phase updated: ${phase}`);
+    console.log(`✅ [SessionDB] Updated phase to: ${phase}`);
     return session;
-    
   } catch (err) {
     console.error('[SessionDB] updatePhase error:', err);
     throw err;
@@ -643,12 +691,12 @@ export async function addToHistory(identifier, sessionIdOrRole, roleOrContent, m
     });
     
     session.metadata = session.metadata || {};
+    session.metadata.updatedAt = new Date();
     session.metadata.lastActivity = new Date();
     session.markModified('conversationHistory');
     
     await session.save();
     return session;
-    
   } catch (err) {
     console.error('[SessionDB] addToHistory error:', err);
     throw err;
@@ -661,15 +709,7 @@ export async function addToHistory(identifier, sessionIdOrRole, roleOrContent, m
 export async function getNormalizedData(identifier, sessionId) {
   try {
     const session = await getSession(identifier, sessionId);
-    return session.normalizedData || {
-      personal: {},
-      income: {},
-      adjustments: {},
-      deductions: { type: 'standard' },
-      dependents: [],
-      credits: {},
-      results: {}
-    };
+    return session.normalizedData || {};
   } catch (err) {
     console.error('[SessionDB] getNormalizedData error:', err);
     return {};
@@ -677,7 +717,7 @@ export async function getNormalizedData(identifier, sessionId) {
 }
 
 // ============================================================
-// BUILD TAX INPUT - For Python tax calculator
+// BUILD TAX INPUT - For tax calculation engine
 // ============================================================
 export async function buildTaxInput(identifier, sessionId) {
   try {
@@ -689,7 +729,6 @@ export async function buildTaxInput(identifier, sessionId) {
     const deductions = nd.deductions || {};
     
     return {
-      // Personal Info
       first_name: personal.first_name || '',
       last_name: personal.last_name || '',
       ssn: personal.ssn || '',
@@ -697,8 +736,6 @@ export async function buildTaxInput(identifier, sessionId) {
       address: personal.address || '',
       city: personal.city || '',
       zip: personal.zip || '',
-      
-      // Income
       wages: income.wages || 0,
       spouse_wages: income.spouse_wages || 0,
       total_wages: income.total_wages || (income.wages || 0) + (income.spouse_wages || 0),
@@ -710,8 +747,6 @@ export async function buildTaxInput(identifier, sessionId) {
       social_security_benefits: income.social_security_benefits || 0,
       unemployment_income: income.unemployment_income || 0,
       other_income: income.other_income || 0,
-      
-      // Withholding
       federal_withholding: income.federal_withholding || 0,
       state_withholding: income.state_withholding || 0,
       ira_contributions: adjustments.ira_contributions || 0,
@@ -747,7 +782,7 @@ export async function buildTaxInput(identifier, sessionId) {
 }
 
 // ============================================================
-// SAVE FORM DATA - For form submissions (W-2, 1099, etc.)
+// SAVE FORM DATA - For form submissions (W-2, 1099, etc.) - ✅ v5.2 FIXED
 // ============================================================
 export async function saveFormData(identifier, sessionIdOrFormType, formTypeOrData, maybeFormData) {
   try {
@@ -764,7 +799,8 @@ export async function saveFormData(identifier, sessionIdOrFormType, formTypeOrDa
     }
     
     const formKey = `${formType.toLowerCase().replace(/-/g, '_')}_data`;
-    session.answers.set(formKey, formData);
+    // ✅ v5.2 FIX: Use safe helper
+    safeSetAnswer(session, formKey, formData);
     
     if (!session.normalizedData) session.normalizedData = {};
     if (!session.normalizedData.income) session.normalizedData.income = {};
@@ -842,7 +878,7 @@ export async function clearSession(identifier, sessionId) {
 }
 
 // ============================================================
-// UPDATE SESSION - Generic update
+// UPDATE SESSION - Generic update - ✅ v5.2 FIXED
 // ============================================================
 export async function updateSession(identifier, sessionIdOrUpdates, maybeUpdates) {
   try {
@@ -859,7 +895,8 @@ export async function updateSession(identifier, sessionIdOrUpdates, maybeUpdates
     for (const [key, value] of Object.entries(updates)) {
       if (key === 'answers' && typeof value === 'object') {
         for (const [answerKey, answerValue] of Object.entries(value)) {
-          session.answers.set(answerKey, answerValue);
+          // ✅ v5.2 FIX: Use safe helper
+          safeSetAnswer(session, answerKey, answerValue);
           syncToNormalizedData(session, answerKey, answerValue);
         }
       } else {
@@ -881,7 +918,7 @@ export async function updateSession(identifier, sessionIdOrUpdates, maybeUpdates
 }
 
 // ============================================================
-// GET SESSION DATA - Returns full session object
+// GET SESSION DATA - Returns full session object - ✅ v5.2 FIXED
 // ============================================================
 export async function getSessionData(identifier, sessionId) {
   try {
@@ -892,7 +929,8 @@ export async function getSessionData(identifier, sessionId) {
       userId: session.userId,
       language: session.language,
       currentPhase: session.currentPhase,
-      answers: Object.fromEntries(session.answers),
+      // ✅ v5.2 FIX: Use safe helper
+      answers: answersToObject(session.answers),
       normalizedData: session.normalizedData,
       conversationHistory: session.conversationHistory,
       metadata: session.metadata
@@ -913,11 +951,11 @@ export default {
   saveAnswers,
   getAnswer,
   getAllAnswers,
-  getPersonalInfo,      // ✅ NEW
-  updatePersonalInfo,   // ✅ NEW
-  getDependents,        // ✅ NEW
-  updateDependent,      // ✅ NEW
-  getIncomeSummary,     // ✅ NEW
+  getPersonalInfo,      // ✅ v5.1
+  updatePersonalInfo,   // ✅ v5.1 + v5.2 FIX
+  getDependents,        // ✅ v5.1
+  updateDependent,      // ✅ v5.1
+  getIncomeSummary,     // ✅ v5.1
   updatePhase,
   addToHistory,
   getNormalizedData,
