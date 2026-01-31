@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaxSky AI - Complete Logo Redesign</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(180deg, #07070a 0%, #0f0f18 50%, #0a0a12 100%);
+            min-height: 100vh;
+            padding: 50px 30px;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 40%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.15rem;
+            font-weight: 400;
+        }
+
+        .section {
+            max-width: 1300px;
+            margin: 0 auto 70px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .section-number {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e2e8f0;
+        }
+
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .logo-card {
+            background: linear-gradient(145deg, rgba(25, 25, 40, 0.8), rgba(15, 15, 25, 0.9));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .logo-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+        }
+
+        .logo-display {
+            padding: 45px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            background: linear-gradient(145deg, rgba(15, 15, 25, 0.5), rgba(10, 10, 18, 0.8));
+        }
+
+        .logo-info {
+            padding: 20px 25px;
+        }
+
+        .logo-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .logo-desc {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .badge.recommended {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+        }
+
+        .preview-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-box {
+            flex: 1;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-dark { background: #030306; }
+        .preview-light { background: #f1f5f9; }
+
+        .icon-showcase {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        .icon-item {
+            text-align: center;
+        }
+
+        .icon-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            background: linear-gradient(145deg, rgba(25, 25, 40, 0.6), rgba(15, 15, 25, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 40px;
+        }
+
+        .comparison-side h3 {
+            font-size: 1rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comparison-side.old h3 { color: #f87171; }
+        .comparison-side.new h3 { color: #6ee7b7; }
+
+        @media (max-width: 768px) {
+            .logo-grid { grid-template-columns: 1fr; }
+            .comparison { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>TaxSky AI Logo Redesign</h1>
+    <p class="subtitle">Refined symbols • New variations • Better clarity at all sizes</p>
+</div>
+
+<!-- SECTION 1: Refined Current Logo -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-number">1</div>
+        <h2>Refined Hexagon — Clearer Dollar Symbol</h2>
+    </div>
+    
+    <div class="logo-grid">
+        <!-- Refined Option A: Bold Dollar -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge recommended">Recommended</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="hexGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <!-- Layered hexagons -->
+                    <polygon points="28,12 44,4 60,12 60,32 44,40 28,32" fill="url(#hexGradA)" opacity="0.25"/>
+                    <polygon points="22,20 38,12 54,20 54,40 38,48 22,40" fill="url(#hexGradA)" opacity="0.5"/>
+                    <polygon points="26,28 42,20 58,28 58,48 42,56 26,48" fill="url(#hexGradA)" filter="url(#glow)"/>
+                    <!-- Clear $ symbol -->
+                    <text x="42" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="22" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    <!-- Text -->
+                    <text x="75" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="128" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGradA)">Sky</text>
+                    <text x="188" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Clear Dollar Sign</div>
+                <div class="logo-desc">Clean, instantly recognizable $ symbol. Works at all sizes.</div>
+            </div>
+        </div>
+
+        <!-- Refined Option B: Document + Dollar -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">Tax Form</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="hexGradB" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGradB" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Hexagons -->
+                    <polygon points="28,12 44,4 60,12 60,32 44,40 28,32" fill="url(#hexGradB)" opacity="0.25"/>
+                    <polygon points="22,20 38,12 54,20 54,40 38,48 22,40" fill="url(#hexGradB)" opacity="0.5"/>
+                    <polygon points="26,28 42,20 58,28 58,48 42,56 26,48" fill="url(#hexGradB)"/>
+                    <!-- Document icon with $ -->
+                    <rect x="35" y="30" width="14" height="18" rx="2" fill="white" opacity="0.9"/>
+                    <line x1="38" y1="35" x2="46" y2="35" stroke="#6366f1" stroke-width="1.5"/>
+                    <line x1="38" y1="39" x2="44" y2="39" stroke="#6366f1" stroke-width="1.5"/>
+                    <line x1="38" y1="43" x2="46" y2="43" stroke="#6366f1" stroke-width="1.5"/>
+                    <!-- Text -->
+                    <text x="75" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="128" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGradB)">Sky</text>
+                    <text x="188" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Document Lines</div>
+                <div class="logo-desc">Represents tax forms/documents. Clear meaning at all sizes.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 2: Variations with Same Colors -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-number">2</div>
+        <h2>Style Variations — Same Color Scheme</h2>
+    </div>
+    
+    <div class="logo-grid">
+        <!-- Cloud Hexagon Hybrid -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">Cloud + Hex</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad2a" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad2a" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Cloud shape with hexagon outline -->
+                    <path d="M20 45 Q20 35 30 35 Q30 22 45 22 Q60 22 60 35 Q70 35 70 45 Q70 55 60 55 L30 55 Q20 55 20 45Z" fill="url(#grad2a)"/>
+                    <!-- Inner hexagon -->
+                    <polygon points="45,28 53,24 61,28 61,38 53,42 45,38" fill="none" stroke="white" stroke-width="1.5" opacity="0.8"/>
+                    <text x="53" y="37" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    <!-- Text -->
+                    <text x="85" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="138" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad2a)">Sky</text>
+                    <text x="198" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Cloud + Hexagon</div>
+                <div class="logo-desc">Combines "Sky" (cloud) with tech hexagon aesthetic.</div>
+            </div>
+        </div>
+
+        <!-- Rounded Modern -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">Rounded</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad2b" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad2b" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Rounded square -->
+                    <rect x="15" y="15" width="50" height="50" rx="14" fill="url(#grad2b)"/>
+                    <!-- $ with glow -->
+                    <text x="40" y="50" font-family="Plus Jakarta Sans, sans-serif" font-size="28" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    <!-- Text -->
+                    <text x="80" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="133" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad2b)">Sky</text>
+                    <text x="193" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Rounded Square</div>
+                <div class="logo-desc">Modern app-style icon. Perfect for mobile apps.</div>
+            </div>
+        </div>
+
+        <!-- Minimal Line Art -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">Minimal</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad2c" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad2c" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Outline hexagon -->
+                    <polygon points="25,20 45,10 65,20 65,45 45,55 25,45" fill="none" stroke="url(#grad2c)" stroke-width="3"/>
+                    <!-- Center dot -->
+                    <circle cx="45" cy="32" r="8" fill="url(#grad2c)"/>
+                    <text x="45" y="36" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    <!-- Text -->
+                    <text x="80" y="42" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="133" y="42" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad2c)">Sky</text>
+                    <text x="193" y="42" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Outline Style</div>
+                <div class="logo-desc">Minimal, elegant. Great for professional contexts.</div>
+            </div>
+        </div>
+
+        <!-- Stacked 3D -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">3D Stack</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad2d" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad2d" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- 3 stacked layers -->
+                    <rect x="25" y="15" width="40" height="8" rx="3" fill="#4f46e5"/>
+                    <rect x="20" y="27" width="50" height="8" rx="3" fill="#6366f1"/>
+                    <rect x="15" y="39" width="60" height="14" rx="4" fill="url(#grad2d)"/>
+                    <text x="45" y="51" font-family="Plus Jakarta Sans, sans-serif" font-size="11" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    <!-- Text -->
+                    <text x="90" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="143" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad2d)">Sky</text>
+                    <text x="203" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Stacked Layers</div>
+                <div class="logo-desc">Represents organized tax documents/data layers.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 3: New Symbol Designs -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-number">3</div>
+        <h2>New Symbol Concepts — Tax + Sky + AI</h2>
+    </div>
+    
+    <div class="logo-grid">
+        <!-- Rising Arrow Chart -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge recommended">Popular</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad3a" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad3a" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Cloud base -->
+                    <path d="M18 50 Q18 40 28 40 Q28 28 42 28 Q56 28 56 40 Q66 40 66 50 Q66 60 56 60 L28 60 Q18 60 18 50Z" fill="url(#grad3a)"/>
+                    <!-- Rising arrow -->
+                    <path d="M30 52 L38 44 L46 48 L56 36" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <polygon points="56,36 56,42 50,36" fill="white"/>
+                    <!-- Text -->
+                    <text x="82" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="135" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad3a)">Sky</text>
+                    <text x="195" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Growth Cloud</div>
+                <div class="logo-desc">Cloud (sky) + rising chart (money/success). Very clear meaning.</div>
+            </div>
+        </div>
+
+        <!-- Brain/AI Cloud -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">AI Focus</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad3b" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad3b" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Cloud -->
+                    <path d="M18 48 Q18 38 28 38 Q28 25 42 25 Q56 25 56 38 Q66 38 66 48 Q66 58 56 58 L28 58 Q18 58 18 48Z" fill="url(#grad3b)"/>
+                    <!-- Neural network nodes -->
+                    <circle cx="32" cy="44" r="4" fill="white"/>
+                    <circle cx="42" cy="36" r="4" fill="white"/>
+                    <circle cx="52" cy="44" r="4" fill="white"/>
+                    <circle cx="42" cy="52" r="4" fill="white"/>
+                    <!-- Connections -->
+                    <line x1="32" y1="44" x2="42" y2="36" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="42" y1="36" x2="52" y2="44" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="32" y1="44" x2="42" y2="52" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <line x1="52" y1="44" x2="42" y2="52" stroke="white" stroke-width="1.5" opacity="0.6"/>
+                    <!-- Text -->
+                    <text x="82" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="135" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad3b)">Sky</text>
+                    <text x="195" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Neural Cloud</div>
+                <div class="logo-desc">Cloud + AI neural network. Emphasizes AI intelligence.</div>
+            </div>
+        </div>
+
+        <!-- Shield + Cloud -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">Trust</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad3c" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad3c" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Shield -->
+                    <path d="M42 10 L65 20 L65 40 Q65 55 42 65 Q19 55 19 40 L19 20 Z" fill="url(#grad3c)"/>
+                    <!-- Cloud cutout -->
+                    <path d="M28 40 Q28 34 33 34 Q33 27 42 27 Q51 27 51 34 Q56 34 56 40 Q56 46 51 46 L33 46 Q28 46 28 40Z" fill="white"/>
+                    <!-- Checkmark -->
+                    <path d="M36 40 L40 44 L50 34" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <!-- Text -->
+                    <text x="80" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="133" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad3c)">Sky</text>
+                    <text x="193" y="45" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Secure Cloud</div>
+                <div class="logo-desc">Shield + cloud = security & trust. Great for tax/finance.</div>
+            </div>
+        </div>
+
+        <!-- Sparkle/Magic -->
+        <div class="logo-card">
+            <div class="logo-display">
+                <span class="badge">Magic</span>
+                <svg width="280" height="75" viewBox="0 0 280 75">
+                    <defs>
+                        <linearGradient id="grad3d" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="textGrad3d" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Cloud -->
+                    <path d="M22 48 Q22 38 32 38 Q32 26 46 26 Q60 26 60 38 Q70 38 70 48 Q70 58 60 58 L32 58 Q22 58 22 48Z" fill="url(#grad3d)"/>
+                    <!-- AI Sparkles -->
+                    <path d="M36 38 L38 42 L42 44 L38 46 L36 50 L34 46 L30 44 L34 42 Z" fill="white"/>
+                    <path d="M52 32 L53 35 L56 36 L53 37 L52 40 L51 37 L48 36 L51 35 Z" fill="#fcd34d"/>
+                    <path d="M58 48 L59 50 L61 51 L59 52 L58 54 L57 52 L55 51 L57 50 Z" fill="white" opacity="0.8"/>
+                    <!-- Text -->
+                    <text x="86" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="white">Tax</text>
+                    <text x="139" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="30" font-weight="700" fill="url(#textGrad3d)">Sky</text>
+                    <text x="199" y="48" font-family="Plus Jakarta Sans, sans-serif" font-size="18" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+            </div>
+            <div class="logo-info">
+                <div class="logo-name">Magic Cloud</div>
+                <div class="logo-desc">Sparkles = AI magic. Friendly and approachable.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 4: Before/After Comparison -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-number">4</div>
+        <h2>Before & After Comparison</h2>
+    </div>
+    
+    <div class="comparison">
+        <div class="comparison-side old">
+            <h3>❌ Current (Hard to Read)</h3>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                <svg width="200" height="55" viewBox="0 0 200 55">
+                    <defs>
+                        <linearGradient id="oldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="oldText" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <polygon points="22,8 35,2 48,8 48,22 35,28 22,22" fill="url(#oldGrad)" opacity="0.4"/>
+                    <polygon points="18,14 31,8 44,14 44,28 31,34 18,28" fill="url(#oldGrad)"/>
+                    <!-- Old confusing symbol -->
+                    <path d="M31 18 L31 28 M27 21 Q31 18 35 21 Q31 24 27 27 Q31 30 35 27" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                    <text x="58" y="28" font-family="Space Grotesk, sans-serif" font-size="22" font-weight="700" fill="white">Tax</text>
+                    <text x="100" y="28" font-family="Space Grotesk, sans-serif" font-size="22" font-weight="700" fill="url(#oldText)">Sky</text>
+                    <text x="148" y="28" font-family="Space Grotesk, sans-serif" font-size="14" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+                <div style="background: rgba(248, 113, 113, 0.1); padding: 15px 20px; border-radius: 10px; font-size: 0.85rem; color: #fca5a5;">
+                    ⚠️ Symbol looks like "Z" or unclear shape
+                </div>
+            </div>
+        </div>
+        
+        <div class="comparison-side new">
+            <h3>✓ Recommended (Clear & Clean)</h3>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                <svg width="200" height="55" viewBox="0 0 200 55">
+                    <defs>
+                        <linearGradient id="newGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                        <linearGradient id="newText" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6"/>
+                            <stop offset="100%" style="stop-color:#06b6d4"/>
+                        </linearGradient>
+                    </defs>
+                    <polygon points="22,8 35,2 48,8 48,22 35,28 22,22" fill="url(#newGrad)" opacity="0.3"/>
+                    <polygon points="18,14 31,8 44,14 44,28 31,34 18,28" fill="url(#newGrad)" opacity="0.6"/>
+                    <polygon points="20,18 33,11 46,18 46,30 33,37 20,30" fill="url(#newGrad)"/>
+                    <!-- Clear $ symbol -->
+                    <text x="33" y="29" font-family="Plus Jakarta Sans, sans-serif" font-size="16" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    <text x="58" y="28" font-family="Plus Jakarta Sans, sans-serif" font-size="22" font-weight="700" fill="white">Tax</text>
+                    <text x="100" y="28" font-family="Plus Jakarta Sans, sans-serif" font-size="22" font-weight="700" fill="url(#newText)">Sky</text>
+                    <text x="148" y="28" font-family="Plus Jakarta Sans, sans-serif" font-size="14" font-weight="600" fill="#a78bfa">AI</text>
+                </svg>
+                <div style="background: rgba(110, 231, 183, 0.1); padding: 15px 20px; border-radius: 10px; font-size: 0.85rem; color: #6ee7b7;">
+                    ✓ Instantly recognizable $ = money/tax
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- App Icons Section -->
+<div class="section">
+    <div class="section-header">
+        <div class="section-number">★</div>
+        <h2>Recommended App Icons</h2>
+    </div>
+    
+    <div class="logo-card" style="max-width: 900px; margin: 0 auto;">
+        <div class="logo-display">
+            <div class="icon-showcase">
+                <!-- 512 -->
+                <div class="icon-item">
+                    <svg width="90" height="90" viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="appGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1"/>
+                                <stop offset="100%" style="stop-color:#8b5cf6"/>
+                            </linearGradient>
+                            <linearGradient id="appBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#0f0f1a"/>
+                                <stop offset="100%" style="stop-color:#1a1a2e"/>
+                            </linearGradient>
+                        </defs>
+                        <rect width="100" height="100" rx="22" fill="url(#appBg)"/>
+                        <polygon points="42,20 58,12 74,20 74,42 58,50 42,42" fill="url(#appGrad)" opacity="0.3"/>
+                        <polygon points="36,30 52,22 68,30 68,52 52,60 36,52" fill="url(#appGrad)" opacity="0.6"/>
+                        <polygon points="40,38 55,30 70,38 70,56 55,64 40,56" fill="url(#appGrad)"/>
+                        <text x="55" y="53" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    </svg>
+                    <div class="icon-label">512×512</div>
+                </div>
+                
+                <!-- 192 -->
+                <div class="icon-item">
+                    <svg width="70" height="70" viewBox="0 0 100 100">
+                        <rect width="100" height="100" rx="22" fill="url(#appBg)"/>
+                        <polygon points="42,20 58,12 74,20 74,42 58,50 42,42" fill="url(#appGrad)" opacity="0.3"/>
+                        <polygon points="36,30 52,22 68,30 68,52 52,60 36,52" fill="url(#appGrad)" opacity="0.6"/>
+                        <polygon points="40,38 55,30 70,38 70,56 55,64 40,56" fill="url(#appGrad)"/>
+                        <text x="55" y="53" font-family="Plus Jakarta Sans, sans-serif" font-size="20" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    </svg>
+                    <div class="icon-label">192×192</div>
+                </div>
+                
+                <!-- 96 -->
+                <div class="icon-item">
+                    <svg width="50" height="50" viewBox="0 0 100 100">
+                        <rect width="100" height="100" rx="22" fill="url(#appBg)"/>
+                        <polygon points="36,30 52,22 68,30 68,52 52,60 36,52" fill="url(#appGrad)" opacity="0.6"/>
+                        <polygon points="40,38 55,30 70,38 70,56 55,64 40,56" fill="url(#appGrad)"/>
+                        <text x="55" y="53" font-family="Plus Jakarta Sans, sans-serif" font-size="22" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    </svg>
+                    <div class="icon-label">96×96</div>
+                </div>
+                
+                <!-- 48 -->
+                <div class="icon-item">
+                    <svg width="40" height="40" viewBox="0 0 100 100">
+                        <rect width="100" height="100" rx="22" fill="url(#appBg)"/>
+                        <polygon points="40,38 55,30 70,38 70,56 55,64 40,56" fill="url(#appGrad)"/>
+                        <text x="55" y="54" font-family="Plus Jakarta Sans, sans-serif" font-size="26" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    </svg>
+                    <div class="icon-label">48×48</div>
+                </div>
+                
+                <!-- 32 -->
+                <div class="icon-item">
+                    <svg width="32" height="32" viewBox="0 0 100 100">
+                        <rect width="100" height="100" rx="22" fill="#6366f1"/>
+                        <text x="50" y="62" font-family="Plus Jakarta Sans, sans-serif" font-size="40" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    </svg>
+                    <div class="icon-label">32×32</div>
+                </div>
+                
+                <!-- 16 -->
+                <div class="icon-item">
+                    <svg width="16" height="16" viewBox="0 0 100 100">
+                        <rect width="100" height="100" rx="25" fill="#6366f1"/>
+                        <text x="50" y="70" font-family="Plus Jakarta Sans, sans-serif" font-size="55" font-weight="800" fill="white" text-anchor="middle">$</text>
+                    </svg>
+                    <div class="icon-label">16×16</div>
+                </div>
+            </div>
+        </div>
+        <div class="logo-info" style="text-align: center;">
+            <div class="logo-name">Optimized for All Sizes</div>
+            <div class="logo-desc">Simplified at smaller sizes for maximum clarity. The $ symbol remains readable even at favicon size.</div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
