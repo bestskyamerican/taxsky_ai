@@ -103,40 +103,48 @@ const useIsMobile = () => {
 };
 
 // ============================================================
-// TAXSKY LOGO - Current Logo from SVG
+// TAXSKY LOGO - Properly Sized for Header
 // ============================================================
 const TaxSkyLogo = ({ isMobile = false, isPaid = false }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-    <svg width={isMobile ? 200 : 260} height={isMobile ? 54 : 70} viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
+    {/* Hexagon Icon */}
+    <svg width={isMobile ? 36 : 44} height={isMobile ? 36 : 44} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="hexGradDash" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#6366f1"/>
           <stop offset="100%" stopColor="#8b5cf6"/>
         </linearGradient>
-        <linearGradient id="textGradDash" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3b82f6"/>
-          <stop offset="100%" stopColor="#06b6d4"/>
-        </linearGradient>
         <filter id="glowDash">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
           <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
         </filter>
       </defs>
-      {/* Hexagon layers */}
-      <polygon points="42,12 62,2 82,12 82,35 62,45 42,35" fill="url(#hexGradDash)" opacity="0.25"/>
-      <polygon points="35,22 55,12 75,22 75,45 55,55 35,45" fill="url(#hexGradDash)" opacity="0.5"/>
-      <polygon points="40,32 58,23 76,32 76,52 58,62 40,52" fill="url(#hexGradDash)" filter="url(#glowDash)"/>
-      {/* Dollar sign */}
-      <path d="M58 38 L58 52 M52 42 Q58 38 64 42 Q58 46 52 50 Q58 54 64 50" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-      {/* Text */}
-      <text x="95" y="50" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="36" fontWeight="700" fill="white">Tax</text>
-      <text x="155" y="50" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="36" fontWeight="700" fill="url(#textGradDash)">Sky</text>
-      <text x="225" y="50" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="20" fontWeight="600" fill="#a78bfa">AI</text>
+      {/* Back hexagon */}
+      <polygon points="25,5 40,12 40,30 25,37 10,30 10,12" fill="url(#hexGradDash)" opacity="0.25"/>
+      {/* Middle hexagon */}
+      <polygon points="25,10 37,16 37,32 25,38 13,32 13,16" fill="url(#hexGradDash)" opacity="0.5"/>
+      {/* Front hexagon */}
+      <polygon points="25,14 35,19 35,33 25,38 15,33 15,19" fill="url(#hexGradDash)" filter="url(#glowDash)"/>
+      {/* $ symbol */}
+      <path d="M25 20 L25 32 M21 23 Q25 20 29 23 Q25 26 21 29 Q25 32 29 29" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
     </svg>
-    {isPaid && <span style={{ fontSize: '11px', padding: '3px 10px', background: 'rgba(16,185,129,0.3)', borderRadius: '6px', color: '#10b981', fontWeight: 600 }}>PAID</span>}
+    {/* Text */}
+    <div style={{ display: 'flex', alignItems: 'baseline' }}>
+      <span style={{ fontSize: isMobile ? '20px' : '22px', fontWeight: 700, color: '#fff' }}>Tax</span>
+      <span style={{ 
+        fontSize: isMobile ? '20px' : '22px', 
+        fontWeight: 700, 
+        background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', 
+        WebkitBackgroundClip: 'text', 
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text'
+      }}>Sky</span>
+      <span style={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 600, color: '#a78bfa', marginLeft: '4px' }}>AI</span>
+    </div>
+    {isPaid && <span style={{ fontSize: '10px', padding: '2px 8px', background: 'rgba(16,185,129,0.3)', borderRadius: '4px', color: '#10b981', fontWeight: 600 }}>PAID</span>}
   </div>
 );
 
@@ -860,6 +868,22 @@ export default function UserDashboard() {
 
       {/* ✅ SUBMIT FLOW MODAL */}
       {showSubmitFlow && <SubmitFlow onClose={() => { setShowSubmitFlow(false); fetchTaxData(); }} userId={getUserId()} token={getToken()} taxData={taxData} userData={userData} />}
+
+      {/* ✅ FOOTER DISCLAIMER - Legal compliance */}
+      <div style={{ 
+        textAlign: 'center',
+        padding: '16px',
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        fontSize: '10px',
+        color: '#475569',
+        lineHeight: 1.5,
+        marginTop: '20px'
+      }}>
+        TaxSky AI is tax preparation software, not a licensed CPA or tax advisor. You are preparing your own tax return.
+        <br />
+        <a href="/terms" style={{ color: '#64748b', marginRight: '12px', textDecoration: 'none' }}>Terms</a>
+        <a href="/privacy" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy</a>
+      </div>
 
       {/* ✅ GLOBAL STYLES */}
       <style>{`

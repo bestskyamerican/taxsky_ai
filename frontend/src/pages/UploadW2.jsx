@@ -1,1 +1,0 @@
-export default function UploadW2(){return <div>UploadW2.jsx</div>;}

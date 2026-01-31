@@ -39,7 +39,7 @@ const PHASES = {
 // ============================================================
 const TRANSLATIONS = {
   en: {
-    welcome: (name, year) => `👋 Hi${name ? ` ${name}` : ""}! I'm your TaxSky CPA Assistant.
+    welcome: (name, year) => `👋 Hi${name ? ` ${name}` : ""}! I'm your TaxSky AI Tax Assistant.
 
 I'll help you file your ${year} taxes step by step. I have access to the latest tax rules and can answer any questions you have along the way.
 
@@ -66,7 +66,7 @@ Or just ask me a tax question!`,
     connectionError: "Connection error. Please try again."
   },
   vi: {
-    welcome: (name, year) => `👋 Xin chào${name ? ` ${name}` : ""}! Tôi là Trợ lý CPA của TaxSky.
+    welcome: (name, year) => `👋 Xin chào${name ? ` ${name}` : ""}! Tôi là Trợ lý Thuế AI của TaxSky.
 
 Tôi sẽ giúp bạn khai thuế ${year} từng bước.
 
@@ -89,7 +89,7 @@ Nhấp vào nút 📎 hoặc kéo và thả tài liệu.`,
     connectionError: "Lỗi kết nối."
   },
   es: {
-    welcome: (name, year) => `👋 ¡Hola${name ? ` ${name}` : ""}! Soy tu Asistente CPA.
+    welcome: (name, year) => `👋 ¡Hola${name ? ` ${name}` : ""}! Soy tu Asistente de Impuestos AI.
 
 Te ayudaré a presentar tus impuestos de ${year} paso a paso.
 
@@ -134,38 +134,50 @@ const useIsMobile = () => {
 };
 
 // ============================================================
-// TAXSKY LOGO - Current Logo from SVG
+// TAXSKY LOGO - Properly Sized for Header
 // ============================================================
 const TaxSkyLogo = ({ isMobile = false }) => (
-  <svg width={isMobile ? 200 : 260} height={isMobile ? 54 : 70} viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="hexGradChat" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#6366f1"/>
-        <stop offset="100%" stopColor="#8b5cf6"/>
-      </linearGradient>
-      <linearGradient id="textGradChat" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#3b82f6"/>
-        <stop offset="100%" stopColor="#06b6d4"/>
-      </linearGradient>
-      <filter id="glowChat">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
-    {/* Hexagon layers */}
-    <polygon points="42,12 62,2 82,12 82,35 62,45 42,35" fill="url(#hexGradChat)" opacity="0.25"/>
-    <polygon points="35,22 55,12 75,22 75,45 55,55 35,45" fill="url(#hexGradChat)" opacity="0.5"/>
-    <polygon points="40,32 58,23 76,32 76,52 58,62 40,52" fill="url(#hexGradChat)" filter="url(#glowChat)"/>
-    {/* Dollar sign */}
-    <path d="M58 38 L58 52 M52 42 Q58 38 64 42 Q58 46 52 50 Q58 54 64 50" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-    {/* Text */}
-    <text x="95" y="50" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="36" fontWeight="700" fill="white">Tax</text>
-    <text x="155" y="50" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="36" fontWeight="700" fill="url(#textGradChat)">Sky</text>
-    <text x="225" y="50" fontFamily="Plus Jakarta Sans, sans-serif" fontSize="20" fontWeight="600" fill="#a78bfa">AI</text>
-  </svg>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+    {/* Hexagon Icon */}
+    <svg width={isMobile ? 36 : 44} height={isMobile ? 36 : 44} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="hexGradChat" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#6366f1"/>
+          <stop offset="100%" stopColor="#8b5cf6"/>
+        </linearGradient>
+        <filter id="glowChat">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      {/* Back hexagon */}
+      <polygon points="25,5 40,12 40,30 25,37 10,30 10,12" fill="url(#hexGradChat)" opacity="0.25"/>
+      {/* Middle hexagon */}
+      <polygon points="25,10 37,16 37,32 25,38 13,32 13,16" fill="url(#hexGradChat)" opacity="0.5"/>
+      {/* Front hexagon */}
+      <polygon points="25,14 35,19 35,33 25,38 15,33 15,19" fill="url(#hexGradChat)" filter="url(#glowChat)"/>
+      {/* $ symbol */}
+      <path d="M25 20 L25 32 M21 23 Q25 20 29 23 Q25 26 21 29 Q25 32 29 29" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+    </svg>
+    {/* Text - Only show on desktop */}
+    {!isMobile && (
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+        <span style={{ fontSize: '22px', fontWeight: 700, color: '#fff' }}>Tax</span>
+        <span style={{ 
+          fontSize: '22px', 
+          fontWeight: 700, 
+          background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', 
+          WebkitBackgroundClip: 'text', 
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>Sky</span>
+        <span style={{ fontSize: '14px', fontWeight: 600, color: '#a78bfa', marginLeft: '4px' }}>AI</span>
+      </div>
+    )}
+  </div>
 );
 
 // ============================================================
@@ -454,6 +466,46 @@ export default function SmartChatInterface() {
   };
 
   // ============================================================
+  // TAX ESTIMATE DISCLAIMER - Legal compliance
+  // ============================================================
+  const TaxDisclaimer = () => (
+    <div style={{ 
+      background: 'rgba(245,158,11,0.1)', 
+      border: '1px solid rgba(245,158,11,0.3)',
+      borderRadius: '10px',
+      padding: '12px 14px',
+      fontSize: '11px',
+      color: '#94a3b8',
+      marginTop: '12px',
+      lineHeight: 1.5
+    }}>
+      <span style={{ color: '#f59e0b', marginRight: '6px' }}>⚠️</span>
+      <strong style={{ color: '#e2e8f0' }}>Disclaimer:</strong> This is an <strong>estimate</strong> based on information you provided. 
+      TaxSky AI is tax preparation software, not a licensed CPA or tax advisor. 
+      Actual results may vary. For professional tax advice, consult a licensed tax professional.
+    </div>
+  );
+
+  // ============================================================
+  // FOOTER DISCLAIMER - Legal compliance
+  // ============================================================
+  const FooterDisclaimer = () => (
+    <div style={{ 
+      textAlign: 'center',
+      padding: '16px',
+      borderTop: '1px solid rgba(255,255,255,0.05)',
+      fontSize: '10px',
+      color: '#475569',
+      lineHeight: 1.5
+    }}>
+      TaxSky AI is tax preparation software, not a licensed CPA or tax advisor. You are preparing your own tax return.
+      <br />
+      <a href="/terms" style={{ color: '#64748b', marginRight: '12px' }}>Terms</a>
+      <a href="/privacy" style={{ color: '#64748b' }}>Privacy</a>
+    </div>
+  );
+
+  // ============================================================
   // COMPLETED TAX CARD
   // ============================================================
   const CompletedTaxCard = () => {
@@ -554,6 +606,9 @@ export default function SmartChatInterface() {
           <button onClick={() => { setHasCompletedTax(false); addMessage("assistant", "What would you like to update?"); }} style={{ padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#94a3b8', fontWeight: 500, cursor: 'pointer', fontSize: '14px' }}>✏️ Update Info</button>
           <button onClick={handleResetSession} style={{ padding: '14px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', color: '#f87171', fontWeight: 500, cursor: 'pointer', fontSize: '14px' }}>🔄 Start Fresh</button>
         </div>
+        
+        {/* Legal Disclaimer */}
+        <TaxDisclaimer />
       </div>
     );
   };
@@ -685,7 +740,7 @@ export default function SmartChatInterface() {
                 <option value="vi">🇻🇳</option>
                 <option value="es">🇪🇸</option>
               </select>
-              <span style={{ padding: '6px 10px', background: 'rgba(16,185,129,0.2)', borderRadius: '6px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}>CPA Expert</span>
+              <span style={{ padding: '6px 10px', background: 'rgba(16,185,129,0.2)', borderRadius: '6px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}>AI Assistant</span>
               <span style={{ fontSize: '13px', color: '#94a3b8' }}>{user?.name?.split(' ')[0] || 'Guest'}</span>
               <button onClick={handleLogout} style={{ padding: '6px 10px', background: 'rgba(239,68,68,0.1)', border: 'none', borderRadius: '6px', color: '#f87171', cursor: 'pointer', fontSize: '14px' }}>🚪</button>
             </>
@@ -812,6 +867,9 @@ export default function SmartChatInterface() {
           </div>
         </div>
       )}
+
+      {/* Footer Disclaimer - Legal compliance */}
+      <FooterDisclaimer />
 
       {/* Global Styles */}
       <style>{`

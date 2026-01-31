@@ -18,10 +18,15 @@ import CPARegister from './pages/CPARegister';
 import CPADashboard from './pages/CPADashboard';
 import CPAAdmin from './pages/CPAAdmin';
 
-import FAQPage from './pages/FAQPage';
-import InvestorPage from './pages/InvestorPage';
-import CareerPage from './pages/CareerPage';
-import NewsPage from './pages/NewsPage';
+import FAQPage from './pages/news/FAQPage';
+import InvestorPage from './pages/news/InvestorPage';
+import CareerPage from './pages/news/CareerPage';
+import NewsPage from './pages/news/NewsPage';
+
+
+// ✅ ADD THESE
+import PrivacyPolicy from './pages/news/PrivacyPolicy';
+import TermsOfService from './pages/news/TermsOfService';
 
 // Payment Imports
 import { 
@@ -666,6 +671,8 @@ export default function App() {
         <Route path="/cpa/dashboard" element={<CPAAuthProvider><CPAProtectedRoute><CPADashboard /></CPAProtectedRoute></CPAAuthProvider>} />
         <Route path="/cpa/admin" element={<CPAAuthProvider><CPAProtectedRoute><CPAAdmin /></CPAProtectedRoute></CPAAuthProvider>} />
 
+
+
         {/* ========================================
             PUBLIC INFO PAGES
         ======================================== */}
@@ -673,7 +680,10 @@ export default function App() {
         <Route path="/investor" element={<InvestorPage />} />
         <Route path="/career" element={<CareerPage />} />
         <Route path="/news" element={<NewsPage />} />
-
+    {/* ADD THESE NEW ROUTES */}
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+ 
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
