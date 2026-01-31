@@ -156,9 +156,38 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* Section 6 */}
+          {/* Section 6 - CPA Partner Services */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">6. Electronic Filing Authorization</h2>
+            <h2 className="text-xl font-bold text-white mb-4">6. CPA Partner Services</h2>
+            <p className="mb-4">
+              TaxSky AI offers optional CPA review and filing services through our network of licensed 
+              Certified Public Accountants ("CPA Partners"). When you select CPA services:
+            </p>
+            <ul className="list-disc ml-6 space-y-2 mb-4">
+              <li>Your tax return and personal information will be shared with a licensed CPA Partner</li>
+              <li>The CPA Partner will review your return for accuracy and completeness</li>
+              <li>The CPA Partner may contact you for additional information or clarification</li>
+              <li>The CPA Partner will file your return with the IRS and applicable state agencies</li>
+              <li>The CPA Partner is independently licensed and responsible for their professional services</li>
+            </ul>
+            <p className="mb-4">
+              By selecting CPA services, you authorize TaxSky AI to share your tax information with our 
+              CPA Partners for the purpose of reviewing and filing your tax return.
+            </p>
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+              <h3 className="text-blue-400 font-semibold mb-2">CPA Partner Relationship</h3>
+              <p className="text-slate-400 text-sm">
+                CPA Partners are independent licensed professionals, not employees of TaxSky AI. 
+                The CPA Partner is responsible for their professional services and maintains their own 
+                professional liability insurance. TaxSky AI facilitates the connection but does not 
+                provide CPA services directly.
+              </p>
+            </div>
+          </section>
+
+          {/* Section 7 */}
+          <section>
+            <h2 className="text-xl font-bold text-white mb-4">7. Electronic Filing Authorization</h2>
             <p className="mb-4">
               When you choose to electronically file your tax return through TaxSky AI, you authorize us to:
             </p>
@@ -172,27 +201,27 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* Section 7 */}
+          {/* Section 8 */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">7. Account Security</h2>
+            <h2 className="text-xl font-bold text-white mb-4">8. Account Security</h2>
             <p>
               You are responsible for maintaining the confidentiality of your account credentials. 
               You agree to notify us immediately of any unauthorized use of your account.
             </p>
           </section>
 
-          {/* Section 8 */}
+          {/* Section 9 */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">8. Intellectual Property</h2>
+            <h2 className="text-xl font-bold text-white mb-4">9. Intellectual Property</h2>
             <p>
               All content, features, and functionality of TaxSky AI are owned by us and are protected 
               by copyright, trademark, and other intellectual property laws.
             </p>
           </section>
 
-          {/* Section 9 */}
+          {/* Section 10 */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">9. Modifications to Service</h2>
+            <h2 className="text-xl font-bold text-white mb-4">10. Modifications to Service</h2>
             <p>
               We reserve the right to modify, suspend, or discontinue any part of our Service at any time. 
               We may also update these Terms of Service from time to time. Continued use of the Service 
@@ -200,18 +229,18 @@ export default function TermsOfService() {
             </p>
           </section>
 
-          {/* Section 10 */}
+          {/* Section 11 */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">10. Governing Law</h2>
+            <h2 className="text-xl font-bold text-white mb-4">11. Governing Law</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of the State of California, 
               without regard to its conflict of law provisions.
             </p>
           </section>
 
-          {/* Section 11 */}
+          {/* Section 12 */}
           <section>
-            <h2 className="text-xl font-bold text-white mb-4">11. Dispute Resolution</h2>
+            <h2 className="text-xl font-bold text-white mb-4">12. Dispute Resolution</h2>
             <p>
               Any disputes arising from these Terms or your use of TaxSky AI shall be resolved through 
               binding arbitration in accordance with the rules of the American Arbitration Association.
