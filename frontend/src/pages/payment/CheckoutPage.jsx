@@ -1,16 +1,15 @@
 // ============================================================
-// CHECKOUT PAGE - FIXED Stripe Payment Form
+// CHECKOUT PAGE - v2.0 FIXED
 // ============================================================
 // Location: frontend/src/pages/CheckoutPage.jsx
-// FIXES:
-// 1. Changed productType → planId (to match backend)
-// 2. Updated plans to match backend PRICING exactly
-// 3. Added support for state addon from URL params
-// 4. Better error handling and loading states
+// ✅ FIXED: Pricing matches PricingPage.jsx
+// ✅ FIXED: Handles CPA fee calculation
+// ✅ FIXED: Reads URL params (cpa, state)
+// ✅ FIXED: Redirects to dashboard/download after payment
 // ============================================================
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
@@ -21,58 +20,61 @@ const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 const stripePromise = STRIPE_PUBLIC_KEY ? loadStripe(STRIPE_PUBLIC_KEY) : null;
 
 // ============================================================
-// PRICING - Must match backend paymentController.js EXACTLY
-// Backend uses cents (2999 = $29.99)
+// PRICING - MUST MATCH PricingPage.jsx EXACTLY
+// Prices in DOLLARS (not cents)
 // ============================================================
-const PRICING = {
+const CPA_FEE_PER_FORM = 59; // $59 per form
+
+const PRICING_PLANS = {
   free: {
     id: 'free',
     name: 'Free Estimate',
     price: 0,
-    description: 'See your refund before you pay',
+    icon: '🆓',
+    description: 'View estimate only',
   },
   basic: {
     id: 'basic',
     name: 'Basic',
-    price: 2999, // $29.99
+    price: 29.99,
+    icon: '📄',
     description: 'Simple W-2 income only',
   },
   standard: {
     id: 'standard',
     name: 'Standard',
-    price: 4999, // $49.99
+    price: 49.99,
+    icon: '⭐',
     description: 'Most popular for employees',
+    popular: true,
   },
   plus: {
     id: 'plus',
     name: 'Plus',
-    price: 7999, // $79.99
+    price: 79.99,
+    icon: '💎',
     description: 'Multiple income sources',
-  },
-  premium: {
-    id: 'premium',
-    name: 'Premium',
-    price: 12999, // $129.99
-    description: 'High income & complex returns',
   },
   selfEmployed: {
     id: 'selfEmployed',
     name: 'Self-Employed',
-    price: 8999, // $89.99
+    price: 89.99,
+    icon: '💼',
     description: 'Freelancers & gig workers',
   },
-};
-
-const ADDONS = {
-  state: { id: 'state', name: 'State Tax Return', price: 2499 }, // $24.99
-  cpa_review: { id: 'cpa_review', name: 'CPA Review', price: 4999 },
-  audit_protection: { id: 'audit_protection', name: 'Audit Protection', price: 3999 },
+  premium: {
+    id: 'premium',
+    name: 'Premium',
+    price: 129.99,
+    icon: '👑',
+    description: 'High income & complex returns',
+  },
 };
 
 // ============================================================
 // PAYMENT FORM COMPONENT
 // ============================================================
-function PaymentForm({ plan, addons, totalAmount, clientSecret, onSuccess }) {
+function PaymentForm({ plan, totalAmount, clientSecret, onSuccess }) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -105,7 +107,7 @@ function PaymentForm({ plan, addons, totalAmount, clientSecret, onSuccess }) {
       
       if (paymentIntent.status === 'succeeded') {
         // Confirm with backend
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('taxsky_token') || localStorage.getItem('token');
         await fetch(`${API_URL}/api/payments/confirm`, {
           method: 'POST',
           headers: { 
@@ -142,24 +144,9 @@ function PaymentForm({ plan, addons, totalAmount, clientSecret, onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* User Info Display */}
-      <div style={styles.userInfo}>
-        <div style={styles.userAvatar}>
-          {JSON.parse(localStorage.getItem('user') || '{}').name?.[0] || 'U'}
-        </div>
-        <div>
-          <div style={styles.userName}>
-            {JSON.parse(localStorage.getItem('user') || '{}').name || 'User'}
-          </div>
-          <div style={styles.userEmail}>
-            {JSON.parse(localStorage.getItem('user') || '{}').email}
-          </div>
-        </div>
-      </div>
-
       {/* Card Input */}
       <div style={styles.cardSection}>
-        <label style={styles.cardLabel}>Card Information</label>
+        <label style={styles.cardLabel}>💳 Card Information</label>
         <div style={styles.cardInputWrapper}>
           <CardElement 
             options={cardStyle}
@@ -192,13 +179,13 @@ function PaymentForm({ plan, addons, totalAmount, clientSecret, onSuccess }) {
           </>
         ) : (
           <>
-            🔒 Pay ${(totalAmount / 100).toFixed(2)}
+            🔒 Pay ${totalAmount.toFixed(2)}
           </>
         )}
       </button>
 
       <p style={styles.secureNote}>
-        🔐 Your payment is secure and encrypted with 256-bit SSL
+        🔐 Secure payment powered by Stripe
       </p>
     </form>
   );
@@ -213,66 +200,88 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   
   const [plan, setPlan] = useState(null);
-  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [includeCPA, setIncludeCPA] = useState(false);
+  const [includeState, setIncludeState] = useState(true);
   const [clientSecret, setClientSecret] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   
   // Get user from localStorage
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('taxsky_user') || localStorage.getItem('user') || '{}');
+  const token = localStorage.getItem('taxsky_token') || localStorage.getItem('token');
+  const userId = user.id || user.userId || user._id;
 
-  // Calculate total
-  const calculateTotal = () => {
-    let total = plan?.price || 0;
-    selectedAddons.forEach(addonId => {
-      if (ADDONS[addonId]) {
-        total += ADDONS[addonId].price;
-      }
-    });
-    return total;
-  };
+  // Calculate pricing
+  const formCount = includeState ? 2 : 1; // Federal + State
+  const cpaFee = includeCPA ? CPA_FEE_PER_FORM * formCount : 0;
+  const planPrice = plan?.price || 0;
+  const totalPrice = includeCPA ? planPrice + cpaFee : 0; // Self-file is FREE
 
   useEffect(() => {
     // Check authentication
-    if (!user.id && !user.userId && !user._id) {
-      console.error('No user found, redirecting to login');
+    if (!userId) {
+      console.error('[CHECKOUT] No user found, redirecting to login');
+      localStorage.setItem('taxsky_redirect_after_login', `/checkout/${planId}${window.location.search}`);
       navigate('/login');
       return;
     }
     
     // Validate plan
-    if (!PRICING[planId]) {
-      console.error('Invalid plan:', planId);
+    if (!PRICING_PLANS[planId]) {
+      console.error('[CHECKOUT] Invalid plan:', planId);
       navigate('/pricing');
       return;
     }
     
-    setPlan(PRICING[planId]);
+    // Set plan
+    setPlan(PRICING_PLANS[planId]);
     
-    // Check for state addon in URL params
-    const includeState = searchParams.get('state') === 'true';
-    if (includeState) {
-      setSelectedAddons(['state']);
+    // Read URL params
+    const cpaParam = searchParams.get('cpa') === 'true';
+    const stateParam = searchParams.get('state') !== 'false'; // Default true
+    
+    setIncludeCPA(cpaParam);
+    setIncludeState(stateParam);
+    
+    // If no CPA (self-file is FREE), redirect to dashboard
+    if (!cpaParam) {
+      console.log('[CHECKOUT] Self-file is free, redirecting to dashboard');
+      navigate('/dashboard');
+      return;
     }
     
-    // Create payment intent
-    createPaymentIntent(includeState ? ['state'] : []);
+    // Create payment intent for CPA
+    createPaymentIntent(cpaParam, stateParam);
   }, [planId]);
 
-  async function createPaymentIntent(addons = []) {
+  async function createPaymentIntent(withCPA, withState) {
     setLoading(true);
     setError(null);
     
     try {
-      const userId = user.id || user.userId || user._id;
+      const formCount = withState ? 2 : 1;
+      const cpaFee = withCPA ? CPA_FEE_PER_FORM * formCount : 0;
+      const planPrice = PRICING_PLANS[planId]?.price || 0;
+      const total = withCPA ? planPrice + cpaFee : 0;
+      
+      // If total is 0 (self-file), no payment needed
+      if (total === 0) {
+        setLoading(false);
+        navigate('/dashboard');
+        return;
+      }
+      
+      // Convert to cents for Stripe
+      const amountInCents = Math.round(total * 100);
       
       console.log('[CHECKOUT] Creating payment intent:', {
         userId,
-        email: user.email,
         planId,
-        addons
+        withCPA,
+        withState,
+        total,
+        amountInCents
       });
       
       const res = await fetch(`${API_URL}/api/payments/create-intent`, {
@@ -285,22 +294,18 @@ export default function CheckoutPage() {
           userId: userId,
           email: user.email,
           name: user.name || user.displayName || 'User',
-          planId: planId,  // ✅ FIXED: was "productType"
-          addons: addons,
-          taxYear: 2024
+          planId: planId,
+          amount: amountInCents, // Send calculated amount
+          includeCPA: withCPA,
+          includeState: withState,
+          taxYear: 2025
         })
       });
       
-      // Check if response is OK before parsing
       if (!res.ok) {
         const errorText = await res.text();
         console.error('[CHECKOUT] Server error:', res.status, errorText);
-        try {
-          const errorJson = JSON.parse(errorText);
-          setError(errorJson.error || `Server error: ${res.status}`);
-        } catch {
-          setError(`Server error: ${res.status} - ${errorText.substring(0, 100)}`);
-        }
+        setError(`Server error: ${res.status}`);
         return;
       }
       
@@ -312,12 +317,6 @@ export default function CheckoutPage() {
       if (data.alreadyPaid) {
         alert('You have already purchased this plan!');
         navigate('/dashboard');
-        return;
-      }
-      
-      // Handle free plan
-      if (data.free) {
-        setSuccess(true);
         return;
       }
       
@@ -342,23 +341,20 @@ export default function CheckoutPage() {
     }
   }
 
-  function toggleAddon(addonId) {
-    const newAddons = selectedAddons.includes(addonId)
-      ? selectedAddons.filter(id => id !== addonId)
-      : [...selectedAddons, addonId];
-    
-    setSelectedAddons(newAddons);
-    // Recreate payment intent with new addons
-    createPaymentIntent(newAddons);
-  }
-
   function handleSuccess(paymentIntent) {
     setSuccess(true);
+    
+    // Store payment info
+    localStorage.setItem('taxsky_payment_complete', JSON.stringify({
+      planId,
+      includeCPA,
+      includeState,
+      paymentIntentId: paymentIntent.id,
+      paidAt: new Date().toISOString()
+    }));
   }
 
-  // ============================================================
-  // SUCCESS SCREEN
-  // ============================================================
+  // Success Page
   if (success) {
     return (
       <div style={styles.successPage}>
@@ -366,56 +362,64 @@ export default function CheckoutPage() {
           <div style={styles.successIcon}>🎉</div>
           <h1 style={styles.successTitle}>Payment Successful!</h1>
           <p style={styles.successText}>
-            Thank you for purchasing <strong>{plan?.name}</strong>
+            Thank you for purchasing <strong>{plan?.name}</strong> with CPA Review
           </p>
           
           <div style={styles.successDetails}>
             <div style={styles.successRow}>
               <span>Plan</span>
-              <span>{plan?.name}</span>
+              <span>{plan?.icon} {plan?.name}</span>
             </div>
             <div style={styles.successRow}>
-              <span>Amount</span>
-              <span>${(calculateTotal() / 100).toFixed(2)}</span>
+              <span>CPA Review</span>
+              <span>✅ Included</span>
             </div>
-            <div style={styles.successRow}>
-              <span>Email</span>
-              <span>{user.email}</span>
+            {includeState && (
+              <div style={styles.successRow}>
+                <span>State Return</span>
+                <span>✅ California</span>
+              </div>
+            )}
+            <div style={{...styles.successRow, borderTop: '1px solid #e2e8f0', paddingTop: '12px', fontWeight: '600'}}>
+              <span>Total Paid</span>
+              <span style={{color: '#22c55e'}}>${totalPrice.toFixed(2)}</span>
             </div>
           </div>
           
+          <p style={{color: '#64748b', fontSize: '14px', marginBottom: '24px'}}>
+            👨‍💼 A CPA will review your return within 24-48 hours
+          </p>
+          
           <button
-            onClick={() => navigate('/taxchat')}
+            onClick={() => navigate('/dashboard')}
             style={styles.successButton}
           >
-            Start Filing Your Taxes →
+            Continue to Dashboard →
           </button>
         </div>
       </div>
     );
   }
 
-  // ============================================================
-  // MAIN CHECKOUT UI
-  // ============================================================
+  // Main Checkout Page
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        
-        {/* Left: Order Summary */}
+    <div style={styles.checkoutPage}>
+      <div style={styles.checkoutContainer}>
+        {/* Left Panel: Order Summary */}
         <div style={styles.leftPanel}>
-          <div style={styles.logo}>
-            <span style={styles.logoIcon}>🌤️</span>
-            <span style={styles.logoText}>TaxSky</span>
+          <div style={styles.brandHeader}>
+            <span style={styles.brandLogo}>🌤️</span>
+            <span style={styles.brandName}>TaxSky</span>
           </div>
           
-          <div style={styles.planInfo}>
+          {/* Selected Plan */}
+          <div style={styles.planSection}>
             <p style={styles.planLabel}>You're purchasing</p>
             <div style={styles.planBadge}>
-              <span style={styles.planIcon}>👑</span>
+              <span style={styles.planIcon}>{plan?.icon}</span>
               <div>
-                <h3 style={styles.planName}>{plan?.name || 'Loading...'}</h3>
-                <p style={styles.planDesc}>Federal + State Filing</p>
+                <h3 style={styles.planName}>{plan?.name}</h3>
+                <p style={styles.planDesc}>{plan?.description}</p>
               </div>
             </div>
           </div>
@@ -423,78 +427,67 @@ export default function CheckoutPage() {
           {/* Price Breakdown */}
           <div style={styles.priceBreakdown}>
             <div style={styles.priceRow}>
-              <span>Subtotal</span>
-              <span>${plan ? (plan.price / 100).toFixed(2) : '0.00'}</span>
+              <span>{plan?.name} Plan</span>
+              <span>${planPrice.toFixed(2)}</span>
             </div>
-            
-            {selectedAddons.map(addonId => (
-              <div key={addonId} style={styles.priceRow}>
-                <span>{ADDONS[addonId]?.name}</span>
-                <span>${(ADDONS[addonId]?.price / 100).toFixed(2)}</span>
-              </div>
-            ))}
-            
-            <div style={styles.priceRow}>
-              <span>Tax</span>
-              <span>$0.00</span>
-            </div>
+            {includeCPA && (
+              <>
+                <div style={styles.priceRow}>
+                  <span>CPA Fee (Federal)</span>
+                  <span>${CPA_FEE_PER_FORM.toFixed(2)}</span>
+                </div>
+                {includeState && (
+                  <div style={styles.priceRow}>
+                    <span>CPA Fee (State CA)</span>
+                    <span>${CPA_FEE_PER_FORM.toFixed(2)}</span>
+                  </div>
+                )}
+              </>
+            )}
           </div>
           
+          {/* Total */}
           <div style={styles.totalRow}>
             <span>Total</span>
-            <span style={styles.totalAmount}>
-              ${(calculateTotal() / 100).toFixed(2)}
-            </span>
+            <span style={styles.totalAmount}>${totalPrice.toFixed(2)}</span>
           </div>
           
           {/* Guarantees */}
           <div style={styles.guarantees}>
             <p>✓ 30-day money-back guarantee</p>
+            <p>✓ CPA review within 24-48 hours</p>
             <p>✓ Secure payment via Stripe</p>
-            <p>✓ Instant access after payment</p>
+            <p>✓ IRS-authorized e-file</p>
           </div>
         </div>
 
-        {/* Right: Payment Form */}
+        {/* Right Panel: Payment Form */}
         <div style={styles.rightPanel}>
-          <h2 style={styles.formTitle}>Payment Details</h2>
-          <p style={styles.formSubtitle}>Complete your purchase securely</p>
+          <h2 style={styles.formTitle}>Complete Payment</h2>
+          <p style={styles.formSubtitle}>Enter your card details below</p>
           
-          {/* Add-ons Selection */}
-          {!loading && plan && plan.price > 0 && (
-            <div style={styles.addonsSection}>
-              <p style={styles.addonsLabel}>Add to your order:</p>
-              {Object.values(ADDONS).map(addon => (
-                <label key={addon.id} style={styles.addonItem}>
-                  <input
-                    type="checkbox"
-                    checked={selectedAddons.includes(addon.id)}
-                    onChange={() => toggleAddon(addon.id)}
-                    style={styles.addonCheckbox}
-                  />
-                  <span style={styles.addonName}>{addon.name}</span>
-                  <span style={styles.addonPrice}>
-                    +${(addon.price / 100).toFixed(2)}
-                  </span>
-                </label>
-              ))}
+          {/* User Info */}
+          <div style={styles.userInfo}>
+            <div style={styles.userAvatar}>
+              {user.name?.[0] || user.email?.[0] || 'U'}
             </div>
-          )}
+            <div>
+              <div style={styles.userName}>{user.name || 'User'}</div>
+              <div style={styles.userEmail}>{user.email}</div>
+            </div>
+          </div>
           
           {/* Loading State */}
-          {loading && (
+          {loading ? (
             <div style={styles.loadingBox}>
               <div style={styles.spinnerLarge}></div>
               <p>Preparing checkout...</p>
             </div>
-          )}
-          
-          {/* Error State */}
-          {error && !loading && (
+          ) : error ? (
             <div style={styles.errorState}>
               <p style={styles.errorText}>❌ {error}</p>
               <button
-                onClick={() => createPaymentIntent(selectedAddons)}
+                onClick={() => createPaymentIntent(includeCPA, includeState)}
                 style={styles.retryButton}
               >
                 Try Again
@@ -506,30 +499,23 @@ export default function CheckoutPage() {
                 Back to Pricing
               </button>
             </div>
-          )}
-          
-          {/* Payment Form */}
-          {!loading && !error && clientSecret && stripePromise && (
+          ) : clientSecret && stripePromise ? (
             <Elements stripe={stripePromise} options={{ clientSecret }}>
               <PaymentForm 
                 plan={plan}
-                addons={selectedAddons}
-                totalAmount={calculateTotal()}
+                totalAmount={totalPrice}
                 clientSecret={clientSecret}
                 onSuccess={handleSuccess}
               />
             </Elements>
-          )}
-          
-          {/* Missing Stripe Key Warning */}
-          {!STRIPE_PUBLIC_KEY && (
+          ) : !stripePromise ? (
             <div style={styles.warningBox}>
-              ⚠️ Stripe public key not configured. Add VITE_STRIPE_PUBLIC_KEY to your .env file.
+              ⚠️ Stripe is not configured. Please set VITE_STRIPE_PUBLIC_KEY in your .env file.
             </div>
-          )}
+          ) : null}
         </div>
       </div>
-
+      
       <style>{`
         @keyframes spin {
           to { transform: rotate(360deg); }
@@ -543,20 +529,19 @@ export default function CheckoutPage() {
 // STYLES
 // ============================================================
 const styles = {
-  page: {
+  checkoutPage: {
     minHeight: '100vh',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#f8fafc',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '20px',
-    fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   
-  container: {
+  checkoutContainer: {
     backgroundColor: 'white',
     borderRadius: '24px',
-    boxShadow: '0 25px 80px rgba(0,0,0,0.12)',
+    boxShadow: '0 25px 60px rgba(0,0,0,0.12)',
     overflow: 'hidden',
     display: 'flex',
     maxWidth: '950px',
@@ -568,29 +553,29 @@ const styles = {
     backgroundColor: '#1e293b',
     color: 'white',
     padding: '40px',
-    width: '42%',
+    width: '45%',
     display: 'flex',
     flexDirection: 'column',
   },
   
-  logo: {
+  brandHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    marginBottom: '40px',
+    gap: '8px',
+    marginBottom: '32px',
   },
   
-  logoIcon: {
+  brandLogo: {
     fontSize: '28px',
   },
   
-  logoText: {
+  brandName: {
     fontSize: '24px',
     fontWeight: '700',
   },
   
-  planInfo: {
-    marginBottom: '32px',
+  planSection: {
+    marginBottom: '24px',
   },
   
   planLabel: {
@@ -699,6 +684,7 @@ const styles = {
     justifyContent: 'center',
     fontWeight: '700',
     fontSize: '18px',
+    textTransform: 'uppercase',
   },
   
   userName: {
@@ -709,48 +695,6 @@ const styles = {
   userEmail: {
     fontSize: '14px',
     color: '#64748b',
-  },
-  
-  // Add-ons
-  addonsSection: {
-    marginBottom: '24px',
-    padding: '16px',
-    backgroundColor: '#f8fafc',
-    borderRadius: '12px',
-  },
-  
-  addonsLabel: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#475569',
-    marginBottom: '12px',
-  },
-  
-  addonItem: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '10px 0',
-    borderBottom: '1px solid #e2e8f0',
-    cursor: 'pointer',
-  },
-  
-  addonCheckbox: {
-    marginRight: '12px',
-    width: '18px',
-    height: '18px',
-    cursor: 'pointer',
-  },
-  
-  addonName: {
-    flex: 1,
-    fontSize: '14px',
-    color: '#334155',
-  },
-  
-  addonPrice: {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#6366f1',
   },
   
   // Card Section
@@ -888,9 +832,10 @@ const styles = {
   successCard: {
     backgroundColor: 'white',
     borderRadius: '24px',
-    padding: '56px',
+    padding: '48px',
     textAlign: 'center',
     maxWidth: '500px',
+    width: '100%',
     boxShadow: '0 25px 60px rgba(34, 197, 94, 0.15)',
   },
   
@@ -907,7 +852,7 @@ const styles = {
   
   successText: {
     color: '#64748b',
-    marginBottom: '28px',
+    marginBottom: '24px',
     fontSize: '17px',
   },
   
@@ -915,13 +860,14 @@ const styles = {
     backgroundColor: '#f0fdf4',
     borderRadius: '14px',
     padding: '20px',
-    marginBottom: '28px',
+    marginBottom: '24px',
+    textAlign: 'left',
   },
   
   successRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '8px 0',
+    padding: '10px 0',
     color: '#475569',
     fontSize: '15px',
   },

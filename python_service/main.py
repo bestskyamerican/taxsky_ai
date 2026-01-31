@@ -1,9 +1,18 @@
 # ============================================================
-# TAXSKY 2025 - UNIFIED PYTHON TAX API v4.6
+# TAXSKY 2025 - UNIFIED PYTHON TAX API v4.7
 # ============================================================
+# ✅ v4.7: Added 5 more state PDF routers (IL, PA, NJ, GA, NC)
+# ✅ v4.7: CLEANED - Removed redundant TAX_VALUES (tax_engine is source of truth)
 # ✅ v4.6: Added user_data_router for direct React → Python data editing
 # ✅ v4.5: Validator mode - reads structured data from MongoDB
-# ✅ v4.4: Added POST /calculate/state for frontend dashboard
+# ============================================================
+#
+# NOTE: All tax values are in tax_engine/calculator.py (v8.2 OBBBA)
+#       - Standard deductions, tax brackets, credits
+#       - No Tax on Tips, Overtime, Car Loan Interest
+#       - Senior Bonus Deduction
+#       DO NOT duplicate tax values here!
+#
 # ============================================================
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
@@ -20,11 +29,11 @@ from datetime import datetime, date
 # IMPORTS - With graceful fallbacks
 # ============================================================
 
-# Tax Engine
+# Tax Engine (contains ALL tax values and calculations)
 try:
     from tax_engine import calculate_federal, calculate_state_tax
     TAX_ENGINE_AVAILABLE = True
-    print("✅ Tax engine loaded")
+    print("✅ Tax engine loaded (v8.2 OBBBA)")
 except ImportError as e:
     print(f"⚠️ Tax engine not available: {e}")
     TAX_ENGINE_AVAILABLE = False
@@ -91,7 +100,7 @@ except ImportError as e:
     def is_supported_state(s): return True
 
 # ============================================================
-# PDF ROUTERS
+# PDF ROUTERS - Federal
 # ============================================================
 try:
     from tax_generator.form_1040_router import form_1040_router
@@ -102,6 +111,10 @@ except ImportError as e:
     FORM_1040_AVAILABLE = False
     form_1040_router = None
 
+# ============================================================
+# PDF ROUTERS - State Forms
+# ============================================================
+# California 540
 try:
     from tax_generator.form_ca540_router import form_ca540_router
     FORM_CA540_AVAILABLE = True
@@ -110,6 +123,26 @@ except ImportError as e:
     print(f"⚠️ CA Form 540 router not available: {e}")
     FORM_CA540_AVAILABLE = False
     form_ca540_router = None
+
+# New York IT-201
+try:
+    from tax_generator.form_ny_it201_router import form_ny_it201_router
+    FORM_NY_IT201_AVAILABLE = True
+    print("✅ NY Form IT-201 router loaded")
+except ImportError as e:
+    print(f"⚠️ NY Form IT-201 router not available: {e}")
+    FORM_NY_IT201_AVAILABLE = False
+    form_ny_it201_router = None
+
+# Additional States (IL, PA, NJ, GA, NC)
+try:
+    from tax_generator.additional_states_router import additional_states_router
+    ADDITIONAL_STATES_AVAILABLE = True
+    print("✅ Additional states router loaded (IL, PA, NJ, GA, NC)")
+except ImportError as e:
+    print(f"⚠️ Additional states router not available: {e}")
+    ADDITIONAL_STATES_AVAILABLE = False
+    additional_states_router = None
 
 # ============================================================
 # VALIDATOR ROUTER
@@ -124,7 +157,7 @@ except ImportError as e:
     extractor_router = None
 
 # ============================================================
-# ✅ v4.6: USER DATA ROUTER (React calls Python directly!)
+# USER DATA ROUTER (React calls Python directly!)
 # ============================================================
 try:
     from tax_engine.user_data_router import router as user_data_router
@@ -136,89 +169,21 @@ except ImportError as e:
     user_data_router = None
 
 # ============================================================
-# 2025 TAX VALUES
-# ============================================================
-TAX_VALUES_2025 = {
-    "standard_deduction": {
-        "single": 14800,
-        "married_filing_jointly": 29600,
-        "married_filing_separately": 14800,
-        "head_of_household": 22200,
-        "qualifying_surviving_spouse": 29600
-    },
-    "additional_standard_deduction": {
-        "single_or_hoh": 1850,
-        "married": 1500
-    },
-    "child_tax_credit": 2000,
-    "actc_max": 1700,
-    "other_dependents_credit": 500,
-    "eitc_max": {0: 649, 1: 4328, 2: 7152, 3: 8046},
-    "ira_limit": {"under_50": 7000, "over_50": 8000},
-    "hsa_limit": {"self": 4300, "family": 8550},
-    "student_loan_max": 2500
-}
-
-# ============================================================
-# HELPER FUNCTIONS
+# HELPER FUNCTIONS (minimal - tax logic is in tax_engine)
 # ============================================================
 def safe_get(obj, key, default=0):
+    """Safely get value from dict"""
     if isinstance(obj, dict):
         return obj.get(key, default)
     return default
-
-def calculate_age_from_dob(dob_string: str, tax_year: int = 2025) -> Optional[int]:
-    if not dob_string:
-        return None
-    try:
-        birth_year = None
-        if '-' in dob_string and len(dob_string) >= 10:
-            parts = dob_string.split('-')
-            if len(parts[0]) == 4:
-                birth_year = int(parts[0])
-        if not birth_year and '/' in dob_string:
-            parts = dob_string.split('/')
-            if len(parts) == 3 and len(parts[2]) == 4:
-                birth_year = int(parts[2])
-        if not birth_year:
-            import re
-            year_match = re.search(r'\b(19\d{2}|20\d{2})\b', dob_string)
-            if year_match:
-                birth_year = int(year_match.group(1))
-        if birth_year:
-            age = tax_year - birth_year
-            return age
-        return None
-    except Exception as e:
-        return None
-
-def is_65_plus(dob_string: str, tax_year: int = 2025) -> bool:
-    if not dob_string:
-        return False
-    age = calculate_age_from_dob(dob_string, tax_year)
-    return age >= 65 if age else False
-
-def get_standard_deduction(filing_status: str, taxpayer_65_plus: bool = False,
-                          spouse_65_plus: bool = False, taxpayer_blind: bool = False,
-                          spouse_blind: bool = False) -> int:
-    status_key = filing_status.lower().replace(" ", "_")
-    base = TAX_VALUES_2025["standard_deduction"].get(status_key, 14800)
-    additional = 0
-    is_married = "married" in status_key or status_key == "qualifying_surviving_spouse"
-    add_per_condition = TAX_VALUES_2025["additional_standard_deduction"]["married" if is_married else "single_or_hoh"]
-    if taxpayer_65_plus: additional += add_per_condition
-    if taxpayer_blind: additional += add_per_condition
-    if is_married and spouse_65_plus: additional += add_per_condition
-    if is_married and spouse_blind: additional += add_per_condition
-    return base + additional
 
 # ============================================================
 # APP SETUP
 # ============================================================
 app = FastAPI(
     title="TaxSky 2025 Tax API",
-    description="Tax calculations, RAG knowledge, GPT-4 Vision OCR, User Data Management",
-    version="4.6.0"
+    description="Tax calculations, RAG knowledge, GPT-4 Vision OCR, 7 State PDF Forms",
+    version="4.7.0"
 )
 
 app.add_middleware(
@@ -233,29 +198,40 @@ app.add_middleware(
 # REGISTER ALL ROUTERS
 # ============================================================
 
-# PDF Routers
+# Federal PDF Router
 if FORM_1040_AVAILABLE and form_1040_router:
     app.include_router(form_1040_router)
     print("📄 Registered: POST /generate/1040")
 
+# California 540
 if FORM_CA540_AVAILABLE and form_ca540_router:
     app.include_router(form_ca540_router)
     print("🌴 Registered: POST /generate/ca540")
+
+# New York IT-201
+if FORM_NY_IT201_AVAILABLE and form_ny_it201_router:
+    app.include_router(form_ny_it201_router)
+    print("🗽 Registered: POST /generate/ny-it201")
+
+# Additional States (IL, PA, NJ, GA, NC)
+if ADDITIONAL_STATES_AVAILABLE and additional_states_router:
+    app.include_router(additional_states_router)
+    print("🇺🇸 Registered: Additional state forms")
+    print("   POST /generate/il-1040  → Illinois")
+    print("   POST /generate/pa-40    → Pennsylvania")
+    print("   POST /generate/nj-1040  → New Jersey")
+    print("   POST /generate/ga-500   → Georgia")
+    print("   POST /generate/nc-d400  → North Carolina")
 
 # Validator Router
 if EXTRACTOR_AVAILABLE and extractor_router:
     app.include_router(extractor_router)
     print("✅ Registered: /api/extract/* endpoints")
 
-# ✅ v4.6: User Data Router (React calls Python directly!)
+# User Data Router
 if USER_DATA_AVAILABLE and user_data_router:
     app.include_router(user_data_router)
-    print("👤 Registered: /api/user/* endpoints (React → Python direct!)")
-    print("   GET  /api/user/{user_id}           - Get user data")
-    print("   PUT  /api/user/{user_id}           - Update user data")
-    print("   PUT  /api/user/{user_id}/dependents - Update dependents")
-    print("   GET  /api/user/{user_id}/session   - Get session for SubmitFlow")
-    print("   POST /api/user/{user_id}/session   - Save session")
+    print("👤 Registered: /api/user/* endpoints")
 
 # ============================================================
 # MODELS
@@ -294,6 +270,10 @@ class TaxInput(BaseModel):
     spouse_blind: bool = False
     taxpayer_50_plus: bool = False
     spouse_50_plus: bool = False
+    # OBBBA fields
+    tips_income: float = 0
+    overtime_income: float = 0
+    car_loan_interest: float = 0
     state: Optional[str] = None
     tax_year: int = 2025
     model_config = ConfigDict(extra="allow")
@@ -302,19 +282,15 @@ class QuestionInput(BaseModel):
     question: str
     state: Optional[str] = None
 
-class RefundInput(BaseModel):
-    filing_status: str = "single"
-    wages: float = 0
-    federal_withholding: float = 0
-    children_under_17: int = 0
-
 # ============================================================
 # DEPENDENT VALIDATION
 # ============================================================
 def validate_dependents(data: dict):
+    """Validate and count dependents from input data"""
     has_dependents = data.get("has_dependents")
     if has_dependents is False:
         return (0, 0, "USER_INDICATED_NO_DEPENDENTS")
+    
     dependents = data.get("dependents") or []
     if isinstance(dependents, list) and len(dependents) > 0:
         children_under_17 = 0
@@ -323,12 +299,17 @@ def validate_dependents(data: dict):
             if isinstance(dep, dict):
                 age = dep.get("age")
                 if age is not None:
-                    if age < 17: children_under_17 += 1
-                    else: other_deps += 1
+                    if age < 17:
+                        children_under_17 += 1
+                    else:
+                        other_deps += 1
                 else:
-                    if dep.get("qualifies_ctc"): children_under_17 += 1
-                    elif dep.get("qualifies_odc"): other_deps += 1
+                    if dep.get("qualifies_ctc"):
+                        children_under_17 += 1
+                    elif dep.get("qualifies_odc"):
+                        other_deps += 1
         return (children_under_17, other_deps, "FROM_DEPENDENTS_ARRAY")
+    
     children = data.get("qualifying_children_under_17", 0) or 0
     other = data.get("other_dependents", 0) or 0
     return (int(children), int(other), "FROM_COUNTS")
@@ -342,16 +323,46 @@ def health_check():
     return {
         "status": "ok",
         "service": "TaxSky Python Tax API",
-        "version": "4.6.0",
+        "version": "4.7.0",
+        "tax_engine_version": "8.2 (OBBBA)",
         "features": {
             "tax_engine": TAX_ENGINE_AVAILABLE,
             "rag": RAG_AVAILABLE,
             "ocr": OCR_AVAILABLE,
             "form_1040": FORM_1040_AVAILABLE,
             "form_ca540": FORM_CA540_AVAILABLE,
+            "form_ny_it201": FORM_NY_IT201_AVAILABLE,
+            "additional_states": ADDITIONAL_STATES_AVAILABLE,
             "validator": EXTRACTOR_AVAILABLE,
             "user_data": USER_DATA_AVAILABLE,
+        },
+        "pdf_forms": {
+            "federal": ["1040"],
+            "states": ["CA-540", "NY-IT201", "IL-1040", "PA-40", "NJ-1040", "GA-500", "NC-D400"]
         }
+    }
+
+# ============================================================
+# PDF FORM STATUS ENDPOINT
+# ============================================================
+@app.get("/forms/status")
+def get_form_status():
+    """Get status of all PDF form generators"""
+    return {
+        "federal": {
+            "1040": {"available": FORM_1040_AVAILABLE, "endpoint": "POST /generate/1040"}
+        },
+        "states": {
+            "CA": {"available": FORM_CA540_AVAILABLE, "form": "540", "endpoint": "POST /generate/ca540"},
+            "NY": {"available": FORM_NY_IT201_AVAILABLE, "form": "IT-201", "endpoint": "POST /generate/ny-it201"},
+            "IL": {"available": ADDITIONAL_STATES_AVAILABLE, "form": "IL-1040", "endpoint": "POST /generate/il-1040"},
+            "PA": {"available": ADDITIONAL_STATES_AVAILABLE, "form": "PA-40", "endpoint": "POST /generate/pa-40"},
+            "NJ": {"available": ADDITIONAL_STATES_AVAILABLE, "form": "NJ-1040", "endpoint": "POST /generate/nj-1040"},
+            "GA": {"available": ADDITIONAL_STATES_AVAILABLE, "form": "500", "endpoint": "POST /generate/ga-500"},
+            "NC": {"available": ADDITIONAL_STATES_AVAILABLE, "form": "D-400", "endpoint": "POST /generate/nc-d400"}
+        },
+        "no_tax_states": ["AK", "FL", "NV", "SD", "TN", "TX", "WA", "WY"],
+        "total_supported": 7
     }
 
 # ============================================================
@@ -359,41 +370,66 @@ def health_check():
 # ============================================================
 @app.post("/calculate")
 def calculate_tax_endpoint(data: TaxInput, language: str = "en"):
+    """Calculate federal tax using tax_engine"""
+    if not TAX_ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Tax engine not available")
+    
     try:
         try:
             tax_data = data.model_dump()
         except AttributeError:
             tax_data = data.dict()
-        children, other, status = validate_dependents(tax_data)
+        
+        # Validate dependents
+        children, other, dep_status = validate_dependents(tax_data)
         tax_data["qualifying_children_under_17"] = children
         tax_data["other_dependents"] = other
+        
+        # Calculate federal tax (tax_engine has all correct 2025 values)
         result = calculate_federal(tax_data)
+        
+        # Calculate state tax if specified
         state = tax_data.get("state")
         if state:
             state_result = calculate_state_tax(state.upper(), tax_data)
             result["state"] = state_result
+        
+        # CTC validation
         ctc = result.get("child_tax_credit", 0)
-        expected_ctc = children * 2000
+        expected_ctc = children * 2000  # CTC is $2,000 per child in 2025
         ctc_validation = {
             "children_count": children,
             "expected_ctc": expected_ctc,
             "actual_ctc": ctc,
             "matches": abs(ctc - expected_ctc) < 1
         }
-        return {"success": True, "federal": result, "ctc_validation": ctc_validation}
+        
+        return {
+            "success": True, 
+            "federal": result, 
+            "ctc_validation": ctc_validation,
+            "dependent_status": dep_status
+        }
+        
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/calculate/state/{state_code}")
 def calculate_state_only(state_code: str, data: TaxInput, language: str = "en"):
+    """Calculate state tax only"""
+    if not TAX_ENGINE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Tax engine not available")
+    
     try:
         try:
             tax_data = data.model_dump()
         except AttributeError:
             tax_data = data.dict()
+        
         result = calculate_state_tax(state_code.upper(), tax_data)
         return {"success": True, "state": result}
+        
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
@@ -549,23 +585,29 @@ async def ocr_ssa(file: UploadFile = File(...)):
 if __name__ == "__main__":
     print("""
 ╔═══════════════════════════════════════════════════════════════╗
-║        🐍 TaxSky Python Tax API v4.6                          ║
+║        🐍 TaxSky Python Tax API v4.7 (CLEAN)                  ║
 ╠═══════════════════════════════════════════════════════════════╣
-║  📊 Tax Calculator: Federal + 50 States                       ║
-║  📄 PDF Generator: Form 1040, CA 540                          ║
-║  🔍 RAG Knowledge: Tax rules & questions                      ║
-║  👁️  OCR: GPT-4 Vision (ALL tax forms!)                       ║
-║  👤 User Data: React calls Python directly!                   ║
+║  📊 Tax Engine: v8.2 OBBBA (Single Source of Truth!)          ║
+║     • Standard Deductions: $15,750 / $31,500 / $23,625        ║
+║     • No Tax on Tips (up to $25,000)                          ║
+║     • No Tax on Overtime (up to $12,500/$25,000)              ║
+║     • Car Loan Interest Deduction (up to $10,000)             ║
+║     • Senior Bonus Deduction ($6,000 per 65+)                 ║
 ╠═══════════════════════════════════════════════════════════════╣
-║  ✅ NEW in v4.6: User Data Router                             ║
-║  • GET  /api/user/{id}           - Get user data              ║
-║  • PUT  /api/user/{id}           - Update user data           ║
-║  • PUT  /api/user/{id}/dependents - Update dependents         ║
-║  • GET  /api/user/{id}/session   - Get session                ║
-║  • POST /api/user/{id}/session   - Save session               ║
+║  📄 PDF Forms: Federal 1040 + 7 States                        ║
+║     CA-540, NY-IT201, IL-1040, PA-40, NJ-1040, GA-500, NC-D400║
 ╠═══════════════════════════════════════════════════════════════╣
-║  ⚡ React (SubmitFlow.jsx) now calls Python directly!         ║
-║     No more Node.js sessionDB.js errors!                      ║
+║  🔍 RAG Knowledge | 👁️ OCR | 👤 User Data                     ║
+╠═══════════════════════════════════════════════════════════════╣
+║  📝 PDF Endpoints:                                            ║
+║     POST /generate/1040      → Federal                        ║
+║     POST /generate/ca540     → California                     ║
+║     POST /generate/ny-it201  → New York                       ║
+║     POST /generate/il-1040   → Illinois                       ║
+║     POST /generate/pa-40     → Pennsylvania                   ║
+║     POST /generate/nj-1040   → New Jersey                     ║
+║     POST /generate/ga-500    → Georgia                        ║
+║     POST /generate/nc-d400   → North Carolina                 ║
 ╚═══════════════════════════════════════════════════════════════╝
     """)
     
