@@ -1,22 +1,33 @@
 /**
  * ============================================================
  * TaxSky Smart AI Controller
- * Version: 15.5 - 36 openai- FIX: Added OBBB deductions to manualRebuild
+ * Version: 15.8 - ALWAYS REBUILD TOTALS (Long-term fix)
  * ============================================================
- * - 
+ * 
+ * ✅ v15.8 LONG-TERM FIX:
+ *  - ALWAYS rebuild totals after ANY save_data() call
+ *  - Auto-rebuild when Dashboard reads data (getAllData)
+ *  - checkIfRebuildNeeded() detects stale data:
+ *    • Federal withheld mismatch between answers & totals
+ *    • IRA not deducted when no 401(k)
+ *    • Wages mismatch
+ *  - This ensures tax calculations are ALWAYS correct!
+ * 
+ * ✅ v15.7 FIX:
+ *  - Fixed IRA deduction not being applied (when no 401k)
+ *  - Added proper IRA contribution limits ($7,000 / $8,000 for 50+)
+ *  - IRA fully deductible if NO 401(k) (regardless of income)
+ *  - IRA income limits only apply if HAS 401(k)
+ *  - Always use manualRebuild for consistent logic
+ * 
+ * ✅ v15.6 FIX:
+ *  - Fixed federal_withheld = 0 bug when page refreshed between W-2 entries
+ *  - manualRebuild now aggregates W-2 data from answers (taxpayer_w2_1_*, etc.)
+ *  - Also fixed tips aggregation for OBBB deduction
+ * 
  * ✅ v15.5 FIX:
  *  - Added OBBB deductions (tips, overtime, car loan, senior) to manualRebuild
  *  - OBBB now properly subtracted from taxable_income
- * 
- * ✅ v15.4 FIX:
- *  - "none", "n/a", "nothing" now validates as 0
- *  - Fixed estimated_payments rejection when user says "none"
- * 
- * ✅ v15.3 FIX:
- *  - Allow abbreviations: MFJ → married_filing_jointly
- *  - Auto-allow calculated fields: taxpayer_age, dependent_count
- *  - Auto-allow special fields: filing_status, language
- *  - Better partial matching for names
  * 
  * ============================================================
  */
@@ -35,7 +46,7 @@ const CONFIG = {
   pythonApiUrl: process.env.PYTHON_API_URL || 'http://localhost:5002'
 };
 
-console.log(`📌 SmartAI v15.0 — Only saves ONE value per message!`);
+console.log(`📌 SmartAI v15.8 — Always rebuilds totals for correct tax calculations!`);
 
 // ============================================================
 // HELPER: Get or Create Session (ATOMIC)
@@ -614,14 +625,10 @@ function rebuildAllData(session) {
   
   if (!session.totals) session.totals = {};
   
-  // Call model's rebuild methods if they exist
-  if (typeof session.rebuildAllData === 'function') {
-    console.log(`   🔧 Using model's rebuildAllData() method`);
-    session.rebuildAllData();
-  } else {
-    console.log(`   🔧 Manual rebuild`);
-    manualRebuild(session, answers);
-  }
+  // ✅ v15.6: Always use manualRebuild for consistent IRA/adjustment logic
+  // The model's rebuildAllData may have different IRA deductibility rules
+  console.log(`   🔧 Using manualRebuild (v15.6)`);
+  manualRebuild(session, answers);
   
   const t = session.totals;
   console.log(`\n   📊 TOTALS:`);
@@ -636,21 +643,134 @@ function rebuildAllData(session) {
 }
 
 // ============================================================
-// MANUAL REBUILD (fallback) - v15.5 OBBB SUPPORT
+// MANUAL REBUILD (fallback) - v15.6 FIX W2 FROM ANSWERS
 // ============================================================
 function manualRebuild(session, answers) {
   const t = session.totals;
   
+  // First try input_forms.w2
   const w2s = session.input_forms?.w2 || [];
-  t.wages = w2s.reduce((sum, w) => sum + (w.box_1_wages || 0), 0);
-  t.federal_withheld = w2s.reduce((sum, w) => sum + (w.box_2_federal_withheld || 0), 0);
-  t.state_withheld = w2s.reduce((sum, w) => sum + (w.box_17_state_withheld || 0), 0);
+  let wagesFromW2 = w2s.reduce((sum, w) => sum + (w.box_1_wages || 0), 0);
+  let fedWithheldFromW2 = w2s.reduce((sum, w) => sum + (w.box_2_federal_withheld || 0), 0);
+  let stateWithheldFromW2 = w2s.reduce((sum, w) => sum + (w.box_17_state_withheld || 0), 0);
   
-  // IRA deduction
-  const taxpayerIra = Number(answers.taxpayer_ira || 0);
-  const spouseIra = Number(answers.spouse_ira || 0);
-  t.ira_deduction = taxpayerIra + spouseIra;
-  t.total_adjustments = t.ira_deduction + Number(answers.hsa || 0) + Math.min(Number(answers.student_loan_interest || 0), 2500);
+  // ✅ v15.6 FIX: If input_forms.w2 is empty/incomplete, aggregate from answers directly
+  // This handles the case where _pendingW2s was lost due to page refresh between requests
+  let wagesFromAnswers = 0;
+  let fedWithheldFromAnswers = 0;
+  let stateWithheldFromAnswers = 0;
+  let tipsFromAnswers = 0;
+  
+  // Aggregate from taxpayer_w2_1_*, taxpayer_w2_2_*, etc.
+  for (let i = 1; i <= 10; i++) {
+    // Taxpayer W-2s
+    wagesFromAnswers += parseFloat(answers[`taxpayer_w2_${i}_wages`] || 0);
+    fedWithheldFromAnswers += parseFloat(answers[`taxpayer_w2_${i}_federal_withheld`] || 0);
+    stateWithheldFromAnswers += parseFloat(answers[`taxpayer_w2_${i}_state_withheld`] || 0);
+    tipsFromAnswers += parseFloat(answers[`taxpayer_w2_${i}_tips`] || 0);
+    // Spouse W-2s
+    wagesFromAnswers += parseFloat(answers[`spouse_w2_${i}_wages`] || 0);
+    fedWithheldFromAnswers += parseFloat(answers[`spouse_w2_${i}_federal_withheld`] || 0);
+    stateWithheldFromAnswers += parseFloat(answers[`spouse_w2_${i}_state_withheld`] || 0);
+  }
+  
+  // Also check legacy single-field format (taxpayer_federal_withheld, etc.)
+  if (fedWithheldFromAnswers === 0) {
+    fedWithheldFromAnswers = parseFloat(answers.taxpayer_federal_withheld || 0) + 
+                             parseFloat(answers.spouse_federal_withheld || 0);
+  }
+  if (stateWithheldFromAnswers === 0) {
+    stateWithheldFromAnswers = parseFloat(answers.taxpayer_state_withheld || 0) + 
+                               parseFloat(answers.spouse_state_withheld || 0);
+  }
+  if (wagesFromAnswers === 0) {
+    wagesFromAnswers = parseFloat(answers.taxpayer_wages || 0) + 
+                       parseFloat(answers.spouse_wages || 0);
+  }
+  
+  // Use the larger value (prioritize input_forms.w2 if it has data, otherwise use answers)
+  t.wages = wagesFromW2 > 0 ? wagesFromW2 : wagesFromAnswers;
+  t.federal_withheld = fedWithheldFromW2 > 0 ? fedWithheldFromW2 : fedWithheldFromAnswers;
+  t.state_withheld = stateWithheldFromW2 > 0 ? stateWithheldFromW2 : stateWithheldFromAnswers;
+  
+  console.log(`   📊 W-2 Data Sources:`);
+  console.log(`      input_forms.w2: wages=$${wagesFromW2}, fed=$${fedWithheldFromW2}, state=$${stateWithheldFromW2}`);
+  console.log(`      answers: wages=$${wagesFromAnswers}, fed=$${fedWithheldFromAnswers}, state=$${stateWithheldFromAnswers}`);
+  console.log(`      FINAL: wages=$${t.wages}, fed=$${t.federal_withheld}, state=$${t.state_withheld}`);
+  
+  // IRA deduction - with proper limits
+  // Calculate age from DOB if not saved directly
+  let taxpayerAge = Number(answers.taxpayer_age || 0);
+  let spouseAge = Number(answers.spouse_age || 0);
+  
+  if (taxpayerAge === 0 && answers.taxpayer_dob) {
+    const dob = new Date(answers.taxpayer_dob);
+    if (!isNaN(dob.getTime())) {
+      taxpayerAge = new Date().getFullYear() - dob.getFullYear();
+    }
+  }
+  if (spouseAge === 0 && answers.spouse_dob) {
+    const dob = new Date(answers.spouse_dob);
+    if (!isNaN(dob.getTime())) {
+      spouseAge = new Date().getFullYear() - dob.getFullYear();
+    }
+  }
+  
+  const taxpayerIraLimit = taxpayerAge >= 50 ? 8000 : 7000;
+  const spouseIraLimit = spouseAge >= 50 ? 8000 : 7000;
+  
+  let taxpayerIra = Number(answers.taxpayer_ira || 0);
+  let spouseIra = Number(answers.spouse_ira || 0);
+  
+  // Cap at contribution limits
+  taxpayerIra = Math.min(taxpayerIra, taxpayerIraLimit);
+  spouseIra = Math.min(spouseIra, spouseIraLimit);
+  
+  // Check IRA deductibility based on 401(k) status and income
+  // If NO 401(k), IRA is ALWAYS fully deductible (no income limit)
+  // If HAS 401(k), income limits apply (2025: $79,000-$89,000 single)
+  const has401k = answers.taxpayer_has_401k === true || answers.taxpayer_has_401k === 'true';
+  const spouseHas401k = answers.spouse_has_401k === true || answers.spouse_has_401k === 'true';
+  
+  let taxpayerIraDeductible = taxpayerIra;
+  let spouseIraDeductible = spouseIra;
+  
+  // Only apply income limits if has 401k
+  if (has401k && taxpayerIra > 0) {
+    const agi = t.wages - Number(answers.hsa || 0); // Preliminary AGI for limit check
+    if (agi > 89000) {
+      taxpayerIraDeductible = 0;
+      console.log(`   ⚠️ Taxpayer IRA not deductible: AGI $${agi} > $89,000 limit (has 401k)`);
+    } else if (agi > 79000) {
+      // Partial deduction phase-out
+      const phaseOutPct = (89000 - agi) / 10000;
+      taxpayerIraDeductible = Math.round(taxpayerIra * phaseOutPct);
+      console.log(`   ℹ️ Taxpayer IRA partially deductible: $${taxpayerIraDeductible} (phase-out)`);
+    }
+  }
+  
+  if (spouseHas401k && spouseIra > 0) {
+    const agi = t.wages - Number(answers.hsa || 0);
+    if (agi > 89000) {
+      spouseIraDeductible = 0;
+    }
+  }
+  
+  t.ira_deduction = taxpayerIraDeductible + spouseIraDeductible;
+  t.taxpayer_ira_deductible = taxpayerIraDeductible;
+  t.spouse_ira_deductible = spouseIraDeductible;
+  
+  console.log(`   💰 IRA: taxpayer=$${taxpayerIra} (deductible=$${taxpayerIraDeductible}), spouse=$${spouseIra} (deductible=$${spouseIraDeductible})`);
+  console.log(`   💰 401(k) status: taxpayer=${has401k}, spouse=${spouseHas401k}`);
+  
+  // HSA deduction
+  const hsaDeduction = Number(answers.hsa || answers.hsa_contribution || 0);
+  t.hsa_deduction = hsaDeduction;
+  
+  // Student loan interest (max $2,500)
+  const studentLoanInterest = Math.min(Number(answers.student_loan_interest || 0), 2500);
+  
+  t.total_adjustments = t.ira_deduction + hsaDeduction + studentLoanInterest;
   
   t.total_income = t.wages + (t.interest || 0) + (t.dividends || 0);
   t.agi = t.total_income - t.total_adjustments;
@@ -666,13 +786,19 @@ function manualRebuild(session, answers) {
   t.deduction_used = t.standard_deduction;
   
   // ════════════════════════════════════════════════════════════
-  // ✅ v15.5: OBBB DEDUCTIONS (Tips, Overtime, Car Loan, Senior)
+  // ✅ v15.6: OBBB DEDUCTIONS (Tips, Overtime, Car Loan, Senior)
   // ════════════════════════════════════════════════════════════
   const isJoint = session.filing_status === 'married_filing_jointly';
   
-  // Tips deduction (max $25,000)
-  const tips = Number(answers.tips_received || answers.taxpayer_w2_tips || answers.tips || 0);
-  t.obbb_tips_deduction = Math.min(tips, 25000);
+  // Tips deduction (max $25,000) - aggregate from all W-2s + additional tips
+  let totalTips = tipsFromAnswers; // From W-2 aggregation above
+  totalTips += Number(answers.additional_cash_tips || 0);
+  totalTips += Number(answers.tips_received || answers.tips || 0);
+  // Also check legacy single fields
+  if (totalTips === 0) {
+    totalTips = Number(answers.taxpayer_w2_tips || 0);
+  }
+  t.obbb_tips_deduction = Math.min(totalTips, 25000);
   
   // Overtime deduction (max $12,500 single / $25,000 MFJ)
   const overtime = Number(answers.overtime_pay || answers.overtime || 0);
@@ -888,14 +1014,20 @@ export async function handleSmartChat(req, res) {
                        (aiMessage.toLowerCase().includes('everything correct') && 
                         aiMessage.includes('Great job'));
     
+    // ✅ v15.8: ALWAYS rebuild totals after ANY save_data() call
+    // This ensures calculations are always correct, no matter what field changes
+    const hasSaveData = aiMessage.includes('save_data(');
+    
+    if (hasSaveData) {
+      console.log(`\n🔄 REBUILDING TOTALS (save_data detected)...`);
+      rebuildAllData(session);
+      console.log(`✅ Totals recalculated!`);
+    }
+    
     if (isComplete) {
       console.log(`\n🎉 INTERVIEW COMPLETE!`);
-      
-      rebuildAllData(session);
-      
       session.status = 'ready_for_review';
       setAnswer(session, 'interview_complete', true);
-      
       console.log(`\n✅ Interview data saved to MongoDB!`);
     }
     
@@ -1137,12 +1269,13 @@ if (session && session.messages && session.messages.length > 0) {
 }
 
 // ============================================================
-// GET ALL DATA
+// GET ALL DATA - v15.8: Auto-rebuild totals on read
 // ============================================================
 export async function getAllData(req, res) {
   try {
     const { userId } = req.params;
     const taxYear = parseInt(req.query.taxYear) || 2025;
+    const forceRebuild = req.query.rebuild === 'true'; // Optional: ?rebuild=true
     
     const session = await TaxSession.findOne({ userId, taxYear });
     
@@ -1153,6 +1286,17 @@ export async function getAllData(req, res) {
     const answers = session.answers instanceof Map 
       ? Object.fromEntries(session.answers) 
       : (session.answers || {});
+    
+    // ✅ v15.8: Auto-rebuild totals if answers have W-2 data but totals seem stale
+    // This catches cases where data was saved but totals weren't recalculated
+    const shouldRebuild = forceRebuild || checkIfRebuildNeeded(session, answers);
+    
+    if (shouldRebuild) {
+      console.log(`[getAllData] 🔄 Auto-rebuilding totals for ${userId}...`);
+      rebuildAllData(session);
+      await session.save();
+      console.log(`[getAllData] ✅ Totals recalculated and saved!`);
+    }
     
     return res.json({
       success: true,
@@ -1167,13 +1311,64 @@ export async function getAllData(req, res) {
       totals: session.totals,
       form1040: session.form1040,
       answers,
-      messages: session.messages
+      messages: session.messages,
+      rebuilt: shouldRebuild
     });
     
   } catch (error) {
     console.error('❌ getAllData error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
+}
+
+// ✅ v15.8: Check if totals need rebuilding
+function checkIfRebuildNeeded(session, answers) {
+  const totals = session.totals || {};
+  
+  // Check if answers have W-2 withholding but totals.federal_withheld is different
+  let answersWithheld = 0;
+  for (let i = 1; i <= 10; i++) {
+    answersWithheld += parseFloat(answers[`taxpayer_w2_${i}_federal_withheld`] || 0);
+    answersWithheld += parseFloat(answers[`spouse_w2_${i}_federal_withheld`] || 0);
+  }
+  // Check legacy format
+  if (answersWithheld === 0) {
+    answersWithheld = parseFloat(answers.taxpayer_federal_withheld || 0) +
+                      parseFloat(answers.spouse_federal_withheld || 0);
+  }
+  
+  // If answers have withholding but totals don't match
+  if (answersWithheld > 0 && totals.federal_withheld !== answersWithheld) {
+    console.log(`[checkIfRebuildNeeded] Mismatch: answers=$${answersWithheld}, totals=$${totals.federal_withheld || 0}`);
+    return true;
+  }
+  
+  // Check if IRA in answers but not reflected in totals
+  const answersIra = parseFloat(answers.taxpayer_ira || 0) + parseFloat(answers.spouse_ira || 0);
+  const has401k = answers.taxpayer_has_401k === true || answers.taxpayer_has_401k === 'true';
+  
+  // If no 401k and IRA exists, it should be deductible
+  if (!has401k && answersIra > 0 && (totals.ira_deduction || 0) === 0) {
+    console.log(`[checkIfRebuildNeeded] IRA not deducted: answers=$${answersIra}, totals=$${totals.ira_deduction || 0}`);
+    return true;
+  }
+  
+  // Check wages mismatch
+  let answersWages = 0;
+  for (let i = 1; i <= 10; i++) {
+    answersWages += parseFloat(answers[`taxpayer_w2_${i}_wages`] || 0);
+    answersWages += parseFloat(answers[`spouse_w2_${i}_wages`] || 0);
+  }
+  if (answersWages === 0) {
+    answersWages = parseFloat(answers.taxpayer_wages || 0) + parseFloat(answers.spouse_wages || 0);
+  }
+  
+  if (answersWages > 0 && Math.abs((totals.wages || 0) - answersWages) > 1) {
+    console.log(`[checkIfRebuildNeeded] Wages mismatch: answers=$${answersWages}, totals=$${totals.wages || 0}`);
+    return true;
+  }
+  
+  return false;
 }
 
 // ============================================================
