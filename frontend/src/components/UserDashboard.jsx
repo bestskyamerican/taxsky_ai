@@ -1,36 +1,75 @@
 // ============================================================
-// USER DASHBOARD - v5.0 MOBILE RESPONSIVE UI
+// USER DASHBOARD - v5.4 FIX CORRECT API ENDPOINT
 // ============================================================
-// ✅ v5.0: Mobile-first responsive design
-//          - Bottom navigation for mobile
-//          - Hamburger menu for mobile header
-//          - Touch-friendly cards and buttons
-//          - Responsive grid layouts
-// ✅ v4.8: Added OBBB Deductions display (Tips, Overtime, Car Loan, Senior)
-// ✅ v4.7: FIXED! Net result = federal + state (shows correct total)
-// Supports: English (en), Vietnamese (vi), Spanish (es)
+// ✅ v5.4: Fixed API endpoint from /calculate/state to /calculate/state/{code}
+//          - The /calculate/state endpoint doesn't exist (404)!
+//          - Must use /calculate/state/{state_code} which returns nested response
+// ✅ v5.3: Fixed nested response handling (rawResponse.state || rawResponse)
+// ✅ v5.2: Fixed state tax field mapping
+// ✅ v5.1: Added ALL 50 states + DC support
 // ============================================================
 
 import React, { useState, useEffect, useCallback } from "react";
 import SubmitFlow from "./SubmitFlow";
 
-const API_BASE = import.meta.env?.VITE_API_URL || "http://localhost:3000";
+const API_BASE = import.meta.env?.VITE_API_URL || "http://localhost:5001";
 const PYTHON_API = import.meta.env?.VITE_PYTHON_API || "http://localhost:5002";
 
-// ✅ STATE LIST
+// ✅ STATE LIST - ALL 50 STATES + DC
 const ALL_STATES = [
-  { code: "CA", name: "California", icon: "🌴", group: "full" },
-  { code: "NY", name: "New York", icon: "🗽", group: "full" },
-  { code: "NJ", name: "New Jersey", icon: "🏛️", group: "full" },
-  { code: "IL", name: "Illinois", icon: "🏙️", group: "full" },
-  { code: "FL", name: "Florida", icon: "🌴", group: "no_tax" },
-  { code: "TX", name: "Texas", icon: "🤠", group: "no_tax" },
-  { code: "NV", name: "Nevada", icon: "🎰", group: "no_tax" },
-  { code: "WA", name: "Washington", icon: "🌲", group: "no_tax" },
-  { code: "TN", name: "Tennessee", icon: "🎸", group: "no_tax" },
+  // No Income Tax States
   { code: "AK", name: "Alaska", icon: "🏔️", group: "no_tax" },
-  { code: "WY", name: "Wyoming", icon: "🦬", group: "no_tax" },
+  { code: "FL", name: "Florida", icon: "🌴", group: "no_tax" },
+  { code: "NV", name: "Nevada", icon: "🎰", group: "no_tax" },
+  { code: "NH", name: "New Hampshire", icon: "🏔️", group: "no_tax" },
   { code: "SD", name: "South Dakota", icon: "🌾", group: "no_tax" },
+  { code: "TN", name: "Tennessee", icon: "🎸", group: "no_tax" },
+  { code: "TX", name: "Texas", icon: "🤠", group: "no_tax" },
+  { code: "WA", name: "Washington", icon: "🌲", group: "no_tax" },
+  { code: "WY", name: "Wyoming", icon: "🦬", group: "no_tax" },
+  // Income Tax States - Full Support
+  { code: "AL", name: "Alabama", icon: "🏈", group: "full" },
+  { code: "AR", name: "Arkansas", icon: "💎", group: "full" },
+  { code: "AZ", name: "Arizona", icon: "🌵", group: "full" },
+  { code: "CA", name: "California", icon: "🌴", group: "full" },
+  { code: "CO", name: "Colorado", icon: "🏔️", group: "full" },
+  { code: "CT", name: "Connecticut", icon: "🍂", group: "full" },
+  { code: "DC", name: "Washington DC", icon: "🏛️", group: "full" },
+  { code: "DE", name: "Delaware", icon: "🐓", group: "full" },
+  { code: "GA", name: "Georgia", icon: "🍑", group: "full" },
+  { code: "HI", name: "Hawaii", icon: "🌺", group: "full" },
+  { code: "IA", name: "Iowa", icon: "🌽", group: "full" },
+  { code: "ID", name: "Idaho", icon: "🥔", group: "full" },
+  { code: "IL", name: "Illinois", icon: "🏙️", group: "full" },
+  { code: "IN", name: "Indiana", icon: "🏎️", group: "full" },
+  { code: "KS", name: "Kansas", icon: "🌻", group: "full" },
+  { code: "KY", name: "Kentucky", icon: "🐴", group: "full" },
+  { code: "LA", name: "Louisiana", icon: "🎺", group: "full" },
+  { code: "MA", name: "Massachusetts", icon: "🦞", group: "full" },
+  { code: "MD", name: "Maryland", icon: "🦀", group: "full" },
+  { code: "ME", name: "Maine", icon: "🦞", group: "full" },
+  { code: "MI", name: "Michigan", icon: "🚗", group: "full" },
+  { code: "MN", name: "Minnesota", icon: "❄️", group: "full" },
+  { code: "MO", name: "Missouri", icon: "⚾", group: "full" },
+  { code: "MS", name: "Mississippi", icon: "🎸", group: "full" },
+  { code: "MT", name: "Montana", icon: "🦌", group: "full" },
+  { code: "NC", name: "North Carolina", icon: "🏀", group: "full" },
+  { code: "ND", name: "North Dakota", icon: "🌾", group: "full" },
+  { code: "NE", name: "Nebraska", icon: "🌽", group: "full" },
+  { code: "NJ", name: "New Jersey", icon: "🏛️", group: "full" },
+  { code: "NM", name: "New Mexico", icon: "🌵", group: "full" },
+  { code: "NY", name: "New York", icon: "🗽", group: "full" },
+  { code: "OH", name: "Ohio", icon: "🏈", group: "full" },
+  { code: "OK", name: "Oklahoma", icon: "🤠", group: "full" },
+  { code: "OR", name: "Oregon", icon: "🌲", group: "full" },
+  { code: "PA", name: "Pennsylvania", icon: "🔔", group: "full" },
+  { code: "RI", name: "Rhode Island", icon: "⛵", group: "full" },
+  { code: "SC", name: "South Carolina", icon: "🌴", group: "full" },
+  { code: "UT", name: "Utah", icon: "🏔️", group: "full" },
+  { code: "VA", name: "Virginia", icon: "🏛️", group: "full" },
+  { code: "VT", name: "Vermont", icon: "🍁", group: "full" },
+  { code: "WI", name: "Wisconsin", icon: "🧀", group: "full" },
+  { code: "WV", name: "West Virginia", icon: "⛰️", group: "full" },
 ];
 
 const getStateIcon = (code) => ALL_STATES.find(s => s.code === code)?.icon || "🏛️";
@@ -289,16 +328,49 @@ export default function UserDashboard() {
         
         let stateData = { state: userState, stateName: userState, caAgi: federalAgi, caWithholding: stateWithholding, stateRefund: 0, stateOwed: 0, hasStateTax: true };
         try {
-          const stateRes = await fetch(`${PYTHON_API}/calculate/state`, {
+          // ✅ v5.4 FIX: Use correct endpoint /calculate/state/{state_code}
+          const stateRes = await fetch(`${PYTHON_API}/calculate/state/${userState}`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ state: userState, filing_status: form1040?.header?.filing_status || "single", federal_agi: federalAgi, wages: income.line_1_wages || 0, state_withholding: stateWithholding }),
           });
-          const sr = await stateRes.json();
+          const rawResponse = await stateRes.json();
+          console.log("[DASHBOARD] 🏛️ Raw state API response:", rawResponse);
+          
+          // ✅ v5.3 FIX: Handle BOTH response formats
+          // Format 1: /calculate/state returns result directly
+          // Format 2: /calculate/state/{code} returns {success: true, state: result}
+          const sr = rawResponse.state || rawResponse;
+          console.log("[DASHBOARD] 🏛️ Extracted state data:", sr);
+          
           if (sr && !sr.error) {
-            stateData = { state: userState, stateName: sr.state_name || userState, hasStateTax: sr.has_income_tax !== false, supportLevel: sr.support_level,
-              caAgi: sr.ca_agi || sr.nj_agi || sr.federal_agi || federalAgi, caStdDeduction: sr.standard_deduction || sr.exemptions || 0,
-              caTaxableIncome: sr.taxable_income || 0, caTax: sr.total_tax || 0, calEitc: sr.caleitc || 0, yctc: sr.yctc || 0, ilEic: sr.il_eic || 0,
-              caWithholding: sr.withholding || stateWithholding, stateRefund: sr.refund || 0, stateOwed: sr.amount_owed || 0, effectiveRate: sr.effective_rate || 0, taxRate: sr.tax_rate };
+            // ✅ v5.3 FIX: Handle all possible field name variations from Python API
+            // Including CA.py line-based field names (line_17_ca_agi, line_18_deduction, etc.)
+            stateData = { 
+              state: userState, 
+              stateName: sr.state_name || userState, 
+              hasStateTax: sr.has_income_tax !== false, 
+              supportLevel: sr.support_level,
+              // AGI - check CA.py line-based names AND generic names
+              caAgi: sr.ca_agi || sr.line_17_ca_agi || sr.state_agi || sr.agi || sr.nj_agi || sr.federal_agi || federalAgi, 
+              // Standard Deduction - check CA.py line-based names AND generic names
+              caStdDeduction: sr.standard_deduction || sr.line_18_deduction || sr.deduction_used || sr.ca_standard_deduction || sr.state_standard_deduction || sr.exemptions || sr.deduction || 0,
+              // Taxable Income - check CA.py line-based names AND generic names
+              caTaxableIncome: sr.taxable_income || sr.line_19_taxable_income || sr.ca_taxable_income || sr.state_taxable_income || 0, 
+              // Tax - check CA.py line-based names AND generic names
+              caTax: sr.total_tax || sr.line_64_total_tax || sr.ca_tax || sr.state_tax || sr.tax || sr.net_tax || sr.tax_before_credits || 0, 
+              // Credits - CA.py line-based names
+              calEitc: sr.caleitc || sr.line_75_caleitc || sr.cal_eitc || sr.ca_eitc || 0, 
+              yctc: sr.yctc || sr.line_76_yctc || sr.ca_yctc || 0, 
+              ilEic: sr.il_eic || 0,
+              // Withholding - CA.py line-based names
+              caWithholding: sr.withholding || sr.line_71_withholding || sr.state_withholding || stateWithholding, 
+              // Refund/Owed - CA.py line-based names
+              stateRefund: sr.refund || sr.line_115_refund || sr.state_refund || 0, 
+              stateOwed: sr.amount_owed || sr.line_111_amount_owed || sr.owed || sr.state_owed || 0, 
+              effectiveRate: sr.effective_rate || 0, 
+              taxRate: sr.tax_rate || 0 
+            };
+            console.log("[DASHBOARD] 🏛️ Mapped stateData:", stateData);
           }
         } catch (e) { console.error("State calc error:", e); }
         

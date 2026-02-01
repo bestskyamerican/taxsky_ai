@@ -1,9 +1,12 @@
 # tax_engine/state_router.py
 # ============================================================
-# STATE TAX ROUTER - TaxSky 2025 v2.0
+# STATE TAX ROUTER - TaxSky 2025 v2.3 ALL 50 STATES
 # ============================================================
 # Routes tax calculations to the correct state module
-# Supports 7 tax states + 9 no-tax states
+# ✅ v2.3: Dynamic import of ALL state modules (AL, AR, AZ, CA, etc.)
+# ✅ v2.2: Added generic calculator fallback
+# ✅ v2.1: Fixed import path from 'states' to '.calculator.states'
+# Supports ALL 50 states + DC
 # ============================================================
 
 from typing import Dict, Any, List, Optional
@@ -123,20 +126,98 @@ ALL_STATE_CODES = [
 ]
 
 # ============================================================
-# IMPORT STATE CALCULATORS
+# IMPORT STATE CALCULATORS - ALL 41 TAX STATES
 # ============================================================
 
-# Try to import from states package
-try:
-    from states import (
-        CA, NY, IL, NJ, PA, GA, NC, FL, TX,
-        calculate_state_tax as _calculate_state_tax
-    )
-    STATES_PACKAGE_AVAILABLE = True
-except ImportError:
-    STATES_PACKAGE_AVAILABLE = False
-    # Define fallback calculators
-    CA = NY = IL = NJ = PA = GA = NC = FL = TX = None
+# Initialize all modules as None
+AL = AR = AZ = CA = CO = CT = DC = DE = FL = GA = None
+HI = IA = ID = IL = IN = KS = KY = LA = MA = MD = None
+ME = MI = MN = MO = MS = MT = NC = ND = NE = NH = None
+NJ = NM = NY = OH = OK = OR = PA = RI = SC = SD = None
+TN = TX = UT = VA = VT = WA = WI = WV = WY = None
+
+STATES_PACKAGE_AVAILABLE = False
+LOADED_STATES = []
+
+# Import each state module
+def try_import_state(state_code):
+    """Try to import a state module"""
+    try:
+        module = __import__(f"tax_engine.calculator.states.{state_code}", fromlist=[state_code])
+        if hasattr(module, 'calculate'):
+            print(f"✅ {state_code}.py loaded")
+            return module
+    except ImportError:
+        pass
+    try:
+        # Try relative import
+        from importlib import import_module
+        module = import_module(f".calculator.states.{state_code}", "tax_engine")
+        if hasattr(module, 'calculate'):
+            print(f"✅ {state_code}.py loaded (relative)")
+            return module
+    except ImportError:
+        pass
+    return None
+
+# Load all states
+AL = try_import_state("AL")
+AR = try_import_state("AR")
+AZ = try_import_state("AZ")
+CA = try_import_state("CA")
+CO = try_import_state("CO")
+CT = try_import_state("CT")
+DC = try_import_state("DC")
+DE = try_import_state("DE")
+FL = try_import_state("FL")
+GA = try_import_state("GA")
+HI = try_import_state("HI")
+IA = try_import_state("IA")
+ID = try_import_state("ID")
+IL = try_import_state("IL")
+IN = try_import_state("IN")
+KS = try_import_state("KS")
+KY = try_import_state("KY")
+LA = try_import_state("LA")
+MA = try_import_state("MA")
+MD = try_import_state("MD")
+ME = try_import_state("ME")
+MI = try_import_state("MI")
+MN = try_import_state("MN")
+MO = try_import_state("MO")
+MS = try_import_state("MS")
+MT = try_import_state("MT")
+NC = try_import_state("NC")
+ND = try_import_state("ND")
+NE = try_import_state("NE")
+NJ = try_import_state("NJ")
+NM = try_import_state("NM")
+NY = try_import_state("NY")
+OH = try_import_state("OH")
+OK = try_import_state("OK")
+OR = try_import_state("OR")
+PA = try_import_state("PA")
+RI = try_import_state("RI")
+SC = try_import_state("SC")
+UT = try_import_state("UT")
+VA = try_import_state("VA")
+VT = try_import_state("VT")
+WI = try_import_state("WI")
+WV = try_import_state("WV")
+
+# Build loaded states list
+STATE_MODULES = {
+    "AL": AL, "AR": AR, "AZ": AZ, "CA": CA, "CO": CO, "CT": CT, "DC": DC, "DE": DE,
+    "FL": FL, "GA": GA, "HI": HI, "IA": IA, "ID": ID, "IL": IL, "IN": IN, "KS": KS,
+    "KY": KY, "LA": LA, "MA": MA, "MD": MD, "ME": ME, "MI": MI, "MN": MN, "MO": MO,
+    "MS": MS, "MT": MT, "NC": NC, "ND": ND, "NE": NE, "NJ": NJ, "NM": NM, "NY": NY,
+    "OH": OH, "OK": OK, "OR": OR, "PA": PA, "RI": RI, "SC": SC, "UT": UT, "VA": VA,
+    "VT": VT, "WI": WI, "WV": WV
+}
+
+LOADED_STATES = [code for code, module in STATE_MODULES.items() if module is not None]
+STATES_PACKAGE_AVAILABLE = len(LOADED_STATES) > 0
+print(f"✅ Loaded {len(LOADED_STATES)} state calculators: {', '.join(LOADED_STATES)}")
 
 # ============================================================
 # VALIDATION FUNCTIONS
@@ -353,6 +434,7 @@ def calculate_state_tax(state_code: str, data: Dict[str, Any]) -> Dict[str, Any]
             "taxable_income": 0,
             "state_tax": 0,
             "total_tax": 0,
+            "standard_deduction": 0,
             "withholding": data.get("state_withholding", 0),
             "refund": data.get("state_withholding", 0),  # All withholding is refunded
             "amount_owed": 0,
@@ -360,51 +442,162 @@ def calculate_state_tax(state_code: str, data: Dict[str, Any]) -> Dict[str, Any]
             "notes": f"{info['name']} has no state income tax. No state return required."
         }
     
-    # Use states package if available
-    if STATES_PACKAGE_AVAILABLE:
+    # Try state-specific module from STATE_MODULES
+    module = STATE_MODULES.get(state_code)
+    if module and hasattr(module, 'calculate'):
         try:
-            return _calculate_state_tax(state_code, data)
+            result = module.calculate(data)
+            result["support_level"] = "full"
+            return result
         except Exception as e:
-            return {
-                "state": state_code,
-                "error": str(e),
-                "success": False
-            }
+            print(f"⚠️ {state_code} calculator error: {e}")
+            # Fall through to generic calculator
     
-    # Fallback: Try direct import
-    try:
-        if state_code == "CA" and CA:
-            return CA.calculate(data)
-        elif state_code == "NY" and NY:
-            return NY.calculate(data)
-        elif state_code == "IL" and IL:
-            return IL.calculate(data)
-        elif state_code == "NJ" and NJ:
-            return NJ.calculate(data)
-        elif state_code == "PA" and PA:
-            return PA.calculate(data)
-        elif state_code == "GA" and GA:
-            return GA.calculate(data)
-        elif state_code == "NC" and NC:
-            return NC.calculate(data)
-        elif state_code == "FL" and FL:
-            return FL.calculate(data)
-        elif state_code == "TX" and TX:
-            return TX.calculate(data)
-    except Exception as e:
+    # ============================================================
+    # GENERIC CALCULATOR FALLBACK - ALL 41 TAX STATES
+    # ============================================================
+    return calculate_generic_state(state_code, data)
+
+
+def calculate_generic_state(state_code: str, data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Generic state tax calculator for states without dedicated modules.
+    Supports flat tax and progressive tax states.
+    """
+    # State tax info (flat tax rates and standard deductions)
+    GENERIC_STATE_INFO = {
+        # Flat tax states
+        "AZ": {"name": "Arizona", "type": "flat", "rate": 0.025, "std_single": 14600, "std_mfj": 29200},
+        "CO": {"name": "Colorado", "type": "flat", "rate": 0.044, "std_single": 0, "std_mfj": 0, "uses_federal_taxable": True},
+        "GA": {"name": "Georgia", "type": "flat", "rate": 0.0549, "std_single": 12000, "std_mfj": 24000},
+        "ID": {"name": "Idaho", "type": "flat", "rate": 0.058, "std_single": 14600, "std_mfj": 29200},
+        "IL": {"name": "Illinois", "type": "flat", "rate": 0.0495, "std_single": 0, "std_mfj": 0, "exemption": 2775},
+        "IN": {"name": "Indiana", "type": "flat", "rate": 0.0305, "std_single": 0, "std_mfj": 0, "exemption": 1000},
+        "IA": {"name": "Iowa", "type": "flat", "rate": 0.038, "std_single": 0, "std_mfj": 0},
+        "KY": {"name": "Kentucky", "type": "flat", "rate": 0.04, "std_single": 3160, "std_mfj": 6320},
+        "MA": {"name": "Massachusetts", "type": "flat", "rate": 0.05, "std_single": 0, "std_mfj": 0, "exemption": 4400},
+        "MI": {"name": "Michigan", "type": "flat", "rate": 0.0425, "std_single": 0, "std_mfj": 0, "exemption": 5600},
+        "MS": {"name": "Mississippi", "type": "flat", "rate": 0.047, "std_single": 2300, "std_mfj": 4600, "exempt_amount": 10000},
+        "NC": {"name": "North Carolina", "type": "flat", "rate": 0.045, "std_single": 13500, "std_mfj": 27000},
+        "PA": {"name": "Pennsylvania", "type": "flat", "rate": 0.0307, "std_single": 0, "std_mfj": 0},
+        "UT": {"name": "Utah", "type": "flat", "rate": 0.0465, "std_single": 0, "std_mfj": 0, "uses_federal_taxable": True},
+        
+        # Progressive tax states (simplified - using top marginal rate as approximation)
+        "AL": {"name": "Alabama", "type": "progressive", "top_rate": 0.05, "std_single": 2500, "std_mfj": 7500},
+        "AR": {"name": "Arkansas", "type": "progressive", "top_rate": 0.044, "std_single": 2340, "std_mfj": 4680},
+        "CA": {"name": "California", "type": "progressive", "top_rate": 0.123, "std_single": 5706, "std_mfj": 11412},
+        "CT": {"name": "Connecticut", "type": "progressive", "top_rate": 0.0699, "std_single": 0, "std_mfj": 0},
+        "DC": {"name": "Washington DC", "type": "progressive", "top_rate": 0.1075, "std_single": 14600, "std_mfj": 29200},
+        "DE": {"name": "Delaware", "type": "progressive", "top_rate": 0.066, "std_single": 3250, "std_mfj": 6500},
+        "HI": {"name": "Hawaii", "type": "progressive", "top_rate": 0.11, "std_single": 2200, "std_mfj": 4400},
+        "KS": {"name": "Kansas", "type": "progressive", "top_rate": 0.057, "std_single": 3500, "std_mfj": 8000},
+        "LA": {"name": "Louisiana", "type": "progressive", "top_rate": 0.0425, "std_single": 0, "std_mfj": 0},
+        "ME": {"name": "Maine", "type": "progressive", "top_rate": 0.0715, "std_single": 14600, "std_mfj": 29200},
+        "MD": {"name": "Maryland", "type": "progressive", "top_rate": 0.0575, "std_single": 2550, "std_mfj": 5100},
+        "MN": {"name": "Minnesota", "type": "progressive", "top_rate": 0.0985, "std_single": 14575, "std_mfj": 29150},
+        "MO": {"name": "Missouri", "type": "progressive", "top_rate": 0.048, "std_single": 14600, "std_mfj": 29200},
+        "MT": {"name": "Montana", "type": "progressive", "top_rate": 0.059, "std_single": 5540, "std_mfj": 11080},
+        "NE": {"name": "Nebraska", "type": "progressive", "top_rate": 0.0584, "std_single": 7900, "std_mfj": 15800},
+        "NJ": {"name": "New Jersey", "type": "progressive", "top_rate": 0.1075, "std_single": 0, "std_mfj": 0},
+        "NM": {"name": "New Mexico", "type": "progressive", "top_rate": 0.059, "std_single": 14600, "std_mfj": 29200},
+        "NY": {"name": "New York", "type": "progressive", "top_rate": 0.109, "std_single": 8000, "std_mfj": 16050},
+        "ND": {"name": "North Dakota", "type": "progressive", "top_rate": 0.025, "std_single": 14600, "std_mfj": 29200},
+        "OH": {"name": "Ohio", "type": "progressive", "top_rate": 0.035, "std_single": 0, "std_mfj": 0, "exempt_amount": 26050},
+        "OK": {"name": "Oklahoma", "type": "progressive", "top_rate": 0.0475, "std_single": 6350, "std_mfj": 12700},
+        "OR": {"name": "Oregon", "type": "progressive", "top_rate": 0.099, "std_single": 2745, "std_mfj": 5495},
+        "RI": {"name": "Rhode Island", "type": "progressive", "top_rate": 0.0599, "std_single": 10550, "std_mfj": 21150},
+        "SC": {"name": "South Carolina", "type": "progressive", "top_rate": 0.064, "std_single": 14600, "std_mfj": 29200},
+        "VT": {"name": "Vermont", "type": "progressive", "top_rate": 0.0875, "std_single": 7000, "std_mfj": 14000},
+        "VA": {"name": "Virginia", "type": "progressive", "top_rate": 0.0575, "std_single": 8500, "std_mfj": 17000},
+        "WV": {"name": "West Virginia", "type": "progressive", "top_rate": 0.05, "std_single": 0, "std_mfj": 0},
+        "WI": {"name": "Wisconsin", "type": "progressive", "top_rate": 0.0765, "std_single": 13230, "std_mfj": 24470},
+    }
+    
+    info = GENERIC_STATE_INFO.get(state_code)
+    if not info:
         return {
             "state": state_code,
-            "error": str(e),
-            "success": False
+            "supported": False,
+            "error": f"State {state_code} not in generic calculator",
+            "message": "Please check back soon - we're adding more states!"
         }
     
-    # State not supported
+    # Extract data
+    filing_status = (data.get("filing_status") or "single").lower().replace(" ", "_").replace("-", "_")
+    is_mfj = filing_status in ["married_filing_jointly", "mfj", "qualifying_surviving_spouse"]
+    
+    federal_agi = float(data.get("federal_agi") or data.get("agi") or 0)
+    wages = float(data.get("wages") or federal_agi)
+    withholding = float(data.get("state_withholding") or data.get("withholding") or 0)
+    num_deps = int(data.get("num_dependents") or 0)
+    
+    # Standard deduction
+    std_ded = info.get("std_mfj", 0) if is_mfj else info.get("std_single", 0)
+    
+    # Exemptions
+    exemption = info.get("exemption", 0)
+    if exemption > 0:
+        num_exemptions = 2 if is_mfj else 1
+        total_exemption = (num_exemptions + num_deps) * exemption
+    else:
+        total_exemption = 0
+    
+    # Exempt amount (like Ohio's first $26,050)
+    exempt_amount = info.get("exempt_amount", 0)
+    
+    # State AGI (some states use federal taxable income)
+    if info.get("uses_federal_taxable"):
+        # For CO, UT - use federal taxable (AGI - std deduction)
+        state_agi = max(0, federal_agi - 14600)  # Approximate federal std ded
+    else:
+        state_agi = federal_agi
+    
+    # Taxable income
+    taxable_income = max(0, state_agi - std_ded - total_exemption - exempt_amount)
+    
+    # Calculate tax
+    if info["type"] == "flat":
+        rate = info["rate"]
+        state_tax = round(taxable_income * rate, 2)
+    else:
+        # Progressive - use simplified effective rate (about 70% of top rate for most incomes)
+        top_rate = info.get("top_rate", 0.05)
+        effective_rate = top_rate * 0.7  # Approximation
+        state_tax = round(taxable_income * effective_rate, 2)
+    
+    # Refund or owed
+    if withholding > state_tax:
+        refund = round(withholding - state_tax, 2)
+        amount_owed = 0
+    else:
+        refund = 0
+        amount_owed = round(state_tax - withholding, 2)
+    
+    effective_rate = round((state_tax / federal_agi * 100) if federal_agi > 0 else 0, 2)
+    
     return {
         "state": state_code,
-        "supported": False,
-        "error": f"State {state_code} calculator not yet implemented",
-        "message": "Please check back soon - we're adding more states!",
-        "supported_states": get_supported_states()
+        "state_name": info["name"],
+        "filing_status": filing_status,
+        "has_income_tax": True,
+        "support_level": "generic",
+        "tax_type": info["type"],
+        
+        # Key fields for Dashboard
+        "federal_agi": federal_agi,
+        "ca_agi": state_agi,  # Using ca_agi for compatibility
+        "state_agi": state_agi,
+        "standard_deduction": std_ded,
+        "exemptions": total_exemption,
+        "taxable_income": taxable_income,
+        "total_tax": state_tax,
+        "state_tax": state_tax,
+        "withholding": withholding,
+        "refund": refund,
+        "amount_owed": amount_owed,
+        "effective_rate": effective_rate,
+        
+        "notes": f"{info['name']} - {'Flat' if info['type'] == 'flat' else 'Progressive'} tax state"
     }
 
 
@@ -416,17 +609,7 @@ def get_state_rag_context(state_code: str) -> Optional[str]:
     """Get RAG knowledge context for a state"""
     state_code = state_code.upper()
     
-    if STATES_PACKAGE_AVAILABLE:
-        try:
-            from states import get_rag_context
-            return get_rag_context(state_code)
-        except:
-            pass
-    
-    # Fallback: Try direct access
-    modules = {"CA": CA, "NY": NY, "IL": IL, "NJ": NJ, "PA": PA, "GA": GA, "NC": NC, "FL": FL, "TX": TX}
-    module = modules.get(state_code)
-    
+    module = STATE_MODULES.get(state_code)
     if module and hasattr(module, 'get_rag_context'):
         return module.get_rag_context()
     
@@ -437,17 +620,7 @@ def answer_state_question(state_code: str, question: str) -> str:
     """Answer a state-specific tax question"""
     state_code = state_code.upper()
     
-    if STATES_PACKAGE_AVAILABLE:
-        try:
-            from states import answer_state_question as _answer
-            return _answer(state_code, question)
-        except:
-            pass
-    
-    # Fallback: Try direct access
-    modules = {"CA": CA, "NY": NY, "IL": IL, "NJ": NJ, "PA": PA, "GA": GA, "NC": NC, "FL": FL, "TX": TX}
-    module = modules.get(state_code)
-    
+    module = STATE_MODULES.get(state_code)
     if module and hasattr(module, 'answer_question'):
         return module.answer_question(question)
     

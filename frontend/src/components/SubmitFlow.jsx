@@ -1,16 +1,13 @@
 // ============================================================
-// SUBMIT FLOW - v13.0 CORRECT PRICING MODEL
+// SUBMIT FLOW - v14.0 FULL SUMMARY + AI DATA LOADING
 // ============================================================
 // Location: src/components/SubmitFlow.jsx
 //
-// PRICING MODEL:
-// 🆓 FILE BY MAIL = $0 FREE (100% discount)
-//    - Federal: Plan Price → $0
-//    - State: $19.99 → $0
-//
-// 💼 CPA E-FILE = PAID
-//    - Federal: Plan Price + $59
-//    - State: $19.99 + $59
+// ✅ v14.0: 
+//    - Fixed loadData to fetch from /api/ai/data (Node.js AI session)
+//    - Full Tax Summary with Federal + State breakdown
+//    - Shows AGI, deductions, taxable income details
+//    - Total refund/owed calculation
 //
 // ✅ v13.0: Fixed pricing - Self-file is FREE for both Federal AND State
 // ✅ v12.0: Support ALL 50 US States + DC
@@ -240,21 +237,74 @@ export default function SubmitFlow({ onClose, taxData, userData: initialUserData
   async function loadData() {
     if (!userId) { setLoading(false); return; }
     try {
-      const response = await fetch(`${PYTHON_API}/api/user/${userId}/form1040/missing?tax_year=2025`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setUserData(data.current_data || {});
-          setDependents(data.dependents || []);
-          const personalMissing = (data.required_missing || []).filter(m => !m.field?.includes('dependent_'));
-          const depMissing = (data.required_missing || []).filter(m => m.field?.includes('dependent_'));
-          setMissingFields(personalMissing);
-          setDependentMissing(depMissing);
-          setIsReadyToFile(data.is_ready_to_file || false);
+      let baseUserData = initialUserData || {};
+      let baseDependents = [];
+      
+      // ✅ PRIORITY 1: Get user data from Node.js AI session (where answers are stored)
+      try {
+        const aiDataRes = await fetch(`${API_BASE}/api/ai/data/${userId}?taxYear=2025`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (aiDataRes.ok) {
+          const aiData = await aiDataRes.json();
+          console.log('[SUBMITFLOW] AI session data:', aiData);
+          
+          if (aiData.success && aiData.answers) {
+            const answers = aiData.answers || {};
+            baseUserData = {
+              ...baseUserData,
+              first_name: answers.first_name || answers.taxpayer_first_name || baseUserData.first_name || '',
+              last_name: answers.last_name || answers.taxpayer_last_name || baseUserData.last_name || '',
+              ssn: answers.ssn || answers.taxpayer_ssn || baseUserData.ssn || '',
+              address: answers.address || answers.street_address || baseUserData.address || '',
+              city: answers.city || baseUserData.city || '',
+              state: answers.state || baseUserData.state || 'CA',
+              zip: answers.zip || answers.zip_code || baseUserData.zip || '',
+              filing_status: aiData.filing_status || answers.filing_status || baseUserData.filing_status || 'single',
+              spouse_first_name: answers.spouse_first_name || baseUserData.spouse_first_name || '',
+              spouse_last_name: answers.spouse_last_name || baseUserData.spouse_last_name || '',
+              spouse_ssn: answers.spouse_ssn || baseUserData.spouse_ssn || '',
+              occupation: answers.occupation || answers.taxpayer_occupation || '',
+              spouse_occupation: answers.spouse_occupation || '',
+              phone: answers.phone || '',
+              email: answers.email || '',
+            };
+            
+            if (aiData.dependents && aiData.dependents.length > 0) {
+              baseDependents = aiData.dependents;
+            }
+          }
         }
-      }
+      } catch (e) { console.log('[SUBMITFLOW] AI data fetch error:', e); }
+      
+      // ✅ PRIORITY 2: Get missing fields from Python API
+      try {
+        const response = await fetch(`${PYTHON_API}/api/user/${userId}/form1040/missing?tax_year=2025`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // Merge Python data with AI session data
+            baseUserData = { ...baseUserData, ...data.current_data };
+            if (data.dependents && data.dependents.length > 0) {
+              baseDependents = data.dependents;
+            }
+            const personalMissing = (data.required_missing || []).filter(m => !m.field?.includes('dependent_'));
+            const depMissing = (data.required_missing || []).filter(m => m.field?.includes('dependent_'));
+            setMissingFields(personalMissing);
+            setDependentMissing(depMissing);
+            setIsReadyToFile(data.is_ready_to_file || false);
+          }
+        }
+      } catch (e) { console.log('[SUBMITFLOW] Python API error:', e); }
+      
+      // ✅ Set user data and dependents
+      setUserData(baseUserData);
+      setDependents(baseDependents);
+      console.log('[SUBMITFLOW] Final userData:', baseUserData);
+      
+      // ✅ Use taxData prop if passed from Dashboard
       if (taxData && Object.keys(taxData).length > 0) {
-        setForm1040Data(buildForm1040Data(taxData, initialUserData));
+        setForm1040Data(buildForm1040Data(taxData, baseUserData));
         setIncomeData(taxData);
       }
     } catch (error) { console.error('[SUBMITFLOW] Load error:', error); }
@@ -432,8 +482,73 @@ export default function SubmitFlow({ onClose, taxData, userData: initialUserData
               {/* STEP 2: INCOME */}
               {step === 2 && (<div><h3 style={styles.sectionTitle}>💵 Income Summary</h3><div style={styles.dataCard}><div style={styles.dataRow}><span>Total Wages</span><span style={{ color: '#10b981' }}>${Number(wages).toLocaleString()}</span></div><div style={styles.dataRow}><span>Interest Income</span><span>${Number(incomeData?.interest || 0).toLocaleString()}</span></div><div style={styles.dataRow}><span>Dividend Income</span><span>${Number(incomeData?.dividends || 0).toLocaleString()}</span></div><div style={{ ...styles.dataRow, borderTop: '2px solid rgba(255,255,255,0.1)', paddingTop: 12, marginTop: 8, fontWeight: 600 }}><span style={{ color: '#e2e8f0' }}>Total Income</span><span style={{ color: '#10b981' }}>${Number(incomeData?.totalIncome || wages).toLocaleString()}</span></div></div><h3 style={{ ...styles.sectionTitle, marginTop: 24 }}>💳 Withholding</h3><div style={styles.dataCard}><div style={styles.dataRow}><span>Federal Withholding</span><span style={{ color: '#10b981' }}>${Number(incomeData?.federalWithholding || 0).toLocaleString()}</span></div><div style={styles.dataRow}><span>State Withholding ({userState})</span><span style={{ color: '#10b981' }}>${Number(incomeData?.stateWithholding || 0).toLocaleString()}</span></div></div></div>)}
 
-              {/* STEP 3: REVIEW */}
-              {step === 3 && (<div><h3 style={styles.sectionTitle}>🔍 Tax Summary</h3><div style={styles.summaryBox}><div style={styles.summaryRow}><span>Filing Status</span><span style={{ color: '#e2e8f0' }}>{FILING_STATUS_OPTIONS.find(o => o.value === userData?.filing_status)?.label || 'Single'}</span></div><div style={styles.summaryRow}><span>Dependents</span><span style={{ color: '#e2e8f0' }}>{dependents.length}</span></div><div style={styles.summaryRow}><span>Total Income</span><span style={{ color: '#10b981' }}>${Number(incomeData?.totalIncome || wages).toLocaleString()}</span></div><div style={styles.summaryRow}><span>Federal Tax</span><span style={{ color: '#ef4444' }}>${Number(incomeData?.federalTax || 0).toLocaleString()}</span></div><div style={styles.summaryRow}><span>State Tax ({userState})</span><span style={{ color: '#ef4444' }}>${Number(incomeData?.stateTax || 0).toLocaleString()}</span></div></div><div style={{ backgroundColor: (incomeData?.federalRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', border: `2px solid ${(incomeData?.federalRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`, borderRadius: 12, padding: 16, marginBottom: 12, textAlign: 'center' }}><p style={{ margin: 0, color: '#94a3b8', fontSize: 13 }}>Federal {(incomeData?.federalRefund || 0) > 0 ? 'Refund' : 'Owed'}</p><p style={{ margin: '4px 0 0', color: (incomeData?.federalRefund || 0) > 0 ? '#10b981' : '#ef4444', fontSize: 28, fontWeight: 700 }}>${Number((incomeData?.federalRefund || 0) > 0 ? incomeData.federalRefund : incomeData?.federalOwed || 0).toLocaleString()}</p></div><div style={{ backgroundColor: (incomeData?.stateRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', border: `2px solid ${(incomeData?.stateRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`, borderRadius: 12, padding: 16, textAlign: 'center' }}><p style={{ margin: 0, color: '#94a3b8', fontSize: 13 }}>State ({userState}) {(incomeData?.stateRefund || 0) > 0 ? 'Refund' : 'Owed'}</p><p style={{ margin: '4px 0 0', color: (incomeData?.stateRefund || 0) > 0 ? '#10b981' : '#ef4444', fontSize: 28, fontWeight: 700 }}>${Number((incomeData?.stateRefund || 0) > 0 ? incomeData.stateRefund : incomeData?.stateOwed || 0).toLocaleString()}</p></div></div>)}
+              {/* STEP 3: REVIEW - FULL TAX SUMMARY */}
+              {step === 3 && (
+                <div>
+                  <h3 style={styles.sectionTitle}>🔍 Tax Summary</h3>
+                  
+                  {/* Personal Info Summary */}
+                  <div style={styles.summaryBox}>
+                    <div style={styles.summaryRow}><span>Taxpayer</span><span style={{ color: '#e2e8f0' }}>{userData?.first_name || '—'} {userData?.last_name || '—'}</span></div>
+                    <div style={styles.summaryRow}><span>Filing Status</span><span style={{ color: '#e2e8f0' }}>{FILING_STATUS_OPTIONS.find(o => o.value === userData?.filing_status)?.label || 'Single'}</span></div>
+                    <div style={styles.summaryRow}><span>Dependents</span><span style={{ color: '#e2e8f0' }}>{dependents.length}</span></div>
+                    <div style={styles.summaryRow}><span>State</span><span style={{ color: '#e2e8f0' }}>{userStateName} ({userState})</span></div>
+                  </div>
+                  
+                  {/* Federal Tax Breakdown */}
+                  <div style={{ ...styles.summaryBox, marginTop: 12 }}>
+                    <h4 style={{ margin: '0 0 12px', color: '#3b82f6', fontSize: 14 }}>🇺🇸 Federal Tax Breakdown</h4>
+                    <div style={styles.summaryRow}><span>Total Income</span><span style={{ color: '#10b981' }}>${Number(incomeData?.totalIncome || wages).toLocaleString()}</span></div>
+                    <div style={styles.summaryRow}><span>Adjustments</span><span style={{ color: '#f59e0b' }}>-${Number(incomeData?.totalAdjustments || 0).toLocaleString()}</span></div>
+                    <div style={{ ...styles.summaryRow, fontWeight: 600 }}><span>AGI</span><span style={{ color: '#e2e8f0' }}>${Number(incomeData?.agi || incomeData?.totalIncome || wages).toLocaleString()}</span></div>
+                    <div style={styles.summaryRow}><span>Standard Deduction</span><span style={{ color: '#f59e0b' }}>-${Number(incomeData?.standardDeduction || 31500).toLocaleString()}</span></div>
+                    <div style={{ ...styles.summaryRow, fontWeight: 600 }}><span>Taxable Income</span><span style={{ color: '#e2e8f0' }}>${Number(incomeData?.taxableIncome || 0).toLocaleString()}</span></div>
+                    <div style={{ ...styles.summaryRow, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8, marginTop: 8 }}><span>Federal Tax</span><span style={{ color: '#ef4444' }}>${Number(incomeData?.federalTax || 0).toLocaleString()}</span></div>
+                    <div style={styles.summaryRow}><span>Federal Withheld</span><span style={{ color: '#10b981' }}>+${Number(incomeData?.federalWithholding || 0).toLocaleString()}</span></div>
+                  </div>
+                  
+                  {/* Federal Result Card */}
+                  <div style={{ backgroundColor: (incomeData?.federalRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', border: `2px solid ${(incomeData?.federalRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`, borderRadius: 12, padding: 16, marginTop: 12, textAlign: 'center' }}>
+                    <p style={{ margin: 0, color: '#94a3b8', fontSize: 13 }}>🇺🇸 Federal {(incomeData?.federalRefund || 0) > 0 ? 'Refund' : 'Owed'}</p>
+                    <p style={{ margin: '4px 0 0', color: (incomeData?.federalRefund || 0) > 0 ? '#10b981' : '#ef4444', fontSize: 28, fontWeight: 700 }}>${Number((incomeData?.federalRefund || 0) > 0 ? incomeData.federalRefund : incomeData?.federalOwed || 0).toLocaleString()}</p>
+                  </div>
+                  
+                  {/* State Tax Breakdown */}
+                  {!userStateIsNoTax && (
+                    <>
+                      <div style={{ ...styles.summaryBox, marginTop: 16 }}>
+                        <h4 style={{ margin: '0 0 12px', color: '#a855f7', fontSize: 14 }}>🏛️ {userStateName} State Tax Breakdown</h4>
+                        <div style={styles.summaryRow}><span>State AGI</span><span style={{ color: '#e2e8f0' }}>${Number(incomeData?.caAgi || incomeData?.agi || incomeData?.totalIncome || wages).toLocaleString()}</span></div>
+                        <div style={styles.summaryRow}><span>State Deduction</span><span style={{ color: '#f59e0b' }}>-${Number(incomeData?.caStdDeduction || incomeData?.stateDeduction || 0).toLocaleString()}</span></div>
+                        <div style={{ ...styles.summaryRow, fontWeight: 600 }}><span>Taxable Income</span><span style={{ color: '#e2e8f0' }}>${Number(incomeData?.caTaxableIncome || incomeData?.stateTaxableIncome || 0).toLocaleString()}</span></div>
+                        <div style={{ ...styles.summaryRow, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8, marginTop: 8 }}><span>State Tax</span><span style={{ color: '#ef4444' }}>${Number(incomeData?.caTax || incomeData?.stateTax || 0).toLocaleString()}</span></div>
+                        <div style={styles.summaryRow}><span>State Withheld</span><span style={{ color: '#10b981' }}>+${Number(incomeData?.caWithholding || incomeData?.stateWithholding || 0).toLocaleString()}</span></div>
+                        {(incomeData?.calEitc || 0) > 0 && <div style={styles.summaryRow}><span>CalEITC</span><span style={{ color: '#10b981' }}>+${Number(incomeData?.calEitc || 0).toLocaleString()}</span></div>}
+                        {(incomeData?.yctc || 0) > 0 && <div style={styles.summaryRow}><span>YCTC</span><span style={{ color: '#10b981' }}>+${Number(incomeData?.yctc || 0).toLocaleString()}</span></div>}
+                      </div>
+                      
+                      {/* State Result Card */}
+                      <div style={{ backgroundColor: (incomeData?.stateRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)', border: `2px solid ${(incomeData?.stateRefund || 0) > 0 ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`, borderRadius: 12, padding: 16, marginTop: 12, textAlign: 'center' }}>
+                        <p style={{ margin: 0, color: '#94a3b8', fontSize: 13 }}>🏛️ {userState} State {(incomeData?.stateRefund || 0) > 0 ? 'Refund' : 'Owed'}</p>
+                        <p style={{ margin: '4px 0 0', color: (incomeData?.stateRefund || 0) > 0 ? '#10b981' : '#ef4444', fontSize: 28, fontWeight: 700 }}>${Number((incomeData?.stateRefund || 0) > 0 ? incomeData.stateRefund : incomeData?.stateOwed || 0).toLocaleString()}</p>
+                      </div>
+                    </>
+                  )}
+                  
+                  {userStateIsNoTax && (
+                    <div style={{ backgroundColor: 'rgba(251, 191, 36, 0.15)', border: '2px solid rgba(251, 191, 36, 0.4)', borderRadius: 12, padding: 16, marginTop: 16, textAlign: 'center' }}>
+                      <p style={{ margin: 0, color: '#fbbf24', fontSize: 16 }}>🎉 {userStateName} has no state income tax!</p>
+                    </div>
+                  )}
+                  
+                  {/* Total Summary */}
+                  <div style={{ background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(59, 130, 246, 0.2))', border: '2px solid rgba(124, 58, 237, 0.4)', borderRadius: 12, padding: 20, marginTop: 16, textAlign: 'center' }}>
+                    <p style={{ margin: 0, color: '#a78bfa', fontSize: 14, fontWeight: 600 }}>💰 TOTAL {((incomeData?.federalRefund || 0) + (incomeData?.stateRefund || 0) - (incomeData?.federalOwed || 0) - (incomeData?.stateOwed || 0)) >= 0 ? 'REFUND' : 'OWED'}</p>
+                    <p style={{ margin: '8px 0 0', color: ((incomeData?.federalRefund || 0) + (incomeData?.stateRefund || 0) - (incomeData?.federalOwed || 0) - (incomeData?.stateOwed || 0)) >= 0 ? '#10b981' : '#ef4444', fontSize: 36, fontWeight: 800 }}>${Math.abs((incomeData?.federalRefund || 0) + (incomeData?.stateRefund || 0) - (incomeData?.federalOwed || 0) - (incomeData?.stateOwed || 0)).toLocaleString()}</p>
+                    <p style={{ margin: '8px 0 0', color: '#94a3b8', fontSize: 12 }}>Federal: ${((incomeData?.federalRefund || 0) - (incomeData?.federalOwed || 0)) >= 0 ? '+' : '-'}${Math.abs((incomeData?.federalRefund || 0) - (incomeData?.federalOwed || 0)).toLocaleString()} • State: ${((incomeData?.stateRefund || 0) - (incomeData?.stateOwed || 0)) >= 0 ? '+' : '-'}${Math.abs((incomeData?.stateRefund || 0) - (incomeData?.stateOwed || 0)).toLocaleString()}</p>
+                  </div>
+                </div>
+              )}
 
               {/* STEP 4: SIGN */}
               {step === 4 && (<div><h3 style={styles.sectionTitle}>✍️ Sign Your Return</h3><div style={styles.formGroup}><label style={styles.label}>Your Signature (Type Full Name)</label><input type="text" value={signature} onChange={e => setSignature(e.target.value)} style={{ ...styles.input, fontFamily: "'Brush Script MT', cursive", fontSize: 22 }} placeholder={`${userData?.first_name || 'John'} ${userData?.last_name || 'Smith'}`} /></div>{isMFJ && <div style={styles.formGroup}><label style={styles.label}>Spouse Signature</label><input type="text" value={spouseSignature} onChange={e => setSpouseSignature(e.target.value)} style={{ ...styles.input, fontFamily: "'Brush Script MT', cursive", fontSize: 22 }} placeholder={`${userData?.spouse_first_name || ''} ${userData?.spouse_last_name || ''}`} /></div>}<label style={styles.checkboxLabel}><input type="checkbox" checked={agreedTerms} onChange={e => setAgreedTerms(e.target.checked)} style={styles.checkbox} /><span>I declare under penalty of perjury that this return is true, correct, and complete.</span></label></div>)}
