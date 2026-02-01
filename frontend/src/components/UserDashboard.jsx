@@ -1,9 +1,10 @@
 // ============================================================
-// USER DASHBOARD - v5.4 FIX CORRECT API ENDPOINT
+// USER DASHBOARD - v5.6 FIX WITHHOLDING AGGREGATION
 // ============================================================
+// ✅ v5.6: Fixed federal/state withholding aggregation from W-2 answers
+//          - Aggregates w2_1_federal_withheld, w2_2_federal_withheld, etc.
+//          - Recalculates refund/owed using correct withholding
 // ✅ v5.4: Fixed API endpoint from /calculate/state to /calculate/state/{code}
-//          - The /calculate/state endpoint doesn't exist (404)!
-//          - Must use /calculate/state/{state_code} which returns nested response
 // ✅ v5.3: Fixed nested response handling (rawResponse.state || rawResponse)
 // ✅ v5.2: Fixed state tax field mapping
 // ✅ v5.1: Added ALL 50 states + DC support
@@ -287,6 +288,39 @@ export default function UserDashboard() {
       const totals = result.totals || {};
       let form1040 = result.form1040 || null;
       
+      // ✅ v5.6 FIX: Aggregate W-2 withholding from answers if totals is missing
+      let federalWithheld = totals.federal_withheld || 0;
+      let stateWithheld = totals.state_withheld || 0;
+      let totalWages = totals.wages || 0;
+      
+      // Look for W-2 data in answers (w2_1_*, w2_2_*, etc.)
+      for (let i = 1; i <= 5; i++) {
+        const fedWithheld = parseFloat(answers[`w2_${i}_federal_withheld`] || answers[`w2_${i}_federal_withholding`] || 0);
+        const stWithheld = parseFloat(answers[`w2_${i}_state_withheld`] || answers[`w2_${i}_state_withholding`] || 0);
+        const wages = parseFloat(answers[`w2_${i}_wages`] || answers[`w2_${i}_income`] || 0);
+        if (fedWithheld > 0) federalWithheld += fedWithheld;
+        if (stWithheld > 0) stateWithheld += stWithheld;
+        if (wages > 0 && totalWages === 0) totalWages += wages;
+      }
+      
+      // Also check single W-2 fields
+      if (federalWithheld === 0) {
+        federalWithheld = parseFloat(answers.federal_withheld || answers.federal_withholding || answers.w2_federal_withheld || 0);
+      }
+      if (stateWithheld === 0) {
+        stateWithheld = parseFloat(answers.state_withheld || answers.state_withholding || answers.w2_state_withheld || 0);
+      }
+      if (totalWages === 0) {
+        totalWages = parseFloat(answers.w2_wages || answers.wages || answers.total_wages || 0);
+      }
+      
+      // Update totals with aggregated values
+      totals.federal_withheld = federalWithheld || totals.federal_withheld || 0;
+      totals.state_withheld = stateWithheld || totals.state_withheld || 0;
+      totals.wages = totalWages || totals.wages || 0;
+      
+      console.log("[DASHBOARD] 💰 Aggregated withholding:", { federalWithheld, stateWithheld, totalWages });
+      
       if (totals.wages > 0 && (!form1040?.income?.line_1_wages)) {
         form1040 = {
           header: { tax_year: 2025, filing_status: answers.filing_status || totals.filing_status || 'single', state: answers.state || 'CA' },
@@ -377,6 +411,25 @@ export default function UserDashboard() {
         const federalRefund = refundOrOwe.line_35_refund || refundOrOwe.line_35a_refund || 0;
         const federalOwed = refundOrOwe.line_37_amount_owe || refundOrOwe.line_37_amount_owed || 0;
         
+        // ✅ v5.6 FIX: Get withholding from corrected totals or payments
+        const federalWithholdingAmount = payments.line_25a_w2_withholding || payments.line_25d_total_withholding || totals.federal_withheld || 0;
+        const federalTaxAmount = taxCredits.line_16_tax || taxCredits.line_24_total_tax || 0;
+        
+        // Recalculate refund/owed if withholding is available but refund/owed is 0
+        let calculatedRefund = federalRefund;
+        let calculatedOwed = federalOwed;
+        
+        if (federalWithholdingAmount > 0 && federalRefund === 0 && federalOwed === 0) {
+          if (federalWithholdingAmount > federalTaxAmount) {
+            calculatedRefund = federalWithholdingAmount - federalTaxAmount;
+            calculatedOwed = 0;
+          } else {
+            calculatedRefund = 0;
+            calculatedOwed = federalTaxAmount - federalWithholdingAmount;
+          }
+          console.log("[DASHBOARD] 🔄 Recalculated refund/owed:", { federalTaxAmount, federalWithholdingAmount, calculatedRefund, calculatedOwed });
+        }
+        
         setTaxData({
           wages: income.line_1_wages || income.line_1a_w2_wages || 0, 
           totalIncome: income.line_9_total_income || form1040.summary?.total_income || 0,
@@ -384,14 +437,15 @@ export default function UserDashboard() {
           standardDeduction: deductions.line_12_deduction || deductions.line_12_standard_deduction || 0,
           totalObbbDeduction: form1040.obbb?.total_obbb_deduction || deductions.obbb_total_deduction || result.totals?.obbb_total_deduction || 0,
           taxableIncome: deductions.line_15_taxable_income || taxCredits.line_15_taxable_income || 0,
-          federalTax: taxCredits.line_16_tax || taxCredits.line_24_total_tax || 0,
-          federalWithholding: payments.line_25a_w2_withholding || payments.line_25d_total_withholding || 0,
-          withholding: payments.line_25d_total_withholding || 0,
-          federalRefund, federalOwed,
+          federalTax: federalTaxAmount,
+          federalWithholding: federalWithholdingAmount,
+          withholding: federalWithholdingAmount,
+          federalRefund: calculatedRefund, 
+          federalOwed: calculatedOwed,
           filing_status: form1040?.header?.filing_status || 'single',
           ...stateData,
-          totalRefund: federalRefund + (stateData.stateRefund || 0),
-          totalOwed: federalOwed + (stateData.stateOwed || 0),
+          totalRefund: calculatedRefund + (stateData.stateRefund || 0),
+          totalOwed: calculatedOwed + (stateData.stateOwed || 0),
         });
         
         if (result.messages && result.messages.length > 0) { setChatHistory(result.messages); }
