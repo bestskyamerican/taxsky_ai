@@ -1,8 +1,14 @@
 /**
  * ============================================================
  * TaxSky Smart AI Controller
- * Version: 15.8 - ALWAYS REBUILD TOTALS (Long-term fix)
+ * Version: 15.9 - FIX: IRA/HSA validation + always rebuild
  * ============================================================
+ * 
+ * ✅ v15.9 FIX:
+ *  - Added taxpayer_ira, spouse_ira, hsa to specialFields
+ *  - These fields can be capped/adjusted by AI, so validation
+ *    was rejecting them when value didn't match user message
+ *  - Added all adjustment fields to specialFields list
  * 
  * ✅ v15.8 LONG-TERM FIX:
  *  - ALWAYS rebuild totals after ANY save_data() call
@@ -18,16 +24,10 @@
  *  - Added proper IRA contribution limits ($7,000 / $8,000 for 50+)
  *  - IRA fully deductible if NO 401(k) (regardless of income)
  *  - IRA income limits only apply if HAS 401(k)
- *  - Always use manualRebuild for consistent logic
  * 
  * ✅ v15.6 FIX:
- *  - Fixed federal_withheld = 0 bug when page refreshed between W-2 entries
- *  - manualRebuild now aggregates W-2 data from answers (taxpayer_w2_1_*, etc.)
- *  - Also fixed tips aggregation for OBBB deduction
- * 
- * ✅ v15.5 FIX:
- *  - Added OBBB deductions (tips, overtime, car loan, senior) to manualRebuild
- *  - OBBB now properly subtracted from taxable_income
+ *  - Fixed federal_withheld = 0 bug when page refreshed
+ *  - manualRebuild aggregates W-2 data from answers
  * 
  * ============================================================
  */
@@ -46,7 +46,7 @@ const CONFIG = {
   pythonApiUrl: process.env.PYTHON_API_URL || 'http://localhost:5002'
 };
 
-console.log(`📌 SmartAI v15.8 — Always rebuilds totals for correct tax calculations!`);
+console.log(`📌 SmartAI v15.9 — IRA/HSA always allowed + auto-rebuild totals!`);
 
 // ============================================================
 // HELPER: Get or Create Session (ATOMIC)
@@ -204,10 +204,26 @@ function validateSaveDataAgainstUserMessage(calls, userMessage) {
     'dependent_count', 'taxpayer_w2_count', 'spouse_w2_count'
   ];
   
-  // ✅ Fields that don't need strict validation
+  // ✅ v15.8 FIX: Fields that don't need strict validation
+  // These may be calculated/adjusted by AI (e.g., IRA capped to limit)
   const specialFields = [
     'interview_complete', 'deduction_type', 'has_dependents',
-    'filing_status', 'language', 'taxpayer_has_401k', 'spouse_has_401k'
+    'filing_status', 'language', 
+    // 401(k) status
+    'taxpayer_has_401k', 'spouse_has_401k',
+    // IRA contributions (AI may cap to limit)
+    'taxpayer_ira', 'spouse_ira',
+    // HSA (AI may cap to limit)
+    'hsa', 'hsa_contribution',
+    // Adjustments
+    'student_loan_interest',
+    // OBBB fields
+    'worked_overtime', 'overtime_pay',
+    'bought_new_car', 'car_loan_interest', 'car_is_american',
+    // Estimated payments
+    'estimated_payments',
+    // W-2 count
+    'taxpayer_w2_count', 'spouse_w2_count'
   ];
   
   for (const call of calls) {
@@ -812,9 +828,8 @@ function manualRebuild(session, answers) {
   t.obbb_car_loan_deduction = (boughtNewCar && carIsAmerican) ? Math.min(carLoanInterest, 10000) : 0;
   
   // Senior deduction ($6,000 per person 65+)
+  // Note: taxpayerAge and spouseAge already calculated above in IRA section
   let seniorCount = 0;
-  const taxpayerAge = Number(answers.taxpayer_age || 0);
-  const spouseAge = Number(answers.spouse_age || 0);
   if (taxpayerAge >= 65) seniorCount++;
   if (isJoint && spouseAge >= 65) seniorCount++;
   t.obbb_senior_deduction = seniorCount * 6000;

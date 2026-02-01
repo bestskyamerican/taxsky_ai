@@ -1,8 +1,15 @@
 """
 ================================================================================
-TAXSKY 2025 - VALIDATOR v20.0 - READ FROM MONGODB (NO TEXT EXTRACTION)
+TAXSKY 2025 - VALIDATOR v20.1 - SMART READ (Fallback to answers)
 ================================================================================
 File: python_tax_api/tax_engine/text_extractor.py
+
+v20.1 CHANGES (SMART FALLBACK):
+  ✅ FIX: Reads W-2 data from answers when input_forms.w2[] is empty
+  ✅ FIX: Handles taxpayer_w2_1_*, taxpayer_w2_2_*, etc. patterns
+  ✅ FIX: Falls back to legacy fields (taxpayer_wages, taxpayer_federal_withheld)
+  ✅ NEW: Added OBBB fields (tips_income, overtime_pay, car_loan_interest)
+  ✅ FIX: Properly handles boolean/string values for 401k status
 
 v20.0 CHANGES:
   ✅ REMOVED: TaxTextExtractor class (no more regex parsing!)
@@ -13,10 +20,11 @@ v20.0 CHANGES:
   ✅ KEPT: map_extracted_to_calculator() for calculator input
   ✅ KEPT: build_form_1040() for Form 1040 JSON
 
-WHY THIS CHANGE:
-  - Node.js now saves structured data directly to MongoDB during chat
-  - No need to parse chat text anymore!
-  - Python now validates and double-checks the data
+WHY THIS CHANGE (v20.1):
+  - Node.js _pendingW2s is not persisted to MongoDB
+  - When user refreshes page, W-2 data only exists in answers{}
+  - Python now reads from BOTH input_forms.w2[] AND answers{}
+  - This ensures tax calculations are ALWAYS correct!
 
 ================================================================================
 """
@@ -82,12 +90,13 @@ try:
 except:
     pass
 
-EXTRACTOR_VERSION = "v20.0-VALIDATOR"
+EXTRACTOR_VERSION = "v20.1-VALIDATOR-SMART"
 
 print(f"📌 Tax Validator Config:")
 print(f"   NODE_API_URL: {NODE_API_URL}")
 print(f"   DATA_DIR: {DATA_DIR}")
 print(f"   Version: {EXTRACTOR_VERSION}")
+print(f"   ✅ v20.1: Reads W-2 from answers when input_forms.w2 empty")
 
 # ============================================================
 # 2025 TAX CONSTANTS
@@ -113,29 +122,90 @@ STUDENT_LOAN_MAX = 2500
 def build_from_structured_data(session: Dict) -> Dict[str, Any]:
     """
     Build extracted data from MongoDB structured fields.
-    NO text parsing needed - reads directly from:
-    - session.input_forms.w2[]
-    - session.answers{}
-    - session.filing_status
-    - session.address.state
+    
+    v20.1 FIX: Also reads from answers when input_forms.w2 is empty!
+    This handles the case where _pendingW2s was lost due to page refresh.
+    
+    Priority:
+    1. input_forms.w2[] (structured W-2 data)
+    2. answers (taxpayer_w2_1_*, taxpayer_wages, etc.)
     """
     answers = session.get("answers", {})
     input_forms = session.get("input_forms", {})
     w2s = input_forms.get("w2", [])
     totals = session.get("totals", {})
     
-    # Sum W-2 data from input_forms.w2[]
-    taxpayer_wages = sum(w.get("box_1_wages", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
-    spouse_wages = sum(w.get("box_1_wages", 0) or 0 for w in w2s if w.get("owner") == "spouse")
-    taxpayer_fed = sum(w.get("box_2_federal_withheld", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
-    spouse_fed = sum(w.get("box_2_federal_withheld", 0) or 0 for w in w2s if w.get("owner") == "spouse")
-    taxpayer_state = sum(w.get("box_17_state_withheld", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
-    spouse_state = sum(w.get("box_17_state_withheld", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    # ═══════════════════════════════════════════════════════════
+    # v20.1 FIX: Read W-2 from input_forms.w2[] OR answers
+    # ═══════════════════════════════════════════════════════════
     
-    # Check for 401(k) from W-2 box 13
+    # First try input_forms.w2[]
+    taxpayer_wages_w2 = sum(w.get("box_1_wages", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    spouse_wages_w2 = sum(w.get("box_1_wages", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    taxpayer_fed_w2 = sum(w.get("box_2_federal_withheld", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    spouse_fed_w2 = sum(w.get("box_2_federal_withheld", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    taxpayer_state_w2 = sum(w.get("box_17_state_withheld", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    spouse_state_w2 = sum(w.get("box_17_state_withheld", 0) or 0 for w in w2s if w.get("owner") == "spouse")
+    taxpayer_tips_w2 = sum(w.get("box_7_tips", 0) or 0 for w in w2s if w.get("owner") == "taxpayer")
+    
+    # Then try answers (taxpayer_w2_1_*, taxpayer_w2_2_*, etc.)
+    taxpayer_wages_ans = 0
+    taxpayer_fed_ans = 0
+    taxpayer_state_ans = 0
+    taxpayer_tips_ans = 0
+    spouse_wages_ans = 0
+    spouse_fed_ans = 0
+    spouse_state_ans = 0
+    
+    for i in range(1, 11):
+        taxpayer_wages_ans += float(answers.get(f"taxpayer_w2_{i}_wages", 0) or 0)
+        taxpayer_fed_ans += float(answers.get(f"taxpayer_w2_{i}_federal_withheld", 0) or 0)
+        taxpayer_state_ans += float(answers.get(f"taxpayer_w2_{i}_state_withheld", 0) or 0)
+        taxpayer_tips_ans += float(answers.get(f"taxpayer_w2_{i}_tips", 0) or 0)
+        spouse_wages_ans += float(answers.get(f"spouse_w2_{i}_wages", 0) or 0)
+        spouse_fed_ans += float(answers.get(f"spouse_w2_{i}_federal_withheld", 0) or 0)
+        spouse_state_ans += float(answers.get(f"spouse_w2_{i}_state_withheld", 0) or 0)
+    
+    # Also check legacy single-field format
+    if taxpayer_wages_ans == 0:
+        taxpayer_wages_ans = float(answers.get("taxpayer_wages", 0) or 0)
+    if taxpayer_fed_ans == 0:
+        taxpayer_fed_ans = float(answers.get("taxpayer_federal_withheld", 0) or 0)
+    if taxpayer_state_ans == 0:
+        taxpayer_state_ans = float(answers.get("taxpayer_state_withheld", 0) or 0)
+    if taxpayer_tips_ans == 0:
+        taxpayer_tips_ans = float(answers.get("taxpayer_w2_tips", 0) or answers.get("tips_received", 0) or 0)
+    if spouse_wages_ans == 0:
+        spouse_wages_ans = float(answers.get("spouse_wages", 0) or 0)
+    if spouse_fed_ans == 0:
+        spouse_fed_ans = float(answers.get("spouse_federal_withheld", 0) or 0)
+    
+    # Use whichever source has data (prefer input_forms.w2 if both have data)
+    taxpayer_wages = taxpayer_wages_w2 if taxpayer_wages_w2 > 0 else taxpayer_wages_ans
+    spouse_wages = spouse_wages_w2 if spouse_wages_w2 > 0 else spouse_wages_ans
+    taxpayer_fed = taxpayer_fed_w2 if taxpayer_fed_w2 > 0 else taxpayer_fed_ans
+    spouse_fed = spouse_fed_w2 if spouse_fed_w2 > 0 else spouse_fed_ans
+    taxpayer_state = taxpayer_state_w2 if taxpayer_state_w2 > 0 else taxpayer_state_ans
+    spouse_state = spouse_state_w2 if spouse_state_w2 > 0 else spouse_state_ans
+    taxpayer_tips = taxpayer_tips_w2 if taxpayer_tips_w2 > 0 else taxpayer_tips_ans
+    
+    # Log where we got the data from
+    print(f"   📊 W-2 Data Sources:")
+    print(f"      input_forms.w2: wages=${taxpayer_wages_w2:,.0f}, fed=${taxpayer_fed_w2:,.0f}")
+    print(f"      answers: wages=${taxpayer_wages_ans:,.0f}, fed=${taxpayer_fed_ans:,.0f}")
+    print(f"      USING: wages=${taxpayer_wages:,.0f}, fed=${taxpayer_fed:,.0f}")
+    
+    # ═══════════════════════════════════════════════════════════
+    # Check for 401(k) from W-2 box 13 or answers
+    # ═══════════════════════════════════════════════════════════
     has_retirement = any(w.get("box_13_retirement", False) for w in w2s)
     if not has_retirement:
-        has_retirement = answers.get("taxpayer_has_401k", False) or answers.get("has_retirement_plan", False)
+        # Check answers - handle both boolean and string "true"/"false"
+        taxpayer_401k = answers.get("taxpayer_has_401k", False)
+        if taxpayer_401k in [True, "true", "True", "yes", "Yes"]:
+            has_retirement = True
+        elif answers.get("has_retirement_plan", False):
+            has_retirement = True
     
     # Get state from address or answers
     state = session.get("address", {}).get("state", "") or answers.get("state", "")
@@ -195,6 +265,15 @@ def build_from_structured_data(session: Dict) -> Dict[str, Any]:
         "spouse_ira": int(answers.get("spouse_ira", 0) or 0),
         "hsa": int(answers.get("hsa", 0) or answers.get("hsa_contribution", 0) or 0),
         "student_loan_interest": int(answers.get("student_loan_interest", 0) or 0),
+        
+        # ═══════════════════════════════════════════════════════════
+        # v20.1: OBBB Deductions (2025 Big Beautiful Bill)
+        # ═══════════════════════════════════════════════════════════
+        "tips_income": int(taxpayer_tips),
+        "overtime_pay": int(answers.get("overtime_pay", 0) or 0),
+        "car_loan_interest": int(answers.get("car_loan_interest", 0) or 0),
+        "bought_new_car": answers.get("bought_new_car", False) in [True, "true", "True"],
+        "car_is_american": answers.get("car_is_american", False) in [True, "true", "True"],
         
         # Dependents
         "has_dependents": len(dependents) > 0 or children_under_17 > 0 or other_dependents > 0,
