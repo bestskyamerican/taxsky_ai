@@ -13,11 +13,11 @@ import Login from "./pages/Login";  // ✅ Import Login page
 
 // CPA Imports
 import { CPAAuthProvider, CPAProtectedRoute } from './contexts/CPAAuthContext';
-import CPALogin from './pages/CPALogin';
-import CPARegister from './pages/CPARegister';
-import CPADashboard from './pages/CPADashboard';
-import CPAAdmin from './pages/CPAAdmin';
-
+import CPALogin from './pages/cpa/CPALogin';
+import CPARegister from './pages/cpa/CPARegister';
+import CPADashboard from './pages/cpa/CPADashboard';
+import CPAAdmin from './pages/admin/CPAAdmin';
+import SuperAdmin from './pages/admin/SuperAdmin';
 import FAQPage from './pages/news/FAQPage';
 import InvestorPage from './pages/news/InvestorPage';
 import CareerPage from './pages/news/CareerPage';
@@ -683,7 +683,11 @@ export default function App() {
     {/* ADD THESE NEW ROUTES */}
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
- 
+    {/* ========================================
+            SUPER ADMIN
+        ======================================== */}
+        <Route path="/admin" element={<SuperAdmin />} />
+        
         {/* Catch all */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -34,7 +34,7 @@ const PaymentSchema = new mongoose.Schema({
   // Plan Info (matches frontend PRICING_PLANS)
   planId: { 
     type: String, 
-    enum: ['free', 'basic', 'standard', 'plus', 'premium', 'selfEmployed'],
+    enum: ['free', 'basic', 'standard', 'plus', 'premium', 'selfEmployed', 'cpa-review'],
     required: true 
   },
   planName: { 
@@ -51,7 +51,7 @@ const PaymentSchema = new mongoose.Schema({
   // Tax Year
   taxYear: { 
     type: Number, 
-    default: 2024 
+    default: 2025 
   },
   
   // Stripe Info
@@ -108,12 +108,11 @@ PaymentSchema.index({ email: 1 });
 // ============================================================
 // PRE-SAVE: Generate invoice number
 // ============================================================
-PaymentSchema.pre('save', async function(next) {
+PaymentSchema.pre('save', async function() {
   if (!this.invoiceNumber && this.status === 'completed') {
     const count = await mongoose.model('Payment').countDocuments({ status: 'completed' });
     this.invoiceNumber = `TSK-${this.taxYear}-${String(count + 1).padStart(6, '0')}`;
   }
-  next();
 });
 
 // ============================================================
@@ -126,7 +125,7 @@ PaymentSchema.statics.getUserPayments = function(userId) {
 };
 
 // Check if user has paid for a specific plan
-PaymentSchema.statics.hasPaidForPlan = async function(userId, planId, taxYear = 2024) {
+PaymentSchema.statics.hasPaidForPlan = async function(userId, planId, taxYear = 2025) {
   const payment = await this.findOne({ 
     userId, 
     planId, 
@@ -137,7 +136,7 @@ PaymentSchema.statics.hasPaidForPlan = async function(userId, planId, taxYear = 
 };
 
 // Check if user has any completed payment for tax year
-PaymentSchema.statics.hasActivePlan = async function(userId, taxYear = 2024) {
+PaymentSchema.statics.hasActivePlan = async function(userId, taxYear = 2025) {
   const payment = await this.findOne({ 
     userId, 
     taxYear,
@@ -148,7 +147,7 @@ PaymentSchema.statics.hasActivePlan = async function(userId, taxYear = 2024) {
 };
 
 // Get user's current active plan
-PaymentSchema.statics.getActivePlan = async function(userId, taxYear = 2024) {
+PaymentSchema.statics.getActivePlan = async function(userId, taxYear = 2025) {
   const payment = await this.findOne({ 
     userId, 
     taxYear,

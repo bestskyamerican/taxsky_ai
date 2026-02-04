@@ -64,8 +64,10 @@ router.post('/auth/login', login);
 router.post('/auth/forgot-password', forgotPassword);
 router.post('/auth/reset-password', resetPassword);
 
-// Test endpoint (for development)
-router.post('/test/create-file', createTestFile);
+// Test endpoint (development only — disabled in production)
+if (process.env.NODE_ENV !== 'production') {
+  router.post('/test/create-file', createTestFile);
+}
 
 // ============================================================
 // PROTECTED ROUTES (Auth required)

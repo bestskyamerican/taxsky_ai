@@ -183,6 +183,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState(null);
+  const [cpaBidData, setCpaBidData] = useState(null); // CPA bid info from localStorage
   
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const token = localStorage.getItem('token');
@@ -200,15 +201,39 @@ export default function CheckoutPage() {
       return;
     }
     
+    // ── CPA Bid Checkout (dynamic price from localStorage) ──
+    if (planId === 'cpa-review') {
+      try {
+        const saved = JSON.parse(localStorage.getItem('taxsky_payment') || '{}');
+        if (saved.cpaBid && saved.totalPrice) {
+          const cpaPlan = {
+            id: 'cpa-review',
+            name: saved.planName || `CPA Review by ${saved.cpaBid.cpa_name}`,
+            price: saved.totalPrice, // already in cents
+          };
+          setPlan(cpaPlan);
+          setCpaBidData(saved.cpaBid);
+          createPaymentIntent(saved.totalPrice);
+        } else {
+          alert('CPA bid info missing. Please try again.');
+          navigate('/dashboard');
+        }
+      } catch {
+        navigate('/dashboard');
+      }
+      return;
+    }
+
+    // ── Standard plan checkout ──
     if (plans[planId]) {
       setPlan(plans[planId]);
-      createPaymentIntent();
+      createPaymentIntent(plans[planId].price);
     } else {
       navigate('/pricing');
     }
   }, [planId]);
 
-  async function createPaymentIntent() {
+  async function createPaymentIntent(amountCents) {
     try {
       const res = await fetch(`${API_URL}/api/payments/create-intent`, {
         method: 'POST',
@@ -220,7 +245,9 @@ export default function CheckoutPage() {
           userId: user.id || user.userId,
           email: user.email,
           name: user.name,
-          productType: planId
+          planId: planId,
+          amount: amountCents,
+          taxYear: 2025,
         })
       });
       
@@ -242,12 +269,33 @@ export default function CheckoutPage() {
     }
   }
 
-  function handleSuccess(paymentIntent) {
+  async function handleSuccess(paymentIntent) {
     setSuccess(true);
     setPaymentDetails(paymentIntent);
+
+    // ── If CPA bid, accept the bid (assign CPA) ──
+    if (cpaBidData && cpaBidData.job_id && cpaBidData.bid_id) {
+      try {
+        await fetch(`${API_URL}/api/cpa/jobs/${cpaBidData.job_id}/accept`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ bid_id: cpaBidData.bid_id }),
+        });
+        console.log('✅ CPA bid accepted:', cpaBidData.cpa_name);
+        // Clean up localStorage
+        localStorage.removeItem('taxsky_payment');
+      } catch (err) {
+        console.error('❌ Accept CPA bid error:', err);
+      }
+    }
   }
 
   if (success) {
+    const isCPA = planId === 'cpa-review' && cpaBidData;
+
     return (
       <div style={{
         minHeight: '100vh',
@@ -265,10 +313,16 @@ export default function CheckoutPage() {
           maxWidth: '500px',
           boxShadow: '0 20px 40px rgba(34, 197, 94, 0.2)'
         }}>
-          <div style={{ fontSize: '80px', marginBottom: '24px' }}>🎉</div>
-          <h1 style={{ color: '#166534', marginBottom: '16px' }}>Payment Successful!</h1>
+          <div style={{ fontSize: '80px', marginBottom: '24px' }}>{isCPA ? '👨‍💼' : '🎉'}</div>
+          <h1 style={{ color: '#166534', marginBottom: '16px' }}>
+            {isCPA ? 'CPA Assigned!' : 'Payment Successful!'}
+          </h1>
           <p style={{ color: '#64748b', marginBottom: '32px', fontSize: '18px' }}>
-            Thank you for purchasing <strong>{plan?.name}</strong>
+            {isCPA ? (
+              <><strong>{cpaBidData.cpa_name}</strong> will review and file your return with the IRS.</>
+            ) : (
+              <>Thank you for purchasing <strong>{plan?.name}</strong></>
+            )}
           </p>
           
           <div style={{
@@ -283,10 +337,47 @@ export default function CheckoutPage() {
             <p style={{ margin: '8px 0', color: '#475569' }}>
               <strong>Email:</strong> {user.email}
             </p>
+            {isCPA && (
+              <>
+                <p style={{ margin: '8px 0', color: '#475569' }}>
+                  <strong>CPA:</strong> {cpaBidData.cpa_name}
+                </p>
+                <p style={{ margin: '8px 0', color: '#475569' }}>
+                  <strong>Turnaround:</strong> {cpaBidData.estimated_hours || 24}h
+                </p>
+              </>
+            )}
           </div>
+
+          {isCPA && (
+            <div style={{
+              backgroundColor: '#eff6ff',
+              borderRadius: '12px',
+              padding: '20px',
+              marginBottom: '24px',
+              textAlign: 'left'
+            }}>
+              <h4 style={{ margin: '0 0 12px', color: '#1e40af', fontSize: '15px' }}>📋 What Happens Next</h4>
+              {[
+                { icon: '✅', text: 'Payment received' },
+                { icon: '✅', text: `${cpaBidData.cpa_name} assigned to your return` },
+                { icon: '🔄', text: 'CPA reviewing your return', active: true },
+                { icon: '⬜', text: 'CPA prepares & files with IRS' },
+                { icon: '⬜', text: 'You receive confirmation' },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                  <span style={{ fontSize: 16 }}>{s.icon}</span>
+                  <span style={{ color: s.active ? '#2563eb' : '#475569', fontWeight: s.active ? 600 : 400, fontSize: 14 }}>
+                    {s.text}
+                    {s.active && <span style={{ marginLeft: 6, fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>In Progress</span>}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
           
           <button
-            onClick={() => navigate('/taxchat')}
+            onClick={() => navigate(isCPA ? '/dashboard' : '/taxchat')}
             style={{
               padding: '16px 32px',
               fontSize: '18px',
@@ -298,7 +389,7 @@ export default function CheckoutPage() {
               cursor: 'pointer'
             }}
           >
-            Start Filing Your Taxes →
+            {isCPA ? 'Go to Dashboard' : 'Start Filing Your Taxes →'}
           </button>
         </div>
       </div>
@@ -342,8 +433,21 @@ export default function CheckoutPage() {
               {plan?.name}
             </h3>
             <p style={{ color: '#94a3b8', fontSize: '14px' }}>
-              Tax Year 2024
+              Tax Year 2025
             </p>
+            {cpaBidData && (
+              <div style={{ marginTop: '16px', padding: '12px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px' }}>
+                <p style={{ margin: '4px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                  👨‍💼 {cpaBidData.cpa_name}
+                </p>
+                <p style={{ margin: '4px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                  ✓ {cpaBidData.cpa_credentials || 'Licensed CPA'}
+                </p>
+                <p style={{ margin: '4px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                  ⏱️ {cpaBidData.estimated_hours || 24}h turnaround
+                </p>
+              </div>
+            )}
           </div>
           
           <div style={{

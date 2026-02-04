@@ -1,140 +1,203 @@
 // ============================================================
-// CPA AUTH CONTEXT - Authentication State Management
+// CPA AUTH CONTEXT
 // ============================================================
 // Location: frontend/src/contexts/CPAAuthContext.jsx
+// Used by: App.jsx, CPALogin, CPARegister, CPAAdmin
 // ============================================================
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { cpaAPI } from '../services/cpaAPI';
+import { Navigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+// ── Context ──
 const CPAAuthContext = createContext(null);
 
+export function useCPAAuth() {
+  const context = useContext(CPAAuthContext);
+  if (!context) {
+    throw new Error('useCPAAuth must be used within CPAAuthProvider');
+  }
+  return context;
+}
+
+// ══════════════════════════════════════════════════════════
+// CPA AUTH PROVIDER
+// ══════════════════════════════════════════════════════════
 export function CPAAuthProvider({ children }) {
-  const [cpa, setCPA] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('cpa_token'));
+  const [cpa, setCpa] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check token on mount
+  // ── Restore session on mount ──
   useEffect(() => {
-    async function verifyToken() {
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-      
+    const savedToken = localStorage.getItem('cpa_token');
+    const savedCpa = localStorage.getItem('cpa_user');
+
+    if (savedToken && savedCpa) {
       try {
-        const res = await cpaAPI.verifyToken();
-        if (res.success && res.valid) {
-          setCPA(res.cpa);
-        } else {
-          // Token invalid
-          logout();
-        }
-      } catch (err) {
-        console.error('Token verification failed:', err);
+        const parsed = JSON.parse(savedCpa);
+        setToken(savedToken);
+        setCpa(parsed);
+        verifyCPAToken(savedToken);
+      } catch {
         logout();
-      } finally {
-        setLoading(false);
       }
+    } else {
+      setLoading(false);
     }
-    
-    verifyToken();
-  }, [token]);
+  }, []);
 
-  // Login
-  async function login(email, password) {
+  // ── Verify token with backend ──
+  async function verifyCPAToken(authToken) {
     try {
-      setError(null);
-      const res = await cpaAPI.login(email, password);
-      
-      if (res.success) {
-        localStorage.setItem('cpa_token', res.token);
-        setToken(res.token);
-        setCPA(res.cpa);
-        return { success: true };
+      const res = await fetch(`${API_URL}/api/cpa/auth/verify`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.cpa) {
+          setCpa(data.cpa);
+          localStorage.setItem('cpa_user', JSON.stringify(data.cpa));
+        }
       } else {
-        setError(res.error);
-        return { success: false, error: res.error };
+        // Token invalid — don't force logout, just mark as unverified
+        console.warn('[CPA_AUTH] Token verification failed, using cached data');
       }
     } catch (err) {
-      const errorMsg = err.message || 'Login failed';
-      setError(errorMsg);
-      return { success: false, error: errorMsg };
+      console.warn('[CPA_AUTH] Verify error:', err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
-  // Logout
-  function logout() {
-    localStorage.removeItem('cpa_token');
-    setToken(null);
-    setCPA(null);
-  }
-
-  // Update CPA data
-  function updateCPA(updates) {
-    setCPA(prev => ({ ...prev, ...updates }));
-  }
-
-  // Refresh CPA profile
-  async function refreshProfile() {
+  // ── Login ──
+  async function login(email, password) {
+    setError(null);
+    setLoading(true);
     try {
-      const res = await cpaAPI.getProfile();
-      if (res.success) {
-        setCPA(res.cpa);
+      const res = await fetch(`${API_URL}/api/cpa/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        const cpaData = data.cpa || data.user || {};
+        const authToken = data.token;
+
+        // Normalize CPA data
+        const normalized = {
+          id: cpaData._id || cpaData.id,
+          email: cpaData.email,
+          firstName: cpaData.firstName || cpaData.first_name || '',
+          lastName: cpaData.lastName || cpaData.last_name || '',
+          fullName: cpaData.fullName || `${cpaData.firstName || ''} ${cpaData.lastName || ''}`.trim(),
+          firmName: cpaData.firmName || cpaData.firm_name || '',
+          licenseNumber: cpaData.licenseNumber || cpaData.license_number || '',
+          role: cpaData.role || 'cpa',
+          status: cpaData.status || 'active',
+          permissions: cpaData.permissions || {},
+          assignedZipcodes: cpaData.assignedZipcodes || [],
+        };
+
+        setCpa(normalized);
+        setToken(authToken);
+        localStorage.setItem('cpa_token', authToken);
+        localStorage.setItem('cpa_user', JSON.stringify(normalized));
+
+        return { success: true, cpa: normalized };
+      } else {
+        const errMsg = data.message || data.error || 'Login failed';
+        setError(errMsg);
+        return { success: false, error: errMsg };
       }
     } catch (err) {
-      console.error('Failed to refresh profile:', err);
+      const errMsg = err.message || 'Network error. Please try again.';
+      setError(errMsg);
+      return { success: false, error: errMsg };
+    } finally {
+      setLoading(false);
     }
   }
 
-  const value = {
-    cpa,
-    token,
-    loading,
-    error,
-    isAuthenticated: !!cpa,
-    login,
-    logout,
-    updateCPA,
-    refreshProfile
-  };
+  // ── Logout ──
+  function logout() {
+    setCpa(null);
+    setToken(null);
+    setError(null);
+    localStorage.removeItem('cpa_token');
+    localStorage.removeItem('cpa_user');
+  }
+
+  // ── Clear error ──
+  function clearError() {
+    setError(null);
+  }
 
   return (
-    <CPAAuthContext.Provider value={value}>
+    <CPAAuthContext.Provider
+      value={{
+        cpa,
+        token,
+        loading,
+        error,
+        isAuthenticated: !!cpa && !!token,
+        login,
+        logout,
+        clearError,
+      }}
+    >
       {children}
     </CPAAuthContext.Provider>
   );
 }
 
-export function useCPAAuth() {
-  const context = useContext(CPAAuthContext);
-  if (!context) {
-    throw new Error('useCPAAuth must be used within a CPAAuthProvider');
-  }
-  return context;
-}
+// ══════════════════════════════════════════════════════════
+// CPA PROTECTED ROUTE
+// ══════════════════════════════════════════════════════════
+export function CPAProtectedRoute({ children, requiredRole }) {
+  const { cpa, token, loading } = useCPAAuth();
 
-// Protected Route Component
-export function CPAProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useCPAAuth();
-  
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        background: '#0f172a',
+        color: '#94a3b8',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid #334155',
+            borderTopColor: '#3b82f6',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite',
+            margin: '0 auto 16px',
+          }} />
+          <p>Loading CPA Portal...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       </div>
     );
   }
-  
-  if (!isAuthenticated) {
-    window.location.href = '/cpa/login';
-    return null;
+
+  if (!cpa || !token) {
+    return <Navigate to="/cpa/login" replace />;
   }
-  
+
+  // Optional role check
+  if (requiredRole && cpa.role !== requiredRole && cpa.role !== 'admin') {
+    return <Navigate to="/cpa/dashboard" replace />;
+  }
+
   return children;
 }
 

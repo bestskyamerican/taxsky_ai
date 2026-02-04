@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useCPAAuth } from '../contexts/CPAAuthContext';
+import { useCPAAuth } from '../../contexts/CPAAuthContext';
 
 export default function CPALogin() {
   const navigate = useNavigate();

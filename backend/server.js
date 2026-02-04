@@ -76,12 +76,17 @@ import resetRoutes from "./routes/resetRoutes.js";
 import verificationRoutes from "./routes/verificationRoutes.js";
 import smartAiRoutes from "./routes/smartAiRoutes.js";
 import cpaRoutes from './routes/cpaRoutes.js';
+import cpaBidRoutes from './routes/cpaBidRoutes.js';
 import paymentRoutes from './routes/paymentRoutes.js';
 import taxRoutes from './routes/taxRoutes.js';
 import stateRoutes from "./routes/state/index.js";
 
 // ✅ Import controller functions for public routes
 import { getAllData, updateFromPython } from "./controllers/smartAiController.js";
+
+// At the top with imports:
+import adminRoutes from './routes/adminRoutes.js';
+
 
 // -------------------------
 // ROUTE MOUNTING
@@ -160,6 +165,7 @@ try {
   
   // CPA Routes
   app.use('/api/cpa', cpaRoutes);
+  app.use('/api/cpa', cpaBidRoutes);  // Bid board marketplace
 
   console.log("✅ All routes mounted successfully");
   console.log("🤖 Smart AI: GPT-powered tax assistant ENABLED");
@@ -195,6 +201,9 @@ app.get("/health", async (req, res) => {
 });
 
 // -------------------------
+
+// With your other app.use() lines:
+app.use('/api/admin', adminRoutes);
 // Fallback Route
 // -------------------------
 app.use((req, res) => {

@@ -40,6 +40,7 @@ const UploadedFileSchema = new mongoose.Schema({
   // ✅ User ZIP code for territory filtering
   userZip: { type: String, index: true },
   cpaReviewedBy: { type: String },
+  cpaReviewedById: { type: String, index: true },  // ✅ CPA ID for reliable lookups
   cpaReviewedAt: { type: Date },
   cpaComments: { type: String },
   uploadedAt: { type: Date, default: Date.now }
@@ -246,21 +247,46 @@ export async function getPendingReviews(req, res) {
       .sort({ uploadedAt: 1 })
       .limit(parseInt(limit));
     
-    const filesWithUserInfo = await Promise.all(files.map(async (file) => {
-      // ✅ Get session with form1040 status
-      const session = await TaxSession?.findOne({ 
-        userId: file.userId,
+    // ✅ FIX: Batch-load sessions and payments (avoids N+1 queries)
+    const userIds = [...new Set(files.map(f => f.userId))];
+    
+    const [sessions, payments] = await Promise.all([
+      TaxSession?.find({
+        userId: { $in: userIds },
         taxYear: parseInt(taxYear)
-      });
+      }).lean() || [],
+      Payment?.find({
+        userId: { $in: userIds },
+        taxYear: parseInt(taxYear),
+        status: 'completed'
+      }).lean() || []
+    ]);
+    
+    // Build lookup maps
+    const sessionMap = {};
+    sessions.forEach(s => { sessionMap[s.userId] = s; });
+    
+    const paymentMap = {};
+    payments.forEach(p => {
+      paymentMap[p.userId] = {
+        hasPaid: true,
+        planId: p.planId,
+        planName: p.planName,
+        paidAt: p.paidAt,
+        isCPAPlan: p.planId === 'premium' || p.planName?.toLowerCase().includes('cpa')
+      };
+    });
+    
+    const filesWithUserInfo = files.map((file) => {
+      const session = sessionMap[file.userId];
       const answers = getAnswers(session);
       
-      // ✅ Check if user has completed interview
+      // Check if user has completed interview
       const hasForm1040 = !!(session?.form1040?.header);
-      const hasIncome = !!(session?.form1040?.income?.line_9_total_income > 0);
       const sessionStatus = session?.status || 'no_session';
       
-      // ✅ v3.0: Get payment info
-      const paymentInfo = await checkUserPayment(file.userId, taxYear);
+      // Payment info from batch lookup
+      const paymentInfo = paymentMap[file.userId] || { hasPaid: false, isCPAPlan: false };
       
       return {
         ...file.toObject(),
@@ -269,23 +295,23 @@ export async function getPendingReviews(req, res) {
                   'Unknown',
         userEmail: answers.email || null,
         userZip: getFileZipcode(file) || answers.zip || '',
-        // ✅ Session/Interview status
+        // Session/Interview status
         sessionStatus,
         hasForm1040,
         hasCompletedInterview: hasForm1040,
         ragVerified: session?.ragVerified || false,
-        // ✅ v3.0: Payment status
+        // v3.0: Payment status
         hasPaid: paymentInfo.hasPaid,
         paymentPlan: paymentInfo.planName,
         paidAt: paymentInfo.paidAt,
-        // ✅ Ready for CPA review = has documents + has completed interview + PAID
+        // Ready for CPA review = has documents + has completed interview + PAID
         readyForCPA: hasForm1040 && paymentInfo.hasPaid,
-        // ✅ Warning message if incomplete
+        // Warning message if incomplete
         warning: !hasForm1040 
           ? 'User has not completed interview' 
           : null
       };
-    }));
+    });
     
     res.json({
       success: true,
@@ -435,10 +461,10 @@ export async function getReviewStats(req, res) {
     // Base match
     const matchStage = taxYear ? { taxYear: parseInt(taxYear) } : {};
     
-    // ✅ Add ZIP filter
+    // ✅ Add ZIP filter (use $and for safe composition)
     const zipFilter = await buildZipFilter(cpaId);
     const finalMatch = Object.keys(zipFilter).length > 0
-      ? { ...matchStage, ...zipFilter }
+      ? { $and: [matchStage, zipFilter] }
       : matchStage;
     
     const stats = await UploadedFile.aggregate([
@@ -520,8 +546,8 @@ export async function getFileDetails(req, res) {
     const session = await TaxSession?.findOne({ userId: file.userId });
     const answers = getAnswers(session);
     
-    // Get chat history
-    const chatHistory = answers.conversation_history || [];
+    // ✅ FIX: Use session.messages as primary (consistent with getUserFilings)
+    const chatHistory = session?.messages || answers.conversation_history || [];
     
     res.json({
       success: true,
@@ -708,8 +734,10 @@ export async function getUserFilings(req, res) {
 export async function submitReview(req, res) {
   try {
     const { fileId } = req.params;
-    const { status, reviewedBy, comments, corrections } = req.body;
+    const { status, comments, corrections } = req.body;
     const cpaId = req.cpa?._id || req.cpa?.id;
+    // ✅ FIX: Use authenticated CPA info, not client-provided reviewedBy
+    const reviewedBy = req.body.reviewedBy || `${req.cpa?.firstName || ''} ${req.cpa?.lastName || ''}`.trim();
     
     if (!['approved', 'rejected', 'pending'].includes(status)) {
       return res.status(400).json({ 
@@ -718,10 +746,10 @@ export async function submitReview(req, res) {
       });
     }
     
-    if (!reviewedBy) {
+    if (!reviewedBy && !cpaId) {
       return res.status(400).json({ 
         success: false, 
-        error: 'reviewedBy is required' 
+        error: 'CPA authentication required' 
       });
     }
     
@@ -746,6 +774,7 @@ export async function submitReview(req, res) {
     const update = {
       status,
       cpaReviewedBy: reviewedBy,
+      cpaReviewedById: cpaId || null,  // ✅ Store CPA ID for reliable lookups
       cpaReviewedAt: new Date(),
       cpaComments: comments || ''
     };

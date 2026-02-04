@@ -8,8 +8,14 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import CPA from '../models/CPA.js';
 
-// JWT Secret - Use environment variable in production!
-const JWT_SECRET = process.env.JWT_SECRET || 'taxsky-cpa-secret-key-change-in-production';
+// JWT Secret - MUST be set via environment variable in production
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('❌ JWT_SECRET environment variable is required in production');
+  }
+  console.warn('⚠️  Using default JWT_SECRET - set JWT_SECRET env var for production!');
+  return 'taxsky-cpa-dev-secret-DO-NOT-USE-IN-PROD';
+})();
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 // ============================================================

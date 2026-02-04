@@ -7,8 +7,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { cpaAPI } from '../services/cpaAPI';
-import { useCPAAuth } from '../contexts/CPAAuthContext';
+import { cpaAPI } from '../../services/cpaAPI';
+import { useCPAAuth } from '../../contexts/CPAAuthContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 

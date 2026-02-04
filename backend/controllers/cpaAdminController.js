@@ -85,9 +85,12 @@ export async function getCPAById(req, res) {
       });
     }
     
-    // Get review history (last 50 reviews)
+    // Get review history (last 50 reviews) — search by CPA ID or name
     const reviewHistory = await UploadedFile?.find({
-      cpaReviewedBy: `${cpa.firstName} ${cpa.lastName}`
+      $or: [
+        { cpaReviewedById: cpa._id },
+        { cpaReviewedBy: `${cpa.firstName} ${cpa.lastName}` }
+      ]
     })
       .sort({ cpaReviewedAt: -1 })
       .limit(50)
@@ -368,7 +371,7 @@ export async function getZipcodeCoverage(req, res) {
           }
         } 
       },
-      { $match: { _id: { $ne: null, $ne: '' } } },
+      { $match: { _id: { $nin: [null, ''] } } },
       { $sort: { fileCount: -1 } }
     ]) || [];
     

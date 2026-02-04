@@ -1,181 +1,227 @@
 // ============================================================
-// CPA API SERVICE - API calls for CPA Dashboard
+// CPA API SERVICE
 // ============================================================
-// Location: frontend/src/services/cpaAPI.js
+// Location: frontend/src/pages/services/cpaAPI.js
+//
+// All CPA-related API calls in one place.
+// Used by: CPAAdmin, CPARegister, CPADashboard, CPABidBoard
 // ============================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const CPA_API = `${API_BASE}/api/cpa`;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-// Helper to get auth header
-function getAuthHeader() {
-  const token = localStorage.getItem('cpa_token');
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
+// ── Helper: get CPA token ──
+function getToken() {
+  return localStorage.getItem('cpa_token') || '';
 }
 
-// Generic fetch wrapper
-async function fetchAPI(endpoint, options = {}) {
-  const url = `${CPA_API}${endpoint}`;
-  
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...getAuthHeader(),
-      ...options.headers
-    },
-    ...options
+// ── Helper: auth headers ──
+function authHeaders(extra = {}) {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${getToken()}`,
+    ...extra,
   };
-  
-  try {
-    const response = await fetch(url, config);
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error || `HTTP error ${response.status}`);
-    }
-    
-    return data;
-  } catch (error) {
-    console.error(`API Error [${endpoint}]:`, error);
-    throw error;
-  }
 }
 
-// ============================================================
-// AUTH APIs
-// ============================================================
+// ── Helper: handle response ──
+async function handleResponse(res) {
+  const data = await res.json();
+  if (!res.ok && !data.success) {
+    throw new Error(data.message || data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
 
+// ══════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════
+async function loginCPA(email, password) {
+  const res = await fetch(`${API_URL}/api/cpa/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  return handleResponse(res);
+}
+
+async function registerCPA(formData) {
+  const res = await fetch(`${API_URL}/api/cpa/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+  return handleResponse(res);
+}
+
+async function verifyCPAToken() {
+  const res = await fetch(`${API_URL}/api/cpa/auth/verify`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+// ══════════════════════════════════════════════════════════
+// ADMIN: CPA MANAGEMENT
+// ══════════════════════════════════════════════════════════
+async function getAllCPAs(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.status && filters.status !== 'all') params.append('status', filters.status);
+  if (filters.role && filters.role !== 'all') params.append('role', filters.role);
+  if (filters.search) params.append('search', filters.search);
+
+  const res = await fetch(`${API_URL}/api/cpa/admin/cpas?${params}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function getCPAStats() {
+  const res = await fetch(`${API_URL}/api/cpa/admin/stats`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function approveCPA(cpaId) {
+  const res = await fetch(`${API_URL}/api/cpa/admin/cpas/${cpaId}/approve`, {
+    method: 'PUT',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function updateCPAStatus(cpaId, status) {
+  const res = await fetch(`${API_URL}/api/cpa/admin/cpas/${cpaId}/status`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ status }),
+  });
+  return handleResponse(res);
+}
+
+async function updateCPAPermissions(cpaId, permissions, role) {
+  const body = {};
+  if (permissions) body.permissions = permissions;
+  if (role) body.role = role;
+
+  const res = await fetch(`${API_URL}/api/cpa/admin/cpas/${cpaId}/permissions`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(body),
+  });
+  return handleResponse(res);
+}
+
+async function updateCPAZipcodes(cpaId, zipcodes, action = 'set') {
+  const res = await fetch(`${API_URL}/api/cpa/admin/cpas/${cpaId}/zipcodes`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify({ zipcodes, action }),
+  });
+  return handleResponse(res);
+}
+
+async function getZipcodeCoverage() {
+  const res = await fetch(`${API_URL}/api/cpa/admin/zipcodes/coverage`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+// ══════════════════════════════════════════════════════════
+// JOBS: BID BOARD
+// ══════════════════════════════════════════════════════════
+async function getJobs(filters = {}) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([k, v]) => {
+    if (v) params.append(k, v);
+  });
+
+  const res = await fetch(`${API_URL}/api/cpa/jobs?${params}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function getJobDetails(jobId) {
+  const res = await fetch(`${API_URL}/api/cpa/jobs/${jobId}/details`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function placeBid(jobId, bidData) {
+  const res = await fetch(`${API_URL}/api/cpa/jobs/${jobId}/bid`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(bidData),
+  });
+  return handleResponse(res);
+}
+
+async function getJobBids(jobId) {
+  const res = await fetch(`${API_URL}/api/cpa/jobs/${jobId}/bids`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function acceptBid(jobId, bidId) {
+  const res = await fetch(`${API_URL}/api/cpa/jobs/${jobId}/accept`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ bidId }),
+  });
+  return handleResponse(res);
+}
+
+async function completeJob(jobId) {
+  const res = await fetch(`${API_URL}/api/cpa/jobs/${jobId}/complete`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+}
+
+async function generatePdf(jobId, formType = 'federal') {
+  const res = await fetch(`${API_URL}/api/cpa/jobs/${jobId}/generate-pdf`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ formType }),
+  });
+  if (res.ok) {
+    return res.blob();
+  }
+  const data = await res.json();
+  throw new Error(data.message || 'PDF generation failed');
+}
+
+// ══════════════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════════════
 export const cpaAPI = {
-  // Register new CPA
-  register: (data) => fetchAPI('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(data)
-  }),
-  
-  // Login
-  login: (email, password) => fetchAPI('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password })
-  }),
-  
-  // Verify token
-  verifyToken: () => fetchAPI('/auth/verify'),
-  
-  // Logout
-  logout: () => fetchAPI('/auth/logout', { method: 'POST' }),
-  
-  // Get profile
-  getProfile: () => fetchAPI('/auth/profile'),
-  
-  // Update profile
-  updateProfile: (data) => fetchAPI('/auth/profile', {
-    method: 'PUT',
-    body: JSON.stringify(data)
-  }),
-  
-  // Change password
-  changePassword: (currentPassword, newPassword) => fetchAPI('/auth/change-password', {
-    method: 'POST',
-    body: JSON.stringify({ currentPassword, newPassword })
-  }),
-  
-  // Forgot password
-  forgotPassword: (email) => fetchAPI('/auth/forgot-password', {
-    method: 'POST',
-    body: JSON.stringify({ email })
-  }),
-  
-  // Reset password
-  resetPassword: (token, newPassword) => fetchAPI('/auth/reset-password', {
-    method: 'POST',
-    body: JSON.stringify({ token, newPassword })
-  }),
+  // Auth
+  loginCPA,
+  registerCPA,
+  verifyCPAToken,
 
-  // ============================================================
-  // REVIEW APIs
-  // ============================================================
-  
-  // Get stats
-  getStats: (taxYear) => fetchAPI(`/stats?taxYear=${taxYear || ''}`),
-  
-  // Get pending reviews
-  getPendingReviews: (taxYear, limit = 50) => 
-    fetchAPI(`/pending?taxYear=${taxYear || ''}&limit=${limit}`),
-  
-  // Get all files (with filters)
-  getAllFiles: ({ status, taxYear, userId, page = 1, limit = 50 }) => {
-    const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (taxYear) params.append('taxYear', taxYear);
-    if (userId) params.append('userId', userId);
-    params.append('page', page);
-    params.append('limit', limit);
-    return fetchAPI(`/files?${params.toString()}`);
-  },
-  
-  // Get file details
-  getFileDetails: (fileId) => fetchAPI(`/files/${fileId}`),
-  
-  // Submit review
-  submitReview: (fileId, data) => fetchAPI(`/files/${fileId}/review`, {
-    method: 'POST',
-    body: JSON.stringify(data)
-  }),
-  
-  // Bulk approve
-  bulkApprove: (fileIds, reviewedBy) => fetchAPI('/bulk-approve', {
-    method: 'POST',
-    body: JSON.stringify({ fileIds, reviewedBy })
-  }),
-  
-  // Get user filings
-  getUserFilings: (userId) => fetchAPI(`/users/${userId}/filings`),
+  // Admin
+  getAllCPAs,
+  getCPAStats,
+  approveCPA,
+  updateCPAStatus,
+  updateCPAPermissions,
+  updateCPAZipcodes,
+  getZipcodeCoverage,
 
-  // ============================================================
-  // ADMIN APIs
-  // ============================================================
-  
-  // Get all CPAs
-  getAllCPAs: ({ status, role, search, page = 1, limit = 20 } = {}) => {
-    const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (role) params.append('role', role);
-    if (search) params.append('search', search);
-    params.append('page', page);
-    params.append('limit', limit);
-    return fetchAPI(`/admin/cpas?${params.toString()}`);
-  },
-  
-  // Get single CPA
-  getCPAById: (cpaId) => fetchAPI(`/admin/cpas/${cpaId}`),
-  
-  // Approve CPA
-  approveCPA: (cpaId) => fetchAPI(`/admin/cpas/${cpaId}/approve`, {
-    method: 'POST'
-  }),
-  
-  // Update CPA status
-  updateCPAStatus: (cpaId, status, reason) => fetchAPI(`/admin/cpas/${cpaId}/status`, {
-    method: 'PUT',
-    body: JSON.stringify({ status, reason })
-  }),
-  
-  // Update CPA permissions
-  updateCPAPermissions: (cpaId, permissions, role) => fetchAPI(`/admin/cpas/${cpaId}/permissions`, {
-    method: 'PUT',
-    body: JSON.stringify({ permissions, role })
-  }),
-  
-  // Delete CPA
-  deleteCPA: (cpaId) => fetchAPI(`/admin/cpas/${cpaId}`, {
-    method: 'DELETE'
-  }),
-  
-  // Get CPA stats
-  getCPAStats: (period = 30) => fetchAPI(`/admin/cpa-stats?period=${period}`),
-  
-  // Get system stats
-  getSystemStats: () => fetchAPI('/admin/system-stats')
+  // Jobs / Bid Board
+  getJobs,
+  getJobDetails,
+  placeBid,
+  getJobBids,
+  acceptBid,
+  completeJob,
+  generatePdf,
 };
 
 export default cpaAPI;

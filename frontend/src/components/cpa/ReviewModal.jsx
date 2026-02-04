@@ -22,7 +22,7 @@ export default function ReviewModal({ file, onClose, onSubmit }) {
   const [loadingUserData, setLoadingUserData] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
   // Load ALL user data on mount
   useEffect(() => {
@@ -144,16 +144,42 @@ export default function ReviewModal({ file, onClose, onSubmit }) {
     return '***-**-****';
   }
 
-  // Handle approve ALL pending documents
+  // Handle approve ALL pending documents — ✅ uses bulk endpoint
   async function handleApproveAll() {
     setLoading(true);
     const pendingFiles = allFiles.filter(f => f.status === 'pending');
+    const pendingIds = pendingFiles.map(f => f._id);
     
-    for (const pFile of pendingFiles) {
-      await onSubmit(pFile._id, {
-        status: 'approved',
-        comments: comments || 'Approved by CPA'
+    if (pendingIds.length === 0) {
+      setLoading(false);
+      return;
+    }
+    
+    try {
+      const token = localStorage.getItem('cpa_token');
+      const res = await fetch(`${API_URL}/api/cpa/bulk-approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          fileIds: pendingIds, 
+          reviewedBy: comments || 'Approved by CPA'
+        })
       });
+      const data = await res.json();
+      if (data.success) {
+        // Notify parent of all approvals
+        for (const pFile of pendingFiles) {
+          await onSubmit(pFile._id, { status: 'approved', comments: comments || 'Approved by CPA' });
+        }
+      }
+    } catch (err) {
+      // Fallback to sequential if bulk fails
+      for (const pFile of pendingFiles) {
+        await onSubmit(pFile._id, { status: 'approved', comments: comments || 'Approved by CPA' });
+      }
     }
     setLoading(false);
   }

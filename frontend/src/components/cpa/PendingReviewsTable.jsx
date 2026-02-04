@@ -263,30 +263,29 @@ export default function PendingReviewsTable({
 }) {
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   
-  // Group files by user
-  const userGroups = useMemo(() => {
-    let groups = groupFilesByUser(files).sort((a, b) => 
+  // Group files by user (compute once, filter separately)
+  const allUserGroups = useMemo(() => {
+    return groupFilesByUser(files).sort((a, b) => 
       new Date(b.latestUpload) - new Date(a.latestUpload)
     );
-    
-    // Filter by ZIP code if provided
-    if (zipCodeFilter) {
-      groups = groups.filter(g => 
-        g.zipCode && g.zipCode.startsWith(zipCodeFilter)
-      );
-    }
-    
-    return groups;
-  }, [files, zipCodeFilter]);
+  }, [files]);
   
-  // Get unique ZIP codes for filter dropdown
+  // Apply ZIP filter
+  const userGroups = useMemo(() => {
+    if (!zipCodeFilter) return allUserGroups;
+    return allUserGroups.filter(g => 
+      g.zipCode && g.zipCode.startsWith(zipCodeFilter)
+    );
+  }, [allUserGroups, zipCodeFilter]);
+  
+  // Get unique ZIP codes from unfiltered groups (✅ no recomputation)
   const uniqueZipCodes = useMemo(() => {
     const zips = new Set();
-    groupFilesByUser(files).forEach(g => {
+    allUserGroups.forEach(g => {
       if (g.zipCode) zips.add(g.zipCode);
     });
     return Array.from(zips).sort();
-  }, [files]);
+  }, [allUserGroups]);
   
   // Format currency
   function formatCurrency(amount) {
@@ -314,12 +313,13 @@ export default function PendingReviewsTable({
     );
   }
   
-  // Select all
+  // Select all (✅ only selects users ready for CPA review)
   function toggleSelectAll() {
-    if (selectedUserIds.length === userGroups.length) {
+    const readyGroups = userGroups.filter(g => g.hasCompletedInterview && g.hasPaid);
+    if (selectedUserIds.length === readyGroups.length && readyGroups.length > 0) {
       setSelectedUserIds([]);
     } else {
-      setSelectedUserIds(userGroups.map(g => g.userId));
+      setSelectedUserIds(readyGroups.map(g => g.userId));
     }
   }
   
@@ -445,7 +445,7 @@ export default function PendingReviewsTable({
                   <th className="px-4 py-3 text-left w-10">
                     <input
                       type="checkbox"
-                      checked={selectedUserIds.length === userGroups.length && userGroups.length > 0}
+                      checked={selectedUserIds.length > 0 && selectedUserIds.length === userGroups.filter(g => g.hasCompletedInterview && g.hasPaid).length}
                       onChange={toggleSelectAll}
                       className="rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-blue-500"
                     />

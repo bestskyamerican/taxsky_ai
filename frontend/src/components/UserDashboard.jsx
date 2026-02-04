@@ -11,7 +11,7 @@
 // ============================================================
 
 import React, { useState, useEffect, useCallback } from "react";
-import SubmitFlow from "./SubmitFlow";
+import FilingChoice from "./FilingChoice";
 
 const API_BASE = import.meta.env?.VITE_API_URL || "http://localhost:5001";
 const PYTHON_API = import.meta.env?.VITE_PYTHON_API || "http://localhost:5002";
@@ -993,7 +993,7 @@ export default function UserDashboard() {
       )}
 
       {/* ✅ SUBMIT FLOW MODAL */}
-      {showSubmitFlow && <SubmitFlow onClose={() => { setShowSubmitFlow(false); fetchTaxData(); }} userId={getUserId()} token={getToken()} taxData={taxData} userData={userData} />}
+      {showSubmitFlow && <FilingChoice onClose={() => { setShowSubmitFlow(false); fetchTaxData(); }} userId={getUserId()} token={getToken()} taxData={taxData} userData={userData} />}
 
       {/* ✅ FOOTER DISCLAIMER - Legal compliance */}
       <div style={{ 
