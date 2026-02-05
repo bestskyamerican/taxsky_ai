@@ -1,8 +1,18 @@
 /**
  * ============================================================
  * TaxSky Smart AI Controller
- * Version: 15.9 - FIX: IRA/HSA validation + always rebuild
+ * Version: 16.0 - FIX: Federal tax computation + dependents
  * ============================================================
+ * 
+ * ✅ v16.0 FIX:
+ *  - CRITICAL: Added federal tax bracket computation to manualRebuild()
+ *    (was computing taxable_income but NEVER calculating actual tax!)
+ *  - CRITICAL: Added CTC/ODC credit calculation for dependents
+ *  - CRITICAL: Added refund/amount_owed calculation  
+ *  - Fixed DEPENDENT_PATTERNS: added dependent_N_credit_type match
+ *    (AI saves "dependent_1_credit_type" not "dependent_1_credit")
+ *  - Fixed finalizeDependents: no longer requires first_name
+ *    (dependent was silently dropped if AI didn't save a name)
  * 
  * ✅ v15.9 FIX:
  *  - Added taxpayer_ira, spouse_ira, hsa to specialFields
@@ -46,7 +56,7 @@ const CONFIG = {
   pythonApiUrl: process.env.PYTHON_API_URL || 'http://localhost:5002'
 };
 
-console.log(`📌 SmartAI v15.9 — IRA/HSA always allowed + auto-rebuild totals!`);
+console.log(`📌 SmartAI v16.0 — Federal tax computation + dependents fix!`);
 
 // ============================================================
 // HELPER: Get or Create Session (ATOMIC)
@@ -388,6 +398,8 @@ const DEPENDENT_PATTERNS = [
   { pattern: /^dependent_(\d+)_age$/, field: 'age' },
   { pattern: /^dependent_(\d+)_relationship$/, field: 'relationship' },
   { pattern: /^dependent_(\d+)_credit$/, field: 'credit_type' },
+  // ✅ v16.0 FIX: AI saves "dependent_1_credit_type" not "dependent_1_credit"
+  { pattern: /^dependent_(\d+)_credit_type$/, field: 'credit_type' },
 ];
 
 // ============================================================
@@ -595,6 +607,47 @@ function finalizeDependents(session) {
   console.log(`\n👶 FINALIZING DEPENDENTS...`);
   
   if (!session._pendingDependents || Object.keys(session._pendingDependents).length === 0) {
+    // ✅ v16.0 FIX: Also check answers for dependent data when _pendingDependents is empty
+    const answers = session.answers instanceof Map 
+      ? Object.fromEntries(session.answers) 
+      : (session.answers || {});
+    
+    const depCount = parseInt(answers.dependent_count || 0);
+    const hasDeps = answers.has_dependents === true || answers.has_dependents === 'true';
+    
+    if ((depCount > 0 || hasDeps) && (!session.dependents || session.dependents.length === 0)) {
+      console.log(`   ⚠️ No _pendingDependents but answers say ${depCount} dependents - reading from answers`);
+      session.dependents = [];
+      const count = depCount || (hasDeps ? 1 : 0);
+      
+      for (let i = 1; i <= count; i++) {
+        const depAge = answers[`dependent_${i}_age`];
+        const depDob = answers[`dependent_${i}_dob`];
+        const depName = answers[`dependent_${i}_name`] || '';
+        const depRelationship = answers[`dependent_${i}_relationship`] || 'child';
+        const depCreditType = answers[`dependent_${i}_credit_type`] || answers[`dependent_${i}_credit`] || '';
+        
+        if (depAge !== undefined || depDob) {
+          const age = depAge !== undefined ? parseInt(depAge) : null;
+          const dependent = {
+            first_name: depName,
+            dob: depDob ? parseDateToISO(depDob) : null,
+            age: age,
+            relationship: depRelationship,
+            credit_type: depCreditType,
+            qualifies_ctc: (age !== null && age < 17) || depCreditType === 'ctc',
+            qualifies_odc: (age !== null && age >= 17) || depCreditType === 'odc'
+          };
+          session.dependents.push(dependent);
+          console.log(`   ✅ Dependent #${i} from answers: Age ${age}, credit=${depCreditType}`);
+        }
+      }
+      
+      session.markModified('dependents');
+      console.log(`   📊 Total Dependents: ${session.dependents.length}`);
+      return;
+    }
+    
     console.log(`   ℹ️ No dependents to finalize`);
     return;
   }
@@ -602,17 +655,21 @@ function finalizeDependents(session) {
   session.dependents = [];
   
   for (const [index, depData] of Object.entries(session._pendingDependents)) {
-    if (depData.first_name) {
+    // ✅ v16.0 FIX: Don't require first_name - accept any dependent with age, dob, or relationship
+    if (depData.first_name || depData.age !== undefined || depData.dob || depData.relationship) {
+      const age = depData.age !== undefined ? parseInt(depData.age) : null;
+      const creditType = depData.credit_type || '';
       const dependent = {
         first_name: depData.first_name || '',
         dob: depData.dob ? parseDateToISO(depData.dob) : null,
-        age: depData.age || null,
+        age: age,
         relationship: depData.relationship || 'child',
-        qualifies_ctc: depData.age < 17,
-        qualifies_odc: depData.age >= 17
+        credit_type: creditType,
+        qualifies_ctc: (age !== null && age < 17) || creditType === 'ctc',
+        qualifies_odc: (age !== null && age >= 17) || creditType === 'odc'
       };
       session.dependents.push(dependent);
-      console.log(`   ✅ Dependent #${index}: ${dependent.first_name}, Age ${dependent.age}`);
+      console.log(`   ✅ Dependent #${index}: ${dependent.first_name || '(unnamed)'}, Age ${dependent.age}, credit=${creditType}`);
     }
   }
   
@@ -855,6 +912,141 @@ function manualRebuild(session, answers) {
   
   t.total_payments = t.federal_withheld + (t.estimated_payments || 0);
   
+  // ════════════════════════════════════════════════════════════
+  // ✅ v16.0 CRITICAL FIX: COMPUTE FEDERAL TAX FROM BRACKETS
+  // Previously this was NEVER computed - federal_tax stayed at 0!
+  // ════════════════════════════════════════════════════════════
+  
+  // 2025 Tax Brackets
+  const TAX_BRACKETS = {
+    'single': [
+      [11925, 0.10], [48475, 0.12], [103350, 0.22],
+      [197300, 0.24], [250525, 0.32], [626350, 0.35], [Infinity, 0.37]
+    ],
+    'married_filing_jointly': [
+      [23850, 0.10], [96950, 0.12], [206700, 0.22],
+      [394600, 0.24], [501050, 0.32], [751600, 0.35], [Infinity, 0.37]
+    ],
+    'married_filing_separately': [
+      [11925, 0.10], [48475, 0.12], [103350, 0.22],
+      [197300, 0.24], [250525, 0.32], [375800, 0.35], [Infinity, 0.37]
+    ],
+    'head_of_household': [
+      [17000, 0.10], [64850, 0.12], [103350, 0.22],
+      [197300, 0.24], [250500, 0.32], [626350, 0.35], [Infinity, 0.37]
+    ],
+    'qualifying_widow': [
+      [23850, 0.10], [96950, 0.12], [206700, 0.22],
+      [394600, 0.24], [501050, 0.32], [751600, 0.35], [Infinity, 0.37]
+    ]
+  };
+  
+  const brackets = TAX_BRACKETS[session.filing_status] || TAX_BRACKETS['single'];
+  const taxableIncome = t.taxable_income || 0;
+  
+  let federalTax = 0;
+  let prev = 0;
+  for (const [limit, rate] of brackets) {
+    if (taxableIncome <= prev) break;
+    federalTax += (Math.min(taxableIncome, limit) - prev) * rate;
+    prev = limit;
+  }
+  federalTax = Math.round(federalTax * 100) / 100;
+  
+  t.bracket_tax = federalTax;
+  t.tax_before_credits = federalTax;
+  
+  console.log(`   💰 Federal Tax (brackets): $${federalTax.toLocaleString()}`);
+  
+  // ════════════════════════════════════════════════════════════
+  // ✅ v16.0: CHILD TAX CREDIT + OTHER DEPENDENT CREDIT
+  // ════════════════════════════════════════════════════════════
+  let childrenUnder17 = 0;
+  let otherDependents = 0;
+  
+  // Count from dependents array
+  const deps = session.dependents || [];
+  for (const dep of deps) {
+    const age = dep.age !== undefined ? parseInt(dep.age) : null;
+    const creditType = dep.credit_type || '';
+    if ((age !== null && age < 17) || creditType === 'ctc' || dep.qualifies_ctc) {
+      childrenUnder17++;
+    } else if (age !== null || creditType === 'odc' || dep.qualifies_odc) {
+      otherDependents++;
+    }
+  }
+  
+  // Also read from answers as fallback (in case dependents array is empty)
+  if (childrenUnder17 === 0 && otherDependents === 0) {
+    const depCount = parseInt(answers.dependent_count || 0);
+    for (let i = 1; i <= depCount; i++) {
+      const depAge = answers[`dependent_${i}_age`];
+      const depCredit = answers[`dependent_${i}_credit_type`] || answers[`dependent_${i}_credit`] || '';
+      if (depAge !== undefined) {
+        const age = parseInt(depAge);
+        if (age < 17 || depCredit === 'ctc') {
+          childrenUnder17++;
+        } else {
+          otherDependents++;
+        }
+      }
+    }
+  }
+  
+  // CTC: $2,000 per qualifying child under 17
+  // Phase-out: reduces by $50 per $1,000 over threshold
+  const ctcThreshold = isJoint ? 400000 : 200000;
+  let grossCTC = childrenUnder17 * 2000;
+  if (t.agi > ctcThreshold) {
+    const reduction = Math.ceil((t.agi - ctcThreshold) / 1000) * 50;
+    grossCTC = Math.max(0, grossCTC - reduction);
+  }
+  
+  // ODC: $500 per other dependent
+  let grossODC = otherDependents * 500;
+  if (t.agi > ctcThreshold) {
+    const reduction = Math.ceil((t.agi - ctcThreshold) / 1000) * 50;
+    grossODC = Math.max(0, grossODC - Math.max(0, reduction - (childrenUnder17 * 2000)));
+  }
+  
+  // Nonrefundable credits are limited to tax liability
+  const totalNonrefundableCredits = Math.min(grossCTC + grossODC, federalTax);
+  t.child_tax_credit = Math.min(grossCTC, federalTax);
+  t.other_dependent_credit = Math.min(grossODC, Math.max(0, federalTax - t.child_tax_credit));
+  t.total_credits = totalNonrefundableCredits;
+  
+  // Additional Child Tax Credit (refundable portion)
+  const ctcUsed = Math.min(grossCTC, federalTax);
+  const ctcRemaining = grossCTC - ctcUsed;
+  let additionalCTC = 0;
+  if (ctcRemaining > 0 && t.wages > 2500) {
+    const earnedIncomeOver2500 = Math.max(0, t.wages - 2500);
+    additionalCTC = Math.min(ctcRemaining, Math.round(earnedIncomeOver2500 * 0.15));
+  }
+  t.additional_child_tax_credit = additionalCTC;
+  
+  // Tax after credits
+  t.federal_tax = Math.max(0, federalTax - totalNonrefundableCredits);
+  t.total_tax = t.federal_tax + (t.self_employment_tax || 0);
+  
+  // Refund or amount owed
+  const totalPayments = t.total_payments + additionalCTC;
+  if (totalPayments > t.total_tax) {
+    t.refund = Math.round((totalPayments - t.total_tax) * 100) / 100;
+    t.amount_owed = 0;
+  } else {
+    t.refund = 0;
+    t.amount_owed = Math.round((t.total_tax - totalPayments) * 100) / 100;
+  }
+  
+  console.log(`   👶 Dependents: ${childrenUnder17} children CTC, ${otherDependents} other ODC`);
+  console.log(`   💰 CTC: $${t.child_tax_credit}, ODC: $${t.other_dependent_credit}`);
+  console.log(`   💰 Additional CTC (refundable): $${additionalCTC}`);
+  console.log(`   💰 Federal Tax (after credits): $${t.federal_tax}`);
+  console.log(`   💰 Total Tax: $${t.total_tax}`);
+  console.log(`   💰 Refund: $${t.refund} | Owed: $${t.amount_owed}`);
+  // ════════════════════════════════════════════════════════════
+  
   session.markModified('totals');
   
   // Update form1040
@@ -868,11 +1060,28 @@ function manualRebuild(session, answers) {
   session.form1040.deductions.line_12a_standard_deduction = t.standard_deduction;
   session.form1040.deductions.line_12_deduction = t.standard_deduction;
   session.form1040.deductions.line_14_total_deductions = t.deduction_used;
-  session.form1040.deductions.obbb_total_deduction = t.obbb_total_deduction;  // ✅ OBBB
+  session.form1040.deductions.obbb_total_deduction = t.obbb_total_deduction;
   session.form1040.deductions.line_15_taxable_income = t.taxable_income;
+  
+  // ✅ v16.0: Tax computation fields
+  session.form1040.tax_credits.line_16_tax = t.bracket_tax || 0;
+  session.form1040.tax_credits.line_18_total_tax_before_credits = t.tax_before_credits || 0;
+  session.form1040.tax_credits.line_19_child_tax_credit = t.child_tax_credit || 0;
+  session.form1040.tax_credits.line_21_total_credits = t.total_credits || 0;
+  session.form1040.tax_credits.line_22_tax_minus_credits = t.federal_tax || 0;
+  session.form1040.tax_credits.line_24_total_tax = t.total_tax || 0;
+  session.form1040.dependent_children_ctc = childrenUnder17;
+  session.form1040.dependent_other = otherDependents;
+  
   session.form1040.payments.line_25a_w2_withholding = t.federal_withheld;
   session.form1040.payments.line_25d_total_withholding = t.federal_withheld;
-  session.form1040.payments.line_33_total_payments = t.total_payments;
+  session.form1040.payments.line_28_additional_ctc = t.additional_child_tax_credit || 0;
+  session.form1040.payments.line_33_total_payments = t.total_payments + (t.additional_child_tax_credit || 0);
+  
+  // ✅ v16.0: Refund/owed
+  session.form1040.refund.line_34_overpaid = t.refund || 0;
+  session.form1040.refund.line_35a_refund_amount = t.refund || 0;
+  session.form1040.refund.line_37_amount_owed = t.amount_owed || 0;
   
   session.markModified('form1040');
 }

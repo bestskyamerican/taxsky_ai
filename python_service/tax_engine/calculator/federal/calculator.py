@@ -1,8 +1,17 @@
 # tax_engine/calculator/federal/calculator.py
 # ============================================================
-# FEDERAL TAX CALCULATOR 2025 v8.2 - FULL OBBB SUPPORT (FINAL)
+# FEDERAL TAX CALCULATOR 2025 v8.3 - FULL OBBB SUPPORT
 # ============================================================
 # 
+# v8.3 Fixes:
+#   - ✅ FIXED: Read taxpayer_w2_1_wages/withheld/tips from answers 
+#               when input_forms.w2 is empty (AI interview stores W-2 
+#               data with _w2_1_ naming pattern, not in w2 array)
+#   - ✅ FIXED: Read dependent_N_age/dob from answers when dependents 
+#               array is empty (AI interview stores as dependent_1_age, 
+#               dependent_1_dob, etc. instead of pushing to array)
+#   - ✅ FIXED: Read state_withheld from answers when w2_list empty
+#
 # v8.2 Fixes:
 #   - ✅ FIXED: Overtime uses FULL amount (what appears on paycheck)
 #
@@ -786,9 +795,27 @@ def extract_from_session(session_data):
         # ✅ v8.0: Auto-capture tips from W-2
         data['tips_received'] = taxpayer_tips + spouse_tips
     else:
-        data['taxpayer_wages'] = answers.get('taxpayer_wages', totals.get('wages', 0))
-        data['taxpayer_federal_withheld'] = answers.get('taxpayer_federal_withheld', totals.get('federal_withheld', 0))
-        data['tips_received'] = 0
+        # ✅ v8.3 FIX: AI interview stores W-2 data as taxpayer_w2_1_wages, etc.
+        # Must check these keys too when w2_list is empty
+        data['taxpayer_wages'] = (
+            answers.get('taxpayer_wages') or 
+            answers.get('taxpayer_w2_1_wages') or 
+            totals.get('wages', 0)
+        )
+        data['taxpayer_federal_withheld'] = (
+            answers.get('taxpayer_federal_withheld') or
+            answers.get('taxpayer_w2_1_federal_withheld') or
+            totals.get('federal_withheld', 0)
+        )
+        data['taxpayer_state_withheld'] = (
+            answers.get('taxpayer_state_withheld') or
+            answers.get('taxpayer_w2_1_state_withheld') or
+            totals.get('state_withheld', 0)
+        )
+        # ✅ v8.3 FIX: Also read tips from W-2 answer keys
+        data['tips_received'] = (
+            answers.get('taxpayer_w2_1_tips') or 0
+        )
     
     # ✅ v8.1 FIX: Also check taxpayer_w2_tips
     data['tips_received'] = (
@@ -825,15 +852,41 @@ def extract_from_session(session_data):
     dependents = session_data.get('dependents', [])
     children_under_17 = 0
     other_deps = 0
-    for dep in dependents:
-        age = dep.get('age')
-        if age is None and dep.get('dob'):
-            age = calculate_age(dep.get('dob'))
-        if age is not None:
-            if age < 17:
-                children_under_17 += 1
-            else:
-                other_deps += 1
+    
+    if dependents:
+        # Read from dependents array (structured data)
+        for dep in dependents:
+            age = dep.get('age')
+            if age is None and dep.get('dob'):
+                age = calculate_age(dep.get('dob'))
+            if age is not None:
+                if age < 17:
+                    children_under_17 += 1
+                else:
+                    other_deps += 1
+    else:
+        # ✅ v8.3 FIX: AI interview stores dependents as answers.dependent_1_age, 
+        # answers.dependent_2_age, etc. - must read these when dependents array is empty!
+        dep_count = int(answers.get('dependent_count', 0))
+        if dep_count == 0 and answers.get('has_dependents'):
+            dep_count = 1  # At least 1 if has_dependents is true
+        
+        for i in range(1, dep_count + 1):
+            dep_age = answers.get(f'dependent_{i}_age')
+            if dep_age is None:
+                dep_dob = answers.get(f'dependent_{i}_dob', '')
+                if dep_dob:
+                    dep_age = calculate_age(dep_dob)
+            
+            if dep_age is not None:
+                dep_age = int(dep_age)
+                credit_type = answers.get(f'dependent_{i}_credit_type', '')
+                
+                # Under 17 OR explicitly marked as CTC = qualifying child
+                if dep_age < 17 or credit_type == 'ctc':
+                    children_under_17 += 1
+                else:
+                    other_deps += 1
     
     data['qualifying_children_under_17'] = children_under_17
     data['other_dependents'] = other_deps
