@@ -1,7 +1,7 @@
 // ============================================================
 // CPA REGISTER PAGE
 // ============================================================
-// Location: frontend/src/pages/CPARegister.jsx
+// Location: frontend/src/pages/cpa/CPARegister.jsx
 // ============================================================
 
 import React, { useState } from 'react';
@@ -54,7 +54,7 @@ export default function CPARegister() {
     setLoading(true);
     
     try {
-      const res = await cpaAPI.register({
+      const res = await cpaAPI.registerCPA({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
